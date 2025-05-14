@@ -1,0 +1,25 @@
+{
+  "name": "combomail",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^3.2.6",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "domainiac": "../domainiac/",
+    "express": "^5.1.0",
+    "express-ws": "^5.0.2",
+    "imapflow": "^1.0.186",
+    "json5": "^2.2.3",
+    "node-port-scanner": "^3.0.1",
+    "postal-mime": "^2.4.3"
+  },
+  "scripts": {
+    "tally-servers": "node src/tally.js",
+    "resolve-tally": "node src/resolvetally.js",
+    "tally+resolve": "yarn tally-servers && yarn resolve-tally",
+    "combomail": "./src/ui/server.sh"
+  }
+}
