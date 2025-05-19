@@ -5,7 +5,7 @@
 	import ws from 'express-ws';
 	import cors from 'cors';
 
-	import mailserver from '../modules/mailserver.js'
+	import mailserver from '../modules/@mailserver.js'
 	
 	const __dirname = import.meta.dirname;
 
@@ -29,7 +29,7 @@
 							ws.send(JSON.stringify(data));
 						},
 						finish(){
-							ws.send("{action:\"finish\"}");
+							ws.send("{\"action\":\"finish\"}");
 							clearInterval(interv);
 						}
 					}
@@ -40,6 +40,11 @@
 						data.action = "stats"
 						ws.send(JSON.stringify(data));
 					},5000)
+
+				} else if (message.action === "body"){
+					mailserver.body(message.user, message.id).then(body=>{
+						ws.send(JSON.stringify(body));
+					})
 				}
 			})
 		});

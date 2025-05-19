@@ -6,7 +6,7 @@
 
 	export default function imap(host, port) {
 		
-		return function(user, pass) {
+		function login(user, pass) {
 
 			const client = new ImapFlow({
 			    host,
@@ -43,8 +43,17 @@
 			function fetcher(id) {	
 				return new Promise(async resolve=>{
 					
-					let out = [];
+					let out = {
+						total: id.length,
+						userdata: {
+							email: user
+						},
+						results: [],
+						user
+					};
+
 					const lock = await client.getMailboxLock('INBOX');
+					
 				  	try {
 					    for await (const m of client.fetch(id, {
 					      envelope: true,
@@ -52,17 +61,20 @@
 					      bodyStructure: true,
 					      headers: true
 					    })) {
+
 							let headers = m.headers.toString("utf-8");// Node.js
 							const email = await PostalMime.parse(headers);
-					      	const {content} = await client.download(m.uid, ['TEXT']);
-							out.push({
-								uid: email.uid,
-								from: email.from,
-								to: email.to,
+					      	let from = email.from.match(/([^<]+)\s?<([^>]+)>/);
+							let r = {
+								ui: email.uid,
+								from: {
+									address: from ? from[2] : email.from,
+								},
 								subject: email.subject,
-								date: new Date(email.date).getTime(),
-								body: content
-							})
+								date: new Date(email.date).getTime()
+							};
+							if (from) r.from.name = from[1];
+							out.results.push(r);
 				    	}
 
 					} catch (ex) {
@@ -70,8 +82,16 @@
 
 					} finally {
 					    lock.release();
+					    client.close();
 					    resolve(out);
 					}
+				})
+			}
+
+			function body(id) {
+				return new Promise(async resolve=>{
+					const {content} = await client.download(m.uid, ['TEXT']);
+					resolve(content);
 				})
 			}
 
@@ -81,13 +101,19 @@
 
 					resolve({
 						search,
-						fetcher,
-						close: client.close
+						body
 					})
 
 				} catch (ex) {
 					resolve({ error: ex.message })
 				}
 			})
+		}
+
+		return {
+			login,
+			resume({ user, pass }) {
+				return login(user, pass);
+			}
 		}
 	}

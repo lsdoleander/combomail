@@ -1,0 +1,135 @@
+{
+  "mailsURI": ".",
+  "totalCount": 2,
+  "mail": [
+    {
+      "mailURI": "1746385513668356620",
+      "mailHeader": {
+        "messageType": "MAIL",
+        "from": "\"Paul Wardrip\" <pwardrip@gmail.com>",
+        "messageId": "<CAHTU1sJtPy-uv_bFvBcFJMXRCULjB8tA4-oC_=qQhC5_Fq7Mrg@mail.gmail.com>",
+        "cc": [],
+        "bcc": [],
+        "to": [
+          "pdubz3r0@cyberservices.com"
+        ],
+        "subject": "hello",
+        "date": 1746385502000,
+        "priority": "3",
+        "sensitivity": "Normal",
+        "dispositionNotificationTo": []
+      },
+      "mailBodyURI": "1746385513668356620/Body",
+      "attachments": {
+        "attachmentsURI": "1746385513668356620/Attachment",
+        "attachment": []
+      },
+      "security": {
+        "trustLabels": [],
+        "isBlueTick": false,
+        "brandLogo": false,
+        "senderAuthenticated": false,
+        "senderTrusted": false,
+        "contentTrusted": false
+      },
+      "attribute": {
+        "mailIdentifier": "1746385513668356620",
+        "size": 11928,
+        "hasDisplayParts": true,
+        "hasHtmlDisplayPart": true,
+        "hasDownloadableAttachments": false,
+        "hasCalendarRelatedPart": false,
+        "hasPgpPubkeyPart": false,
+        "resent": false,
+        "folderURI": "../Folder/1734127169541552714",
+        "folderIdentifier": "1734127169541552714",
+        "fullFolderName": "INBOX",
+        "folderType": "INBOX",
+        "internalDate": 1746385513000,
+        "malwareState": "UNTESTED",
+        "reported": false,
+        "tags": [],
+        "properties": {
+          "@PRIVATE-COMMUNICATION": "true"
+        },
+        "mailId": "1746385513668356620",
+        "folderId": "1734127169541552714",
+        "oneClickNewsletterUnsubscription": false,
+        "flagged": false,
+        "read": false,
+        "replied": false,
+        "delivered": true,
+        "newsletter": false,
+        "recent": true,
+        "forwarded": false,
+        "new": true
+      }
+    },
+    {
+      "mailURI": "1734127174374531032",
+      "mailHeader": {
+        "messageType": "MAIL",
+        "from": "\"mail.com service\" <service@corp.mail.com>",
+        "messageId": "<trinity-sys-NET-29d1a689-ab2a-479a-a386-31fb69ea88c9-1734127173887@systemmailsubmission-service-mailcom-live-64888bfbdd-zqt78>",
+        "cc": [],
+        "bcc": [],
+        "to": [
+          "\"Paul Wardrip\" <pdubz3r0@cyberservices.com>"
+        ],
+        "subject": "Thanks for signing up!",
+        "date": 1734127173000,
+        "priority": "3",
+        "sensitivity": "Normal",
+        "dispositionNotificationTo": []
+      },
+      "mailBodyURI": "1734127174374531032/Body",
+      "attachments": {
+        "attachmentsURI": "1734127174374531032/Attachment",
+        "attachment": []
+      },
+      "security": {
+        "trustLabels": [
+          "SYSTEM"
+        ],
+        "isBlueTick": false,
+        "brandLogo": false,
+        "senderAuthenticated": true,
+        "senderTrusted": true,
+        "contentTrusted": true
+      },
+      "attribute": {
+        "mailIdentifier": "1734127174374531032",
+        "size": 90774,
+        "hasDisplayParts": true,
+        "hasHtmlDisplayPart": true,
+        "hasDownloadableAttachments": false,
+        "hasCalendarRelatedPart": false,
+        "hasPgpPubkeyPart": false,
+        "resent": false,
+        "folderURI": "../Folder/1734127169541552714",
+        "folderIdentifier": "1734127169541552714",
+        "fullFolderName": "INBOX",
+        "folderType": "INBOX",
+        "internalDate": 1734127174000,
+        "malwareState": "UNTESTED",
+        "reported": false,
+        "tags": [],
+        "properties": {
+          "@PRIVATE-COMMUNICATION": "true",
+          "@TRUST-LABELS": "SYSTEM"
+        },
+        "mailId": "1734127174374531032",
+        "folderId": "1734127169541552714",
+        "oneClickNewsletterUnsubscription": false,
+        "flagged": false,
+        "read": true,
+        "replied": false,
+        "delivered": true,
+        "newsletter": false,
+        "recent": true,
+        "forwarded": false,
+        "new": true
+      }
+    }
+  ]
+}

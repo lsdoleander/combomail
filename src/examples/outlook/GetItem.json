@@ -1,0 +1,162 @@
+{
+    "Header": {
+        "ServerVersionInfo": {
+            "MajorVersion": 15,
+            "MinorVersion": 20,
+            "MajorBuildNumber": 8722,
+            "MinorBuildNumber": 27,
+            "Version": "V2018_01_08"
+        }
+    },
+    "Body": {
+        "__type": "GetItemResponse:#Exchange",
+        "ResponseMessages": {
+            "Items": [
+                {
+                    "__type": "ItemInfoResponseMessage:#Exchange",
+                    "Items": [
+                        {
+                            "__type": "Message:#Exchange",
+                            "Sender": {
+                                "Mailbox": {
+                                    "Name": "Venmo",
+                                    "EmailAddress": "venmo@venmo.com",
+                                    "RoutingType": "SMTP",
+                                    "MailboxType": "OneOff"
+                                }
+                            },
+                            "ToRecipients": [
+                                {
+                                    "Name": "digitalsleep@hotmail.com",
+                                    "EmailAddress": "digitalsleep@hotmail.com",
+                                    "RoutingType": "SMTP",
+                                    "MailboxType": "OneOff",
+                                    "Submitted": false
+                                }
+                            ],
+                            "ItemId": {
+                                "__type": "ItemId:#Exchange",
+                                "ChangeKey": "CQAAABYAAAAVgC8gAfEqS5nxHVc3XJSgAAfA8ws4",
+                                "Id": "AQMkADAwATZiZmYAZC04NWE3LTc4MDEtMDACLTAwCgBGAAADbHEXU+s9D0GqCPvbHB9+nAcAFYAvIAHxKkuZ8R1XN1yUoAAAAgEMAAAAFYAvIAHxKkuZ8R1XN1yUoAAHwK05MQAAAA=="
+                            },
+                            "ParentFolderId": {
+                                "__type": "FolderId:#Exchange",
+                                "Id": "AQMkADAwATZiZmYAZC04NWE3LTc4MDEtMDACLTAwCgAuAAADbHEXU+s9D0GqCPvbHB9+nAEAFYAvIAHxKkuZ8R1XN1yUoAAAAgEMAAAA",
+                                "ChangeKey": "AQAAAA=="
+                            },
+                            "ItemClass": "IPM.Note",
+                            "IsReadReceiptRequested": false,
+                            "Subject": "New remembered device added to your account",
+                            "Sensitivity": "Normal",
+                            "Importance": "Normal",
+                            "From": {
+                                "Mailbox": {
+                                    "Name": "Venmo",
+                                    "EmailAddress": "venmo@venmo.com",
+                                    "RoutingType": "SMTP",
+                                    "MailboxType": "OneOff"
+                                }
+                            },
+                            "DateTimeReceived": "2024-11-19T22:21:53-05:00",
+                            "InternetMessageId": "<0100019347972712-85f863fc-ef18-4c56-8b81-7efadf36eab7-000000@email.amazonses.com>",
+                            "Size": 69850,
+                            "IsRead": false,
+                            "ReplyTo": [
+                                {
+                                    "Name": "no-reply@venmo.com",
+                                    "EmailAddress": "no-reply@venmo.com",
+                                    "RoutingType": "SMTP",
+                                    "MailboxType": "OneOff",
+                                    "Submitted": false,
+                                    "RelevanceScore": 0
+                                }
+                            ],
+                            "IsSubmitted": false,
+                            "IsDraft": false,
+                            "ReceivedRepresenting": {
+                                "Mailbox": {
+                                    "Name": "Paul Wardrip",
+                                    "EmailAddress": "digitalsleep@hotmail.com",
+                                    "RoutingType": "SMTP",
+                                    "MailboxType": "Mailbox"
+                                }
+                            },
+                            "DateTimeSent": "2024-11-19T22:21:48-05:00",
+                            "DateTimeCreated": "2024-11-19T22:21:52-05:00",
+                            "ResponseObjects": [
+                                {
+                                    "__type": "ReplyToItem:#Exchange"
+                                },
+                                {
+                                    "__type": "ReplyAllToItem:#Exchange"
+                                },
+                                {
+                                    "__type": "ForwardItem:#Exchange"
+                                }
+                            ],
+                            "RecipientCounts": {
+                                "ToRecipientsCount": 1
+                            },
+                            "IsGroupEscalationMessage": false,
+                            "MessageSafety": {
+                                "MessageSafetyLevel": 2
+                            },
+                            "DisplayTo": "digitalsleep@hotmail.com",
+                            "HasAttachments": false,
+                            "ExtendedProperty": [
+                                {
+                                    "ExtendedFieldURI": {
+                                        "__type": "ExtendedPropertyUri:#Exchange",
+                                        "PropertyTag": "0xe1d",
+                                        "PropertyType": "String"
+                                    },
+                                    "Value": "New remembered device added to your account"
+                                },
+                                {
+                                    "ExtendedFieldURI": {
+                                        "__type": "ExtendedPropertyUri:#Exchange",
+                                        "PropertyTag": "0x1016",
+                                        "PropertyType": "Integer"
+                                    },
+                                    "Value": "3"
+                                },
+                                {
+                                    "ExtendedFieldURI": {
+                                        "__type": "ExtendedPropertyUri:#Exchange",
+                                        "PropertyTag": "0x6815",
+                                        "PropertyType": "Integer"
+                                    },
+                                    "Value": "1783945"
+                                }
+                            ],
+                            "TailoredXpCalendarEventIds": [],
+                            "LastModifiedTime": "2024-11-20T01:02:42-05:00",
+                            "ConversationId": {
+                                "__type": "ItemId:#Exchange",
+                                "Id": "AQQkADAwATZiZmYAZC04NWE3LTc4MDEtMDACLTAwCgAQAHxEgVvrXaNLoO0oTZFv3tk="
+                            },
+                            "Flag": {
+                                "FlagStatus": "NotFlagged"
+                            },
+                            "InstanceKey": "AQEAAAAAAAEMAQAAB8CtOTEAAAAA",
+                            "NormalizedBody": {
+                                "BodyType": "HTML",
+                                "Value": "<style>\r\n<!--\r\n@media only screen and (max-width:596px){\r\n.rps_9fed table.x_body table.x_container .x_hide-for-large\r\n\t{display:table!important;\r\n\twidth:100%!important}\r\n\r\n\t}\r\n-->\r\n</style><div class=\"rps_9fed\"><div style=\"margin:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; min-width:100%; padding:0; text-align:center; width:100%!important\"><span class=\"x_preheader\" style=\"color:#f3f3f3; display:none!important; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden; visibility:hidden\">New remembered device added to your account</span><table role=\"presentation\" class=\"x_body\" style=\"margin:0; background:#fff; background-color:#fff; border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; height:100%; line-height:1.375; margin:0; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><td class=\"x_center\" align=\"center\" valign=\"top\" style=\"margin:0; border-collapse:collapse!important; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; vertical-align:top; word-wrap:break-word\"><table role=\"presentation\" class=\"x_wrapper x_venmo-logo-container\" align=\"center\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><td class=\"x_wrapper-inner\" style=\"margin:0; border-collapse:collapse!important; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; padding-top:16px; text-align:left; vertical-align:top; word-wrap:break-word\"><table role=\"presentation\" align=\"center\" class=\"x_container\" style=\"margin:0 auto; background:#fff; border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:0; text-align:inherit; vertical-align:top; width:580px\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><td style=\"margin:0; border-collapse:collapse!important; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; vertical-align:top; word-wrap:break-word\"><table role=\"presentation\" class=\"x_row\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; display:table; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th class=\"x_small-12 x_large-12 x_columns x_first x_last\" style=\"margin:0 auto; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:0; padding-bottom:0; padding-left:16px; padding-right:16px; text-align:left; width:564px\"><table role=\"presentation\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left\"><img data-imagetype=\"External\" src=\"https://d3f7mhbv11m2z3.cloudfront.net/email-assets/shared/venmo-logo-v2.png\" alt=\"Venmo logo\" width=\"106\" height=\"108\" class=\"x_venmo-logo\" style=\"clear:both; display:block; height:auto; max-width:100%; outline:0; text-decoration:none; width:53px\"></th><th class=\"x_expander\" style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0!important; text-align:left; visibility:hidden; width:0\"></th></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table><center data-parsed=\"\" style=\"min-width:580px; width:100%\"><table role=\"presentation\" align=\"center\" class=\"x_wrapper x_float-center\" style=\"margin:0 auto; border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; float:none; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><td class=\"x_wrapper-inner\" style=\"margin:0; border-collapse:collapse!important; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; padding-top:16px; text-align:left; vertical-align:top; word-wrap:break-word\"><table role=\"presentation\" align=\"center\" class=\"x_container\" style=\"margin:0 auto; background:#fff; border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:0; text-align:inherit; vertical-align:top; width:580px\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><td style=\"margin:0; border-collapse:collapse!important; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; vertical-align:top; word-wrap:break-word\"><table role=\"presentation\" class=\"x_row\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; display:table; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th class=\"x_small-12 x_large-12 x_columns x_first x_last\" style=\"margin:0 auto; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:0; padding-bottom:0; padding-left:16px; padding-right:16px; text-align:left; width:564px\"><table role=\"presentation\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left\"><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">Hi Paul,</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">An addition was recently made to your remembered devices on Venmo.</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">Samsung SM-N975U1 via Venmo App on (Tuesday, November 19 at 07:21PM PST)</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">If this was you, no further action is needed.</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">If this wasn’t you or you believe an unauthorized person has accessed your account, please immediately reset your password. Then, <a href=\"https://help.venmo.com/hc/en-us/requests/new?ticket_form_id=624807\" target=\"_blank\" rel=\"noopener noreferrer\" data-auth=\"NotApplicable\" style=\"margin:0; color:#0074de; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; text-decoration:none\">contact Support here</a> so we can confirm your account is secure.</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">To reset your password tap “Forgot your password?” on the sign-in screen in the mobile app or visit <a href=\"https://www.venmo.com/\" target=\"_blank\" rel=\"noopener noreferrer\" data-auth=\"NotApplicable\" style=\"margin:0; color:#0074de; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; text-decoration:none\">www.venmo.com</a> from a computer.</p><p style=\"margin:0; margin-bottom:15px; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">Thanks,<br>Team Venmo</p></th><th class=\"x_expander\" style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0!important; text-align:left; visibility:hidden; width:0\"></th></tr></tbody></table></th></tr></tbody></table><table role=\"presentation\" class=\"x_row\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; display:table; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th class=\"x_disclosures x_small-12 x_large-12 x_columns x_first x_last\" style=\"margin:0 auto; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0 auto; padding:16px; padding-bottom:0; padding-left:16px; padding-right:16px; text-align:center; width:564px\"><table role=\"presentation\" style=\"border-collapse:collapse; border-spacing:0; box-sizing:border-box; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; padding:0; text-align:center; vertical-align:top; width:100%\"><tbody><tr style=\"padding:0; text-align:left; vertical-align:top\"><th style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left\"><p style=\"margin:0; margin-bottom:15px; color:#6b6e76; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:80%; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">Venmo is a service of PayPal, Inc., a licensed provider of money transfer services. All money transmission is provided by PayPal, Inc. pursuant to PayPal, Inc.’s <a href=\"https://venmo.com/legal/us-licenses/\" target=\"_blank\" rel=\"noopener noreferrer\" data-auth=\"NotApplicable\" style=\"margin:0; color:#0074de; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:400; line-height:1.375; margin:0; padding:0; text-align:left; text-decoration:underline\">licenses</a>.</p><p style=\"margin:0; margin-bottom:15px; color:#6b6e76; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:80%; font-weight:400; line-height:1.375; margin:0; margin-bottom:15px; padding:0; text-align:left\">PayPal is located at 2211 North First Street, San Jose, CA 95131.</p></th><th class=\"x_expander\" style=\"margin:0; color:#2f3033; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:16px; font-weight:400; line-height:1.375; margin:0; padding:0!important; text-align:left; visibility:hidden; width:0\"></th></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></center></td></tr></tbody></table><div style=\"display:none; white-space:nowrap; font:15px courier; line-height:0\">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div></div></div>",
+                                "IsTruncated": false
+                            },
+                            "EntityExtractionResult": {},
+                            "Preview": "New remembered device added to your account\r\n\r\nHi Paul,\r\n\r\nAn addition was recently made to your remembered devices on Venmo.\r\n\r\nSamsung SM-N975U1 via Venmo App on (Tuesday, November 19 at 07:21PM PST)\r\n\r\nIf this was you, no further action is needed.\r\n\r\nI",
+                            "BlockStatus": false,
+                            "HasBlockedImages": false,
+                            "ReceivedOrRenewTime": "2024-11-19T22:21:53-05:00",
+                            "Apps": [],
+                            "InferenceClassification": "Focused"
+                        }
+                    ],
+                    "ResponseCode": "NoError",
+                    "ResponseClass": "Success"
+                }
+            ]
+        }
+    }
+}
