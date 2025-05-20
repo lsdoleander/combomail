@@ -20,20 +20,11 @@ export function login (user, pass) {
 			
 			let access_token = jsondata["access_token"]
 			let refresh_token = jsondata["refresh_token"]
-
 			if (!refresh_token || !access_token) resolve({ error: "Bad login"})
-			
-
-
+	
 			data = POST.B;
 			data["refresh_token"] = refresh_token;
 			response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-			//jsondata = await response.json();
-			//access_token = jsondata["access_token"]
-
-	/*		if (not token1):
-				return True, -1, None, "No Token"*/
-
 
 			data = POST.C;
 			data["refresh_token"] = refresh_token
@@ -105,7 +96,7 @@ function factory(user) {
 		},
 
 		body(id) {
-			return new Promise(resolve=>{
+			return new Promise(async resolve=>{
 				try {
 					let url = `https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`
 					let headers = HEADERS.D
