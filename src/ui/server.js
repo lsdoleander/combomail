@@ -5,7 +5,7 @@
 	import ws from 'express-ws';
 	import cors from 'cors';
 
-	import mailserver from '../modules/@mailserver.js'
+	import mailserver from '../modules/@mailserver.js';
 	
 	const __dirname = import.meta.dirname;
 

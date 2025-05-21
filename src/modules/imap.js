@@ -1,12 +1,12 @@
 	
-	import { ImapFlow } from 'imapflow'
-	import PostalMime from 'postal-mime';
-	import util from 'node:util';
+import { ImapFlow } from 'imapflow'
+import PostalMime from 'postal-mime';
+import util from 'node:util';
 
 
-	export default function imap(host, port) {
-		
-		function login(user, pass) {
+export default function (sessions) {
+	return function imap(host, port) {
+		return function login(user, pass) {
 
 			const client = new ImapFlow({
 			    host,
@@ -51,6 +51,8 @@
 						results: [],
 						user
 					};
+
+					let list = id.length > 25 ? id.splice(id.length - 25) : id;
 
 					const lock = await client.getMailboxLock('INBOX');
 					
@@ -98,8 +100,9 @@
 			return new Promise(async resolve=>{
 				try {
 					await client.connect();
-
+					sessions.save(user, pass, "imap");
 					resolve({
+						success: true,
 						search,
 						body
 					})
@@ -109,11 +112,5 @@
 				}
 			})
 		}
-
-		return {
-			login,
-			resume({ user, pass }) {
-				return login(user, pass);
-			}
-		}
 	}
+}

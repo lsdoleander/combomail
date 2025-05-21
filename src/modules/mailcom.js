@@ -1,113 +1,116 @@
 
 import fs from 'fs'
 
-let sessions = {};
-
-export function login (user, pass) {
-	if (sessions[user]) {
-		return factory(user);
-	} else {
-
-		return new Promise(async resolve=>{
-			let url = "https://oauth2.mail.com/token"
-			let headers = HEADERS.A;
-			let data = POST.A;
-			data["username"] = user;
-			data["password"] = pass;
-
-			let response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-			let jsondata = await response.json();
-			
-			let access_token = jsondata["access_token"]
-			let refresh_token = jsondata["refresh_token"]
-			if (!refresh_token || !access_token) resolve({ error: "Bad login"})
-	
-			data = POST.B;
-			data["refresh_token"] = refresh_token;
-			response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-
-			data = POST.C;
-			data["refresh_token"] = refresh_token
-			response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-			jsondata = await response.json();
-			access_token = jsondata["access_token"]
-
-			if (!access_token) {
-				resolve({ error: "Token Permissions Grant Failed" })
-			} else {
-				sessions[user] = access_token;
-				resolve (factory(user));
-			}
-		})
-	}
-}
-
-function factory(user) {
+export default function setup(sessions) {
 	return {
-		search(searchtext) {
+		DOMAINS,
+		login(user, pass){
+			if (sessions[user]) {
+				return factory(user);
+			} else {
+				return new Promise(async resolve=>{
+					let url = "https://oauth2.mail.com/token"
+					let headers = HEADERS.A;
+					let data = POST.A;
+					data["username"] = user;
+					data["password"] = pass;
 
-			return new Promise(async resolve=>{
-				let url = "https://mobsi.mail.com/rest/MobSI/UserData"
-				let headers = HEADERS.D
-				headers["Authorization"] = `Bearer ${sessions[user]}`
-				let response = await fetch (url, { headers });
-				let jsondata = await response.json();
-				let userdata = {
-					name: `${jsondata["contact"]["firstName"]} ${jsondata["contact"]["lastName"]}`,
-					country: jsondata["address"]["countryIso"],
-					birthdate: dateformat(new Date(jsondata["details"]["birthDate"]))
-				}
+					let response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
+					let jsondata = await response.json();
+					
+					let access_token = jsondata["access_token"]
+					let refresh_token = jsondata["refresh_token"]
+					if (!refresh_token || !access_token) resolve({ success: false })
+			
+					data = POST.B;
+					data["refresh_token"] = refresh_token;
+					response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
 
-				url = "https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false"
-				let data = POST.E
-				headers["Host"] = "hsp2.mail.com"
-				headers["Content-Type"] = "application/json"
-				data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
-				response = await fetch(url, { method: "post", body: JSON.stringify(data), headers });
+					data = POST.C;
+					data["refresh_token"] = refresh_token
+					response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
+					jsondata = await response.json();
+					access_token = jsondata["access_token"]
 
-				jsondata = await response.json()
-
-				let searchresults = {
-					total: jsondata["totalCount"],
-					userdata,
-					results: [],
-					user
-				}
-
-				for (let mail of jsondata["mail"]) {
-					let from = mail["mailHeader"]["from"];
-					let parts = from.match(/\"(.*)\" \<(.*)\>/);
-					let m = {
-						id: mail["mailURI"],
-						subject: mail["mailHeader"]["subject"],
-						date: new Date().setTime(mail["mailHeader"]["date"]),
-						attachments: mail["attribute"]["hasDownloadableAttachments"],
-						read: mail["attribute"]["read"],
-						from: {
-							address: parts ? parts[2] : from
-						}
+					if (!access_token) {
+						resolve({ error: "Token Permissions Grant Failed" })
+					} else {
+						sessions.save(user, pass, access_token);
+						resolve (factory(user));
 					}
-					if (parts) m.from.name = parts[1];
-					searchresults.results.push(m);
-				}
-	
-				resolve(searchresults);
-			});
-		},
+				})
+			}
+		}
+	}
 
-		body(id) {
-			return new Promise(async resolve=>{
-				try {
-					let url = `https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`
+	function factory(user) {
+		return {
+			success: true,
+			search(searchtext) {
+
+				return new Promise(async resolve=>{
+					let url = "https://mobsi.mail.com/rest/MobSI/UserData"
 					let headers = HEADERS.D
 					headers["Authorization"] = `Bearer ${sessions[user]}`
 					let response = await fetch (url, { headers });
-					let html = await response.text();
-					resolve(html);
-				} catch(ex) {
-					resolve({ error: ex })
-				}
-			})
+					let jsondata = await response.json();
+					let userdata = {
+						name: `${jsondata["contact"]["firstName"]} ${jsondata["contact"]["lastName"]}`,
+						country: jsondata["address"]["countryIso"],
+						birthdate: dateformat(new Date(jsondata["details"]["birthDate"]))
+					}
+
+					url = "https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false"
+					let data = POST.E
+					headers["Host"] = "hsp2.mail.com"
+					headers["Content-Type"] = "application/json"
+					data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
+					response = await fetch(url, { method: "post", body: JSON.stringify(data), headers });
+
+					jsondata = await response.json()
+
+					let searchresults = {
+						total: jsondata["totalCount"],
+						userdata,
+						results: [],
+						user
+					}
+
+					for (let mail of jsondata["mail"]) {
+						let from = mail["mailHeader"]["from"];
+						let parts = from.match(/\"(.*)\" \<(.*)\>/);
+						let m = {
+							id: mail["mailURI"],
+							subject: mail["mailHeader"]["subject"],
+							date: new Date().setTime(mail["mailHeader"]["date"]),
+							attachments: mail["attribute"]["hasDownloadableAttachments"],
+							read: mail["attribute"]["read"],
+							from: {
+								address: parts ? parts[2] : from
+							}
+						}
+						if (parts) m.from.name = parts[1];
+						searchresults.results.push(m);
+					}
+		
+					resolve(searchresults);
+				});
+			},
+
+			body(id) {
+				return new Promise(async resolve=>{
+					try {
+						let url = `https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`
+						let headers = HEADERS.D
+						headers["Authorization"] = `Bearer ${sessions[user]}`
+						let response = await fetch (url, { headers });
+						let html = await response.text();
+						resolve(html);
+					} catch(ex) {
+						resolve({ error: ex })
+					}
+				})
+			}
 		}
 	}
 }
@@ -202,9 +205,4 @@ const POST = {
 	    "preferAbsoluteURIs": false
 	}
 
-}
-
-export default {
-	DOMAINS,
-	login
 }

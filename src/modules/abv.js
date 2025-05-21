@@ -1,14 +1,17 @@
 		
-	import { v4 } from 'uuid';
-	import fs from 'fs';
+import { v4 } from 'uuid';
 
-	export function login(user, pass){
+export default function (sessions) {
+	return function login(user, pass){
 		if (sessions[user]) {
 			return factory(user);
 		} else {
-			return new Promise(resolve=>{
+			return new Promise(async resolve=>{
 				let url = "https://passport.abv.bg/sc/oauth/token";
-				let headers = HEADERS.A;
+				let headers = HEADERS;
+				headers["Host"] = "passport.abv.bg";
+				headers["Connection"] = "close";
+
 				let data = POST.A;
 				data["device_id"] = v4();
 				data["username"] = user;
@@ -22,7 +25,7 @@
 					resolve ({ success: false })
 				}
 
-				sessions[user] = token;
+				sessions.save(user, pass, token);
 				resolve(factory(user));
 			})
 		}
@@ -30,71 +33,87 @@
 
 	let hits = 0;
 
-	function factory {
+	function factory(user) {
 		return {
+			success: true,
 			search(searchtext) {
-				return new Promise(resolve=>{
-/*					let url = "https://apis.abv.bg/mobile/sc/messages/get/list";
-				headers = headerlist("2", "configs/abvbg")
-				headers["Authorization"] = "Bearer {token}"
-				response = session.get(urlpost, headers=headers,proxies=proxies)
-				debug(hits + "a", response.text)*/
+				return new Promise(async resolve=>{
+					let url = "https://apis.abv.bg/mobile/sc/messages/get/list/search";
+					let token = sessions[user];
+					let headers = HEADERS.B;
+					headers["Authorization"] = `Bearer ${token}`
+					let data = POST.B;
+					data["query"] = searchtext
+					hits++;
 
-				let url = "https://apis.abv.bg/mobile/sc/messages/get/list/search";
-				let headers = HEADERS.B;
-				let data = POST.B;
-				data["query"] = searchtext
-				hits++;
+					let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
+					let jsondata = await response.json();
+					fs.writeFileSync("abv.debug." + hits + ".log", JSON.stringify(jsondata, null, 2));
+					
+					let output = {
+						results: [],
+						total: 0,
+						user
+					}
 
-				let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
-				let jsondata = await response.json();
-				fs.writeFileSync("abv.debug." + hits + ".log", JSON.stringify(jsondata, null, 2));
-				
-				let output = {
-					results: [],
-					total: 0,
-					user
-				}
+					url = "https://apis.abv.bg/mobile/sc/bootstrap";
+						data = "autoreply=1&contacts=1&fid=10&folders=1&foreign_profiles=1&messages=1&pushnotifications=0&quotas=1&settings=1" 
+						headers = HEADERS;
+						headers["Connection"] = "close"
+					response = await fetch(url, { method: "post", body:data, headers });
+					jsondata = await response.json();
+					fs.writeFileSync("abv.user." + hits + ".log", JSON.stringify(jsondata, null, 2));
+					resolve(output);
+				})
+			},
 
-				resolve(output);
+			body(id) {
+				return new Promise(async resolve=>{
+					let url="https://apis.abv.bg/mobile/sc/message/get";
+					let data = FORMS.D;
+					data["msgid"] = id;
+					let headers = HEADERS.D;
+					headers["Authorization"] = `Bearer ${token}`
+					let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
+					let html = await response.text();
+					fs.writeFileSync("abv.body." + hits + ".log", html);
+					resolve(html);
+				})
 			}
 		}
 	}
+}
 
-	const HEADERS = {
-		A: {
-			"Accept-Encoding": "gzip, deflate, br",
-			"Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-			"Connection": "close",
-			"User-Agent": "Dalvik/2.1.0 (Linux; U; Android 13; SM-G977N Build/PQ3A.190705.003)",
-			"Host": "passport.abv.bg"
-		},
+const HEADERS = {
+	"User-Agent": "Mail/2.1.8 (bg.abv.Mail; build:2; iOS 16.0.0) Alamofire/2.1.8",
+	"Pragma": "no-cache",
+	"Accept": "*/*",
+	"Host": "apis.abv.bg",
+	"Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+	"Connection": "keep-alive",
+	"Accept-Language": "en-CA;q=1.0",
+	"Accept-Encoding": "gzip;q=1.0, compress;q=0.5"
+}
 
-		B: {
-			"User-Agent": "Mail/2.1.8 (bg.abv.Mail; build:2; iOS 16.0.0) Alamofire/2.1.8",
-			"Pragma": "no-cache",
-			"Accept": "*/*",
-			"Host": "apis.abv.bg",
-			"Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-			"Connection": "keep-alive",
-			"Content-Length": "32",
-			"Accept-Language": "en-US;q=1.0, ar-FR;q=0.9",
-			"Accept-Encoding": "gzip;q=1.0, compress;q=0.5"
-		}
+const POST = {
+	A:{
+		"app_id": 59831019,
+		"client_id": "abv-mobile-apps",
+		"grant_type": "nativeclient_password",
+		"captcha_challenge": "",
+		"os": 1
+	},
+
+	B: {
+		"filter": "",
+		"limit": 25,
+		"offset": "",
+	},
+
+	D: {
+		bodyhtml: 1,
+		fid: 10,
+		read: 1,
+		typeid: 60
 	}
-
-	const POST = {
-		A:{
-			"app_id": 59831019,
-			"client_id": "abv-mobile-apps",
-			"grant_type": "nativeclient_password",
-			"captcha_challenge": "",
-			"os": 1
-		},
-
-		B: {
-			"filter": "",
-			"limit": 200,
-			"offset": "",
-		}
-	}
+}
