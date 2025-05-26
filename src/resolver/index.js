@@ -7,7 +7,7 @@
 	import auto from './autoconf.js'
 	import domainiac from 'domainiac'
 
-	let VERBOSE = true;
+	let VERBOSE = false;
 
 	async function record(type, domain){
 		return new Promise(async resolve=>{
@@ -153,6 +153,7 @@
 			let server = await autoconf(domain);
 			if (server) return resolve(server);
 			
+			if (!email) email = `info@${domain}`;
 			server = await autodisco(domain, email);
 			if (server) return resolve(server);
 

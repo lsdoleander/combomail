@@ -10,15 +10,20 @@
 		return str
 	}
 
-	let domains = {};
-
+	let counter = {};
+	let domains = [];
 	const text = fs.readFileSync(path.resolve("servers.txt"), 'utf8');
 	const lines = text.trim().split("\n");
 	for (const line of lines) {
-		if (!domains[line]) domains[line] = 1
-		else domains[line]++
+		if (!counter[line]) counter[line] = 1
+		else counter[line]++
 	}
 
-	for (const key in domains) {
-		fs.appendFileSync(path.resolve("tally.log"), `${zf(domains[key], 4)} ${key}\n`)
+	fs.mkdirSync("tally", { recursive: true });
+	for (const key in counter) {
+		domains.push(`${zf(domains[key], 4)} ${key}`);
 	}
+
+	domains.sort();
+	fs.appendFileSync(path.resolve("tally/tally.log"), domains.join("\n"));
+	fs.rmSync(path.resolve("servers.txt"))

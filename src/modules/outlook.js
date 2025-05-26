@@ -25,63 +25,80 @@ function writecookies(cookies) {
 export default function (sessions) {
 	return {
 		DOMAINS,
-	 	login(user, pass) {
-			if (sessions[user]) {
-				return factory(user);
-			} else {
-				return new Promise(async resolve=>{
-					try {
-						// REQUEST 1
-						let url = `https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`;
-						const coid = v4();
-						let headers = HEADERS.A;
-						headers["X-CorrelationId"] = coid;
-						let response = await fetch(url, { headers });
-						let text = await response.text();
-						if (text !== "MSAccount") {
-							return resolve ({ error: "Login Failed: !== MSAccount" })
-						}
+		login
+	}
 
-						// REQUEST 2: Get the login URL and required generated values
-						let data = POST.B;
-						data["login_hint"] = user
-						data["uaid"] = coid.replace("-", "")
-						url = "https://login.live.com/oauth20_authorize.srf?" + new URLSearchParams(data).toString();
-						headers = HEADERS.B;
-						headers["correlation-id"] = coid
-						headers["client-request-id"] = coid
-						response = await fetch(url, { headers })
-						let html = await response.text();
+	function login(user, pass) {
+		function authenticate(){
+			return new Promise(async resolve=>{
+				if (sessions[user]) {
+					let test = await check();
+					if (test) {
+						return resolve(factory(user));
+					} else {
+						sessions.delete({ user, pass });
+					}
+				}
 
-						// REQUEST 3
-						let refer = response.url.match(/(\S*haschrome=1)/)[1];
-						let ppft = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/)[1];
-						data = POST.C;
-						data["login"] = user
-						data["loginfmt"] = user
-						data["passwd"] = pass
-						data["PPFT"] = ppft
-						url = html.match(/urlPost:'([^']*)'/)[1];
-						headers = HEADERS.C;
-						headers["Referer"] = refer
-						let cookie = parsecookies(response);
-						headers["Cookie"] = writecookies({
-							MSPRequ: cookie["MSPRequ"],
-							uaid: cookie["uaid"],
-							RefreshTokenSso: cookie["RefreshTokenSso"],
-							MSPOK: cookie["MSPOK"],
-							OParams: cookie["OParams"],
-							MicrosoftApplicationsTelemetryDeviceId: coid
-						});
+				try {
+					// REQUEST 1
+					let url = `https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`;
+					const coid = v4();
+					let headers = HEADERS.A;
+					headers["X-CorrelationId"] = coid;
+					let response = await fetch(url, { headers });
+					let text = await response.text();
+					if (text !== "MSAccount") {
+						return resolve ({ error: "Login Failed: !== MSAccount" })
+					}
 
-						response = await fetch(url, { method: "post", body: new URLSearchParams(data), redirect: "manual", headers })
-						cookie = parsecookies(response);
-						const mspcid = cookie["MSPCID"];
-						const nap = cookie["NAP"];
-						const anon = cookie["ANON"];
-						const wlssc = cookie["WLSSC"];
+					// REQUEST 2: Get the login URL and required generated values
+					let data = POST.B;
+					data["login_hint"] = user
+					data["uaid"] = coid.replace("-", "")
+					url = "https://login.live.com/oauth20_authorize.srf?" + new URLSearchParams(data).toString();
+					headers = HEADERS.B;
+					headers["correlation-id"] = coid
+					headers["client-request-id"] = coid
+					response = await fetch(url, { headers })
+					let html = await response.text();
 
-						if (mspcid) {
+					// REQUEST 3
+					let ma = html.match(/urlPost:'([^']*)'/);
+					let mb = response.url.match(/(\S*haschrome=1)/);
+					let mc = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/);
+
+					if (!ma || !mb || !mc) {
+						return resolve({ error: "Parser error [urlPost | referer | PPFT]."})
+					}
+
+					let ppft = mc[1], refer = mb[1]; url = ma[1]; 
+					data = POST.C;
+					data["login"] = user
+					data["loginfmt"] = user
+					data["passwd"] = pass
+					data["PPFT"] = ppft
+					headers = HEADERS.C;
+					headers["Referer"] = refer
+					let cookie = parsecookies(response);
+					headers["Cookie"] = writecookies({
+						MSPRequ: cookie["MSPRequ"],
+						uaid: cookie["uaid"],
+						RefreshTokenSso: cookie["RefreshTokenSso"],
+						MSPOK: cookie["MSPOK"],
+						OParams: cookie["OParams"],
+						MicrosoftApplicationsTelemetryDeviceId: coid
+					});
+
+					response = await fetch(url, { method: "post", body: new URLSearchParams(data), redirect: "manual", headers })
+					cookie = parsecookies(response);
+
+					const mspcid = cookie["MSPCID"];
+					const nap = cookie["NAP"];
+					const anon = cookie["ANON"];
+					const wlssc = cookie["WLSSC"];
+
+					if (mspcid) {
 							let code = response.headers.get("Location").match(/code=([^&]*)&/)[1];
 							let cid = mspcid.toUpperCase()
 							let n = 0;
@@ -94,75 +111,84 @@ export default function (sessions) {
 							response = await fetch(url, { method: "post", body: new URLSearchParams(data) })
 							let jsondata = await response.json();
 							const token = jsondata["access_token"];
-							if (!token) {
-								return resolve({ error: "No Token" });
-							} else {
-								sessions.save(user, pass, { code, cid, token, nap, anon, wlssc, n });
-								return resolve(factory(user));
-							}
 
+							if (!token) { return resolve({ error: "No Token" }); } else {
+							
+									// REQUEST 6
+									url = `https://outlook.live.com/owa/${user}/startupdata.ashx?` + new URLSearchParams({
+										app: "Mini", n: 0
+									});
+
+									headers = HEADERS.F;
+									headers["Authorization"] = `Bearer ${token}`;
+									headers["x-owa-correlationid"] = coid;
+									headers["Cookie"] = writecookies({
+										ClientId: "B21A0E20632E40438432A219219CAF0A",
+										MSPAuth: "Disabled",
+										MSPProf: "Disabled",
+										NAP: nap,
+										ANON: anon,
+										WLSSC: wlssc
+									})
+									response = await fetch(url, { method: "post", headers })
+									cookie = parsecookies(response);
+									const uc = cookie["UC"];
+
+									sessions.create({ user, pass, session:{ n:1, coid, cid, nap, anon, wlssc, token, uc }});
+									resolve(factory(user));
+								}
+
+
+
+					} else {
+						html = await response.text();
+
+						if (html.includes("error")){
+							resolve({ error: "Error Reported" })
+
+						} else if (html.includes("account or password is incorrect")) {
+							return resolve({ error: "PASSWORD CHANGE" })
+
+						} else if (html.includes("https://login.live.com/finisherror.srf") ||
+							html.includes("https://account.live.com/Abuse") ||
+							html.includes("too many times with") ||
+							html.includes("/cancel?")){
+							
+							return resolve({ error: "BLOCKED" })
+
+						} else if (html.includes("https://account.live.com/identity/confirm")){
+							return resolve({ error: "CAN BYPASS" })
+
+						} else if (html.includes("https://account.live.com/recover")) {
+							return resolve({ error: "2FA" })
 						} else {
-							html = await response.text();
-
-							if (html.includes("error")){
-								resolve({ error: "Error Reported" })
-
-							} else if (html.includes("account or password is incorrect")) {
-								return resolve({ error: "PASSWORD CHANGE" })
-
-							} else if (html.includes("https://login.live.com/finisherror.srf") ||
-								html.includes("https://account.live.com/Abuse") ||
-								html.includes("too many times with") ||
-								html.includes("/cancel?")){
-								
-								return resolve({ error: "BLOCKED" })
-
-							} else if (html.includes("https://account.live.com/identity/confirm")){
-								return resolve({ error: "CAN BYPASS" })
-
-							} else if (html.includes("https://account.live.com/recover")) {
-								return resolve({ error: "2FA" })
-							} else {
-								resolve({ error: "Unknown" })
-							}
+							resolve({ error: "Unknown" })
 						}
-					} catch (ex) {
-						resolve({ error: ex});
 					}
-				})
-			}
+				} catch (ex) {
+					resolve({ error: ex});
+				}
+			})
 		}
-	}
-
-	function factory(user) {
-
-		function tryimage(searchresults, resolve) {
-			try {
-
-				// REQUEST 8
-				let url = "https://substrate.office.com/imageB2/v1.0/me/image/$value"
-				let headers = HEADERS.H;
-				headers["Authorization"] = `Bearer ${sessions[user].token}`;
-				headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`;
-				headers["X-ClientRequestId"] = sessions[user].coid;
-				
-				let imgtype;
-				fetch(url, { headers }).then(r => {
-					imgtype = r.headers.get("content-type");
-					return r.arrayBuffer();
-				}).then(blob => {
-					searchresults.userdata.image = `data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`
-				});
-			} catch(ex) {
-				console.log(ex);
-
-			} finally {
-				resolve(searchresults);
-			}
-		}
-		
-		function search(searchtext) {
+			
+		function check() {
 			return new Promise(async resolve=>{
+				let url = "https://substrate.office.com/profileb2/v2.0/me/V1Profile"
+				let headers = HEADERS.E;
+				headers["Authorization"] = `Bearer ${sessions[user].token}`
+				headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
+				headers["X-ClientRequestId"] = sessions[user].coid
+				let response = await fetch(url, { method: "get", headers })
+				resolve(response.ok);
+			});
+		}
+
+		function userdata() {
+			return new Promise(async resolve=>{
+				if (sessions.userdata[user]) {
+					return resolve(sessions.userdata[user]);
+				}
+
 				try {
 					// REQUEST 5
 					let url = "https://substrate.office.com/profileb2/v2.0/me/V1Profile"
@@ -173,45 +199,36 @@ export default function (sessions) {
 					let response = await fetch(url, { headers })
 					let jsondata = await response.json()
 
-					let userdata = {
+					let data = {
 						name: jsondata["names"][0]["displayName"],
 						country: jsondata["accounts"][0]["location"], 
 						birthdate: `${jsondata["accounts"][0]["birthMonth"]}/${jsondata["accounts"][0]["birthDay"]}/${jsondata["accounts"][0]["birthYear"]}`,
 						phone: jsondata["phones"][0]["phoneNumber"],
-						email: user
+						email: user,
+						avatar: await avatar()
 					};
 
-
-					// REQUEST 6
-					url = `https://outlook.live.com/owa/${user}/startupdata.ashx?` + new URLSearchParams({
-						app: "Mini",
-						n: sessions[user]["n"]
-					})
-					sessions[user]["n"]++;						
-					headers = HEADERS.F;
-					headers["Authorization"] = `Bearer ${sessions[user].token}`
-					headers["x-owa-correlationid"] = sessions[user].coid
-					headers["Cookie"] = writecookies({
-						ClientId: "B21A0E20632E40438432A219219CAF0A",
-						MSPAuth: "Disabled",
-						MSPProf: "Disabled",
-						NAP: sessions[user].nap,
-						ANON: sessions[user].anon,
-						WLSSC: sessions[user].wlssc
-					})
-					response = await fetch(url, { method: "post", headers })
-					let cookie = parsecookies(response);
-					sessions[user].uc = cookie["UC"];
-
-
+					sessions.update({ user, data });
+					resolve(data);
+				} catch (ex) {
+					resolve({ error: ex});
+				}
+			})
+		}
+			
+		function search(searchtext) {
+			return new Promise(async resolve=>{
+				try {
 
 					// REQUEST 7
-					url = "https://outlook.live.com/search/api/v2/query?" + new URLSearchParams({
+					let url = "https://outlook.live.com/search/api/v2/query?" + new URLSearchParams({
 						cv: MSCV,
 						n: sessions[user]["n"]
 					})
 					sessions[user]["n"]++;
-					headers = HEADERS.E;
+					sessions.update({ user, session:sessions[user] });
+
+					let headers = HEADERS.E;
 					headers["Authorization"] = `Bearer ${sessions[user].token}`
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 					headers["X-ClientRequestId"] = sessions[user].coid
@@ -220,12 +237,11 @@ export default function (sessions) {
 					let data = POST.G;
 					data["EntityRequests"][0]["Query"]["QueryString"] = searchtext
 					data["AnswerEntityRequests"][0]["Query"]["QueryString"] = searchtext
-					response = await fetch(url, { method: "post", body: JSON.stringify(data), headers })
-					jsondata = await response.json()
+					let response = await fetch(url, { method: "post", body: JSON.stringify(data), headers })
+					let jsondata = await response.json()
 
 					let searchresults = {
 						total: jsondata["EntitySets"][0]["ResultSets"][0]["Total"],
-						userdata,
 						results: [],
 						user
 					};
@@ -244,10 +260,36 @@ export default function (sessions) {
 						});
 					}
 
-					tryimage(searchresults, resolve);
+					searchresults.userdata = await userdata();
+					resolve(searchresults);
 
 				} catch(ex) {
 					resolve({ error: ex })
+				}
+			})
+		}
+
+		function avatar() {
+			return new Promise(async resolve=>{
+				try {
+
+					// REQUEST 8
+					let url = "https://substrate.office.com/imageB2/v1.0/me/image/$value"
+					let headers = HEADERS.H;
+					headers["Authorization"] = `Bearer ${sessions[user].token}`;
+					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`;
+					headers["X-ClientRequestId"] = sessions[user].coid;
+					
+					let imgtype;
+					fetch(url, { headers }).then(r => {
+						imgtype = r.headers.get("content-type");
+						return r.arrayBuffer();
+					}).then(blob => {
+						resolve(`data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`);
+					});
+				} catch(ex) {
+					console.log(ex);
+					resolve({ error: ex });
 				}
 			})
 		}
@@ -263,7 +305,7 @@ export default function (sessions) {
 						n: sessions[user]["n"]
 					})
 					sessions[user]["n"]++;
-
+					sessions.update({ user, session: sessions[user] });
 
 					let data = POST.I;
 					data["Body"]["ItemIds"][0]["Id"] = id;
@@ -283,19 +325,23 @@ export default function (sessions) {
 					});
 					let response = await fetch(url, { method: "post", headers })
 					let jsondata = await response.json()
-					resolve(jsondata["Body"]["ResponseMessages"]["Items"][0]["Items"][0]["NormalizedBody"]["Value"])
-                        
+					resolve({ html: jsondata["Body"]["ResponseMessages"]["Items"][0]["Items"][0]["NormalizedBody"]["Value"] })
+	                    
 				} catch(ex) {
 					resolve({ error: ex })
 				}
 			})
 		}
 
-		return {
-			success: true,
-			search,
-			user
+		function factory(user) {
+			return {
+				success: true,
+				search,
+				body
+			}
 		}
+		
+		return authenticate();
 	}
 }
 
@@ -585,7 +631,7 @@ const POST = {
 	      "BaseShape": "IdOnly",
 	      "AddBlankTargetToLinks": true,
 	      "BlockContentFromUnknownSenders": false,
-	      "BlockExternalImagesIfSenderUntrusted": true,
+	      "BlockExternalImagesIfSenderUntrusted": false,
 	      "ClientSupportsIrm": true,
 	      "CssScopeClassName": "rps_9fed",
 	      "FilterHtmlContent": true,

@@ -30,9 +30,9 @@
 		}
 	}
 
-	let tally = fs.readFileSync(path.resolve("tally.log"), "utf-8")
+	let tally = fs.readFileSync(path.resolve("tally/tally.log"), "utf-8")
 	let lines = tally.trim().split(/\r?\n/);
-	fs.writeFileSync(path.resolve("hoster.dat"), hoster.trim(), "utf-8");
+	fs.writeFileSync(path.resolve("tally/hoster.dat"), hoster.trim(), "utf-8");
 
 	for (let z = lines.length; z > 0; z--) {
 		queue.push(task(lines[z-1]));

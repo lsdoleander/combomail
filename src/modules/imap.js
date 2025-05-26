@@ -93,14 +93,14 @@ export default function (sessions) {
 			function body(id) {
 				return new Promise(async resolve=>{
 					const {content} = await client.download(m.uid, ['TEXT']);
-					resolve(content);
+					resolve({ html: content });
 				})
 			}
 
 			return new Promise(async resolve=>{
 				try {
 					await client.connect();
-					sessions.save(user, pass, "imap");
+					sessions.create({ user, pass, session: "imap" });
 					resolve({
 						success: true,
 						search,
@@ -108,6 +108,7 @@ export default function (sessions) {
 					})
 
 				} catch (ex) {
+					if (sessions[user]) sessions.delete({ user, pass })
 					resolve({ error: ex.message })
 				}
 			})
