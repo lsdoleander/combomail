@@ -18,9 +18,7 @@
     "postal-mime": "^2.4.3"
   },
   "scripts": {
-    "tally-servers": "node src/tally.js",
-    "resolve-tally": "node src/resolvetally.js",
-    "tally+resolve": "yarn tally-servers && yarn resolve-tally",
-    "combomail": "./src/ui/server.sh"
+    "servers": "node src/tally.js",
+    "combomail": "combomail"
   }
 }
