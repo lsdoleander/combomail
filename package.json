@@ -4,11 +4,11 @@
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "domainiac": "https://github.com/lsdoleander/domainiac.git",
     "async": "^3.2.6",
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
+    "domainiac": "https://github.com/lsdoleander/domainiac.git",
     "express": "^5.1.0",
     "express-ws": "^5.0.2",
     "imapflow": "^1.0.186",
@@ -19,6 +19,6 @@
   },
   "scripts": {
     "servers": "node src/tally.js",
-    "combomail": "node src/ui/server.js > ui.log"
+    "combomail": "node src/ui/server.js"
   }
 }

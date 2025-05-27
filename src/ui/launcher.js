@@ -9,28 +9,34 @@
 
 	export default function launch(url) {
 		function browser(name) {
+			let buff;
 			if (/win/.test(process.platform)) {
 				try {
-					execSync(`where /Q ${name}.exe /R C:\\`)
-					return true;
+					buff = execSync(`where ${name}.exe /R C:\\`);
 				} catch(ex) {
 					return false;
 				}
 			} else {
 				try {
-					execSync(`which ${name}`)
-					return true;
+					buff = execSync(`which ${name}`);
 				} catch(ex) {
 					return false;
 				}
 			}
+			if (buff) {
+				let stdout = buff.toString("utf-8")
+				let parts = stdout.trim().split(/\r?\n/);
+				if (parts.length > 0) return parts[0]
+				else return stdout.length > 0 ? stdout : null
+			}
 		}
 
 		function findone(){
-			for (let b of ["chromium", "chrome", "brave", "msedge", "vivaldi", "opera", "safari", "firefox"]) {
-				if (browser(b)) {
-					console.log("Found:", b);
-					return b;
+			for (let b of ["msedge", "chromium", "chrome", "brave", "vivaldi", "opera", "safari", "firefox"]) {
+				let exe = browser(b);
+				if (exe) {
+					console.log("Found:", exe);
+					return exe;
 				} else {
 					console.log("No:", b);
 				}
