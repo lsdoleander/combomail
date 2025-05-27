@@ -5,17 +5,16 @@
   "license": "MIT",
   "dependencies": {
     "async": "^3.2.6",
-    "axios": "^1.7.9",
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
-    "domainiac": "../domainiac/",
+    "domainiac": "https://github.com/lsdoleander/domainiac.git",
     "express": "^5.1.0",
     "express-ws": "^5.0.2",
     "imapflow": "^1.0.186",
     "json5": "^2.2.3",
-    "node-port-scanner": "^3.0.1",
-    "postal-mime": "^2.4.3"
+    "postal-mime": "^2.4.3",
+    "uuid": "^11.0.2"
   },
   "scripts": {
     "servers": "node src/tally.js",
