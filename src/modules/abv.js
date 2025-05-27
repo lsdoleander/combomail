@@ -4,6 +4,7 @@ import { v4 } from 'uuid';
 export default function (sessions) {
 	return {
 		DOMAINS: [ "abv.bg" ],
+		queue: "abv",
 		login
 	}
 

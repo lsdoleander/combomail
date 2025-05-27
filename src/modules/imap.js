@@ -6,7 +6,8 @@ import util from 'node:util';
 
 export default function (sessions) {
 	return function imap(host, port) {
-		return { 
+		return {
+			queue: "main",
 			login(user, pass) {
 				const client = new ImapFlow({
 				    host,

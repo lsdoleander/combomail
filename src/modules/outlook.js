@@ -24,6 +24,7 @@ function writecookies(cookies) {
 
 export default function (sessions) {
 	return {
+		queue: "outlook",
 		DOMAINS,
 		login
 	}

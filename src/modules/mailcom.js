@@ -3,6 +3,7 @@ import fs from 'fs'
 
 export default function setup(sessions) {
 	return {
+		queue: "main",
 		DOMAINS,
 		login
 	}
