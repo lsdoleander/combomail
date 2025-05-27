@@ -86,7 +86,7 @@ function select(domain, email) {
 			return resolve(servers.mailcom);
 		} else {
 			resolver(domain, email).then(server=>{
-				if (server?.type === "imap") resolve(servers.imap(server.hostname, server.port));
+				if (server?.type === "imap") return resolve(servers.imap(server.hostname, server.port));
 				else resolve();
 			})
 		}
