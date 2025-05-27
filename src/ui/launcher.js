@@ -9,20 +9,16 @@
 
 	export default function launch(url) {
 		function browser(name) {
-			console.log(name);
 			if (/win/.test(process.platform)) {
 				try {
-					console.log(`where /Q ${name} /R C:\\`);
-					execSync(`where /Q ${name} /R C:\\`)
+					execSync(`where /Q ${name}.exe /R C:\\`)
 					return true;
 				} catch(ex) {
 					return false;
 				}
 			} else {
 				try {
-					console.log(`which ${name}`);
-					let stdout = execSync(`which ${name}`)
-					console.log(stdout);
+					execSync(`which ${name}`)
 					return true;
 				} catch(ex) {
 					return false;

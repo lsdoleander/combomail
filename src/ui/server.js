@@ -84,5 +84,5 @@ const __dirname = import.meta.dirname;
 	setTimeout(function(){
 		let ui = launcher("http://localhost:8675/");
 		console.log(`UI spawned (browser: ${ui.browser}, PID: ${ui.pid})`);
-	5000});
+	500});
 })()
