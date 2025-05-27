@@ -248,7 +248,13 @@ function base({ pnid, action, term, combo }) {
 	const NOOP = (N=>{});
 
 	queue["_triage_"].drain(function() {
-		Promise.all([ queue.abv.drain(NOOP), queue.main.drain(NOOP), queue.outlook.drain(NOOP) ]).then(function(){
+		let _started_ = [];
+		
+		if (queue.abv.started)_started_.push(queue.abv.drain());
+		if (queue.outlook.started)_started_.push(queue.outlook.drain());
+		if (queue.main.started) _started_.push(queue.main.drain());
+
+		Promise.all(_started_).then(function(){
 			if (action === "combo") {
 				datasource.combo.delete(pnid);
 			} else {
