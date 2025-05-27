@@ -1,5 +1,4 @@
 
-import fs from 'fs'
 
 export default function setup(sessions) {
 	return {
@@ -131,8 +130,6 @@ export default function setup(sessions) {
 					results: [],
 					user
 				}
-
-				fs.writeFileSync("search.json", JSON.stringify(jsondata, null, 2));
 
 				for (let mail of jsondata["mail"]) {
 					let from = mail["mailHeader"]["from"];

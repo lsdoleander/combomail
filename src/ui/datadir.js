@@ -8,7 +8,7 @@ export default function (name) {
 	if (process.platform === 'linux') {
 		dir = path.join(process.env.HOME, "/.local/share/", name);
 	} else if (process.env.APPDATA) {
-		dir = path.join(process.env.APPDATA, "name"); 
+		dir = path.join(process.env.APPDATA, name); 
 	} else if (process.platform == 'darwin') {
 		dir = path.join(process.env.HOME, '/Library/Preferences', name);
 	} else {
