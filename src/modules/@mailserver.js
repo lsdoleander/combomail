@@ -75,10 +75,6 @@ function parseuser(lout) {
 function select(domain, email, tries) {
 	return new Promise(resolve=>{
 		
-		select(domain, email, tries?tries+1:1).then(server=>{
-			resolve(server);
-		})
-
 		let server = mail[domain];
 		if (server) {
 			if (server[1] === 143 || server[1] === 993) return resolve(servers.imap(server[0], server[1]));
@@ -95,14 +91,14 @@ function select(domain, email, tries) {
 
 		} else {
 
-			(function discover_mailserver() {
+			(function discover_mailserver(tries) {
 				let cancelled = false;
 
 				let timedout = setTimeout(function(){
 					cancelled = true;
 
 					if (tries < 3) {
-						discover_mailserver();
+						discover_mailserver(tries+1);
 					} else {
 						resolve();
 					}
@@ -114,7 +110,7 @@ function select(domain, email, tries) {
 						else resolve();
 					}
 				})
-			})()
+			})(0)
 		}
 	})
 }
@@ -137,7 +133,7 @@ function base({ pnid, action, term, combo }) {
 	}
 	
 	const queue = {
-		@triage: _q_(100),
+		_triage_: _q_(100),
 		main: _q_(65),
 		outlook: _q_(25),
 		abv: _q_(1)
@@ -243,7 +239,7 @@ function base({ pnid, action, term, combo }) {
 	for (let entry of combo) {
 		let { user, domain, pass } = parseuser(entry);
 		if (user && domain && pass) {
-			queue["@triage"].push(factory(domain,user,pass));
+			queue["_triage_"].push(factory(domain,user,pass));
 		} else {
 			stats.total--;
 		}
@@ -251,7 +247,7 @@ function base({ pnid, action, term, combo }) {
 
 	const NOOP = (N=>{});
 
-	queue["@triage"].drain(function() {
+	queue["_triage_"].drain(function() {
 		Promise.all([ queue.abv.drain(NOOP), queue.main.drain(NOOP), queue.outlook.drain(NOOP) ]).then(function(){
 			if (action === "combo") {
 				datasource.combo.delete(pnid);

@@ -7,6 +7,8 @@ import cors from 'cors';
 
 import mailserver from '../modules/@mailserver.js';
 
+import launcher from './launcher.js';
+
 const __dirname = import.meta.dirname;
 
 (function start(){
@@ -78,4 +80,9 @@ const __dirname = import.meta.dirname;
 	})
 
 	app.listen(8675);
+
+	setTimeout(function(){
+		let ui = launcher("http://localhost:8675/");
+		console.log(`UI spawned (browser: ${ui.browser}, PID: ${ui.pid})`);
+	5000});
 })()

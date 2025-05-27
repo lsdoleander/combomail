@@ -4,3 +4,4 @@ src/conf/test.txt
 yarn.lock
 servers.txt
 tally/
+*.log
