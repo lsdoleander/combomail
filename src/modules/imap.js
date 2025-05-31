@@ -81,7 +81,7 @@ export default function (sessions) {
 					    	}
 
 						} catch (ex) {
-							console.log(ex)
+							console.log(ex.message)
 
 						} finally {
 						    lock.release();
