@@ -1,14 +1,22 @@
 		
-import { v4 } from 'uuid';
+import { v4 } from 'uuid'
+import fetching from 'fetching'
 
 export default function (sessions) {
+
+	const client = {
+		passport: fetching("https://passport.abv.bg/"),
+		apis: fetching("https://apis.abv.bg/")
+	}
+
 	return {
 		DOMAINS: [ "abv.bg" ],
 		queue: "abv",
 		login
 	}
-
+	
 	function login(user, pass) {
+	
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {
@@ -21,7 +29,6 @@ export default function (sessions) {
 				}
 
 				try {
-					let url = "https://passport.abv.bg/sc/oauth/token";
 					let headers = HEADERS;
 					headers["Host"] = "passport.abv.bg";
 					headers["Connection"] = "close";
@@ -31,7 +38,7 @@ export default function (sessions) {
 					data["username"] = user;
 					data["password"] = pass;
 					
-					let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
+					let response = await client.passport.post("/sc/oauth/token", { form: data, headers });
 					let jsondata = await response.json();
 
 					let token = jsondata["access_token"];
@@ -51,12 +58,11 @@ export default function (sessions) {
 
 		function userdata() {
 			return new Promise(async resolve=>{
-
-				let url = "https://apis.abv.bg/mobile/sc/bootstrap";
+				let token = sessions[user];
 				let data = "autoreply=1&contacts=1&fid=10&folders=1&foreign_profiles=1&messages=1&pushnotifications=0&quotas=1&settings=1" 
 				let headers = HEADERS;
 				headers["Connection"] = "close"
-				let response = await fetch(url, { method: "post", body:data, headers });
+				let response = await client.apis.post("/mobile/sc/bootstrap", { form:data, headers, token });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.user." + hits + ".log", JSON.stringify(jsondata, null, 2));
 				resolve();
@@ -65,15 +71,14 @@ export default function (sessions) {
 
 		function search(searchtext) {
 			return new Promise(async resolve=>{
-				let url = "https://apis.abv.bg/mobile/sc/messages/get/list/search";
 				let token = sessions[user];
 				let headers = HEADERS;
-				headers["Authorization"] = `Bearer ${token}`
 				let data = POST.B;
 				data["query"] = searchtext
 				hits++;
 
-				let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
+				let response = await client.apis.post("/mobile/sc/messages/get/list/search", { 
+					form:data, headers, token });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.debug." + hits + ".log", JSON.stringify(jsondata, null, 2));
 				
@@ -88,13 +93,12 @@ export default function (sessions) {
 		}
 
 		function body(id) {
-			return new Promise(async resolve=>{
-				let url="https://apis.abv.bg/mobile/sc/message/get";
+			return new Promise(async resolve=>{  
+				let token = sessions[user];                                                            
 				let data = FORMS.D;
 				data["msgid"] = id;
 				let headers = HEADERS;
-				headers["Authorization"] = `Bearer ${token}`
-				let response = await fetch(url, { method: "post", body: new URLSearchParams(data).toString(), headers });
+				let response = await client.apis.post("/mobile/sc/message/get", { form:data, headers, token });
 				let html = await response.text();
 				fs.writeFileSync("abv.body." + hits + ".log", html);
 				resolve({ html });

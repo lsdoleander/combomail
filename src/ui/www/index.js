@@ -3,7 +3,8 @@ $(()=>{
 	const templates = (()=>{
 		return {
 			hit: $("#searchresult").detach().html(),
-			mail: $("#message").detach().html()
+			mail: $("#message").detach().html(),
+			message: $("#messagelist").detach().html()
 		}
 	})()
 
@@ -82,6 +83,8 @@ $(()=>{
 			$("#hitlist").find(".list-group-item").removeClass("active");
 			el.addClass("active"); 
 			
+			$("#contains-mail").html(templates.message);
+
 			$("#subsearch").val(searchterm);
 			subterm = searchterm;
 
@@ -100,9 +103,9 @@ $(()=>{
 	$(iframe).on("load", event=>{
 		console.log("Iframe Loaded");
 		let style = iframe.contentDocument.createElement("style");
-		style.textContent = `		body {
+		style.textContent = `body {
 			margin: 0;
-			background-color: #F0F0F0
+			padding-right: 0.5rem !important;
 		}`;
 		iframe.contentDocument.head.appendChild(style)
 	})
@@ -226,19 +229,26 @@ $(()=>{
 		return false;
 	})
 
-	function sizesup(){
-		let rh = $(window).height()-$("#hsplit").position().top;
-		let hrh = rh / 2;
+	let sizehelp;
 
-		let adj = (hrh % 2 > 0) ? 0.5 : 0;
+	function sizesup(){
+		if (!sizehelp) {
+			sizehelp = $("#sizing").height();
+			$("#sizing").detach();
+		}
+
+		let rh = $(window).height()-$("#hsplit").position().top;
+		let hm = Math.round(rh * 0.35);
+		let hb = (rh - sizehelp - hm);
+
 		$("#contains-hitlist").css({
 			height: `${rh}px`
 		})
 		$("#contains-mail").css({
-			height: `${hrh-adj}px`
+			height: `${hm}px`
 		})
 		$("#contains-body").css({
-			height: `${hrh-adj}px`
+			height: `${hb}px`
 		})
 	}
 

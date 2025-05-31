@@ -178,20 +178,20 @@ function base({ pnid, action, term, combo }) {
 		return async cb=>{
 			select(domain).then(server=>{
 				if (server) {
-					(function execute(tries) {
-						let cancelled = false;
+					queue[server.queue].push(cb2=>{
+						(function execute(tries) {
+							let cancelled = false;
 
-						let timedout = setTimeout(function(){
-							cancelled = true;
+							let timedout = setTimeout(function(){
+								cancelled = true;
 
-							if (tries < 3) {
-								execute(tries+1)
-							} else {
-								cb();
-							}
-						}, 60000);
+								if (tries < 3) {
+									execute(tries+1)
+								} else {
+									cb2();
+								}
+							}, 60000);
 
-						queue[server.queue].push(cb2=>{
 							server.login(user, pass).then(async api => {
 								clearInterval(timedout);
 
@@ -224,9 +224,9 @@ function base({ pnid, action, term, combo }) {
 									cb2();
 								}
 							})
-						})
-
-					})(0);
+						})(0);
+					})
+					cb();
 				} else {
 					stats.processed++
 					deletes.push(`${user}:${pass}`)
@@ -248,13 +248,15 @@ function base({ pnid, action, term, combo }) {
 	const NOOP = (N=>{});
 
 	queue["_triage_"].drain(function() {
+
 		let _started_ = [];
 		
-		if (queue.abv.started)_started_.push(queue.abv.drain());
-		if (queue.outlook.started)_started_.push(queue.outlook.drain());
+		if (queue.abv.started) _started_.push(queue.abv.drain());
+		if (queue.outlook.started) _started_.push(queue.outlook.drain());
 		if (queue.main.started) _started_.push(queue.main.drain());
 
 		Promise.all(_started_).then(function(){
+
 			if (action === "combo") {
 				datasource.combo.delete(pnid);
 			} else {
@@ -273,30 +275,6 @@ function base({ pnid, action, term, combo }) {
 			return stats;
 		}
 	}
-}
-
-function subsearch({ user, pass, domain, term }) {
-	return new Promise(resolve=>{
-		select(domain).then(server=>{
-			if (server) {
-				server.login(user, pass).then(async api => {
-					if (api.success) {
-						const list = await api.search(term);
-						if (!list.error) {
-							if (list.results.length > 0) {
-								list.action = "subsearch";
-								return resolve(list);
-							}
-						}
-					}
-					
-					resolve({ error: "err" });
-				})
-			} else {
-				resolve({ error: "no server" });
-			}
-		})
-	})
 }
 
 let restart = datasource.search.incomplete();
@@ -343,7 +321,29 @@ export default {
 		})
 	},
 	
-	subsearch,
+	subsearch({ user, pass, domain, term }) {
+		return new Promise(resolve=>{
+			select(domain).then(server=>{
+				if (server) {
+					server.login(user, pass).then(async api => {
+						if (api.success) {
+							const list = await api.search(term);
+							if (!list.error) {
+								if (list.results.length > 0) {
+									list.action = "subsearch";
+									return resolve(list);
+								}
+							}
+						}
+						
+						resolve({ error: "err" });
+					})
+				} else {
+					resolve({ error: "no server" });
+				}
+			})
+		})
+	},
 
 	begin() {
 		let query, message = { 

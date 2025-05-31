@@ -59,9 +59,9 @@ export default function (sessions) {
 						
 					  	try {
 						    for await (const m of client.fetch(id, {
-						      envelope: true,
+/*						      envelope: true,
 						      bodyParts: true,
-						      bodyStructure: true,
+						      bodyStructure: true,*/
 						      headers: true
 						    })) {
 

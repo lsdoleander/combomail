@@ -56,7 +56,7 @@
 		})();
 
 		let pid = (function check() {
-			lookup({ command: app, arguments: `--app=${url} --new-window` }, (err, list)=>{
+			lookup({ command: app, arguments: `--kiosk=${url} --new-window` }, (err, list)=>{
 				if (list.length === 0) {
 					return start();
 				} else if (list.length === 1) {
@@ -72,10 +72,10 @@
 
 		function start() {
 			const out = openSync('./browser.log', 'a');
-			const err = openSync('./browser.log', 'a');
-			let ui = spawn(app, [`--app=${url}`, "--new-window" ],{
+		//	const err = openSync('./browser.log', 'a');
+			let ui = spawn(app, [`--kiosk=${url}`, "--new-window" ],{
 			  detached: true,
-			  stdio: [ 'ignore', out, err ],
+			  stdio: [ 'ignore', out, out ],
 			})
 			ui.unref();
 			return ui.pid;

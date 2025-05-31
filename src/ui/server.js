@@ -11,6 +11,16 @@ import launcher from './launcher.js';
 
 const __dirname = import.meta.dirname;
 
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason);
+    console.error("at Promise:");
+    console.trace(promise);
+});
+process.on('uncaughtException', err => {
+    console.error('Uncaught Exception');
+    console.trace(err);
+});
+
 (function start(){
 
 	let app = express();

@@ -1,35 +1,27 @@
 
 import { v4 } from 'uuid';
+import fetching from 'fetching';
 
 const MSCV = "sIJkt2ClwstSShBYTMGzvX.20";
 
-function parsecookies(response) {
-	let gsch = response.headers.getSetCookie();
-	let ckmap = {};
-	for (let csh of gsch) {
-		let parts = csh.match(/^([^=]*)=([^;]*)/);
-		ckmap[parts[1]]=parts[2]
-	}
-	return ckmap;
-}
-
-function writecookies(cookies) {
-	let output = ""
-	for (let key in cookies) {
-		if (output !== "") output += "; ";
-		output += `${key}=${cookies[key]}`;
-	}
-	return output;
-}
 
 export default function (sessions) {
+
+	const client = {
+		officeapps: fetching("https://odc.officeapps.live.com"),
+		login: fetching("https://login.live.com/"),
+		outlook: fetching("https://outlook.live.com/"),
+		substrate: fetching("https://substrate.office.com/")
+	}
+	
 	return {
 		queue: "outlook",
 		DOMAINS,
 		login
 	}
-
+	
 	function login(user, pass) {
+
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {
@@ -43,11 +35,10 @@ export default function (sessions) {
 
 				try {
 					// REQUEST 1
-					let url = `https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`;
 					const coid = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = coid;
-					let response = await fetch(url, { headers });
+					let response = await client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers });
 					let text = await response.text();
 					if (text !== "MSAccount") {
 						return resolve ({ error: "Login Failed: !== MSAccount" })
@@ -57,83 +48,79 @@ export default function (sessions) {
 					let data = POST.B;
 					data["login_hint"] = user
 					data["uaid"] = coid.replace("-", "")
-					url = "https://login.live.com/oauth20_authorize.srf?" + new URLSearchParams(data).toString();
 					headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
-					response = await fetch(url, { headers })
+					response = await client.login.get("/oauth20_authorize.srf", { query:data, headers })
 					let html = await response.text();
 
 					// REQUEST 3
 					let ma = html.match(/urlPost:'([^']*)'/);
-					let mb = response.url.match(/(\S*haschrome=1)/);
+					//let mb = response.url.match(/(\S*haschrome=1)/);
 					let mc = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/);
 
-					if (!ma || !mb || !mc) {
-						return resolve({ error: "Parser error [urlPost | referer | PPFT]."})
+					if (!ma || !mc) {
+						return resolve({ error: "Parser error [urlPost | PPFT]."})
 					}
 
-					let ppft = mc[1], refer = mb[1]; url = ma[1]; 
+					let cookies = {
+						MSPRequ: response.cookies["MSPRequ"],
+						uaid: response.cookies["uaid"],
+						RefreshTokenSso: response.cookies["RefreshTokenSso"],
+						MSPOK: response.cookies["MSPOK"],
+						OParams: response.cookies["OParams"],
+						MicrosoftApplicationsTelemetryDeviceId: coid
+					};
+
+					let ppft = mc[1], url = new URL(ma[1]); 
 					data = POST.C;
 					data["login"] = user
 					data["loginfmt"] = user
 					data["passwd"] = pass
 					data["PPFT"] = ppft
 					headers = HEADERS.C;
-					headers["Referer"] = refer
-					let cookie = parsecookies(response);
-					headers["Cookie"] = writecookies({
-						MSPRequ: cookie["MSPRequ"],
-						uaid: cookie["uaid"],
-						RefreshTokenSso: cookie["RefreshTokenSso"],
-						MSPOK: cookie["MSPOK"],
-						OParams: cookie["OParams"],
-						MicrosoftApplicationsTelemetryDeviceId: coid
-					});
+					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
-					response = await fetch(url, { method: "post", body: new URLSearchParams(data), redirect: "manual", headers })
-					cookie = parsecookies(response);
-
-					const mspcid = cookie["MSPCID"];
-					const nap = cookie["NAP"];
-					const anon = cookie["ANON"];
-					const wlssc = cookie["WLSSC"];
+					response = await client.login.post(url.pathname + url.search, { form: data, cookies, redirect: "manual", headers })
+					
+					const mspcid = response.cookies["MSPCID"];
+					const nap = response.cookies["NAP"];
+					const anon = response.cookies["ANON"];
+					const wlssc = response.cookies["WLSSC"];
 
 					if (mspcid) {
-							let code = response.headers.get("Location").match(/code=([^&]*)&/)[1];
+							let code = response.headers["location"].match(/code=([^&]*)&/)[1];
 							let cid = mspcid.toUpperCase()
 							let n = 0;
 							
 							// REQUEST 4 OAUTH TOKEN
-							url = "https://login.live.com/oauth20_token.srf"
 							headers = HEADERS.D;
 							data = POST.D;
 							data["code"] = code;
-							response = await fetch(url, { method: "post", body: new URLSearchParams(data) })
+							response = await client.login.post("/oauth20_token.srf", { form:data, headers })
 							let jsondata = await response.json();
 							const token = jsondata["access_token"];
 
 							if (!token) { return resolve({ error: "No Token" }); } else {
 							
 									// REQUEST 6
-									url = `https://outlook.live.com/owa/${user}/startupdata.ashx?` + new URLSearchParams({
+									url = `/owa/${user}/startupdata.ashx`;
+									data = {
 										app: "Mini", n: 0
-									});
+									};
 
 									headers = HEADERS.F;
-									headers["Authorization"] = `Bearer ${token}`;
 									headers["x-owa-correlationid"] = coid;
-									headers["Cookie"] = writecookies({
+									cookies = {
 										ClientId: "B21A0E20632E40438432A219219CAF0A",
 										MSPAuth: "Disabled",
 										MSPProf: "Disabled",
 										NAP: nap,
 										ANON: anon,
 										WLSSC: wlssc
-									})
-									response = await fetch(url, { method: "post", headers })
-									cookie = parsecookies(response);
-									const uc = cookie["UC"];
+									};
+									response = await client.outlook.get(url, { headers, token, query:data, cookies })
+									const uc = response.cookies["UC"];
 
 									sessions.create({ user, pass, session:{ n:1, coid, cid, nap, anon, wlssc, token, uc }});
 									resolve(factory(user));
@@ -167,6 +154,7 @@ export default function (sessions) {
 						}
 					}
 				} catch (ex) {
+					console.log(ex);
 					resolve({ error: ex});
 				}
 			})
@@ -174,12 +162,12 @@ export default function (sessions) {
 			
 		function check() {
 			return new Promise(async resolve=>{
-				let url = "https://substrate.office.com/profileb2/v2.0/me/V1Profile"
+				let url = "/profileb2/v2.0/me/V1Profile"
 				let headers = HEADERS.E;
-				headers["Authorization"] = `Bearer ${sessions[user].token}`
 				headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 				headers["X-ClientRequestId"] = sessions[user].coid
-				let response = await fetch(url, { method: "get", headers })
+				let token = sessions[user].token;
+				let response = await client.substrate.get(url, { headers, token })
 				resolve(response.ok);
 			});
 		}
@@ -192,12 +180,12 @@ export default function (sessions) {
 
 				try {
 					// REQUEST 5
-					let url = "https://substrate.office.com/profileb2/v2.0/me/V1Profile"
+					let url = "/profileb2/v2.0/me/V1Profile"
 					let headers = HEADERS.E;
-					headers["Authorization"] = `Bearer ${sessions[user].token}`
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 					headers["X-ClientRequestId"] = sessions[user].coid
-					let response = await fetch(url, { headers })
+					let token = sessions[user].token;
+					let response = await client.substrate.get(url, { headers, token })
 					let jsondata = await response.json()
 
 					let data = {
@@ -212,6 +200,7 @@ export default function (sessions) {
 					sessions.update({ user, data });
 					resolve(data);
 				} catch (ex) {
+					console.log(ex);
 					resolve({ error: ex});
 				}
 			})
@@ -222,23 +211,20 @@ export default function (sessions) {
 				try {
 
 					// REQUEST 7
-					let url = "https://outlook.live.com/search/api/v2/query?" + new URLSearchParams({
-						cv: MSCV,
-						n: sessions[user]["n"]
-					})
+					let url = `/search/api/v2/query?cv=${MSCV}&n=${sessions[user]["n"]}`
+
 					sessions[user]["n"]++;
 					sessions.update({ user, session:sessions[user] });
 
+					let token = sessions[user].token;
 					let headers = HEADERS.E;
-					headers["Authorization"] = `Bearer ${sessions[user].token}`
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 					headers["X-ClientRequestId"] = sessions[user].coid
-					headers["Content-Type"] = "application/json; charset=utf-8";
-					headers["Host"] = "outlook.live.com"
+	
 					let data = POST.G;
 					data["EntityRequests"][0]["Query"]["QueryString"] = searchtext
 					data["AnswerEntityRequests"][0]["Query"]["QueryString"] = searchtext
-					let response = await fetch(url, { method: "post", body: JSON.stringify(data), headers })
+					let response = await client.outlook.post(url, { json:data, token, headers })
 					let jsondata = await response.json()
 
 					let searchresults = {
@@ -265,6 +251,7 @@ export default function (sessions) {
 					resolve(searchresults);
 
 				} catch(ex) {
+					console.log(ex);
 					resolve({ error: ex })
 				}
 			})
@@ -275,15 +262,14 @@ export default function (sessions) {
 				try {
 
 					// REQUEST 8
-					let url = "https://substrate.office.com/imageB2/v1.0/me/image/$value"
+					let url = "/imageB2/v1.0/me/image/$value"
 					let headers = HEADERS.H;
-					headers["Authorization"] = `Bearer ${sessions[user].token}`;
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`;
 					headers["X-ClientRequestId"] = sessions[user].coid;
-					
+					let token = sessions[user].token;
 					let imgtype;
-					fetch(url, { headers }).then(r => {
-						imgtype = r.headers.get("content-type");
+					client.substrate.get(url, { headers, token }).then(r => {
+						imgtype = r.headers["content-type"];
 						return r.arrayBuffer();
 					}).then(blob => {
 						resolve(`data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`);
@@ -300,7 +286,7 @@ export default function (sessions) {
 				try {
 
 					// REQUEST 9
-					let url = `https://outlook.live.com/owa/${user}/service.svc?` + new URLSearchParams({
+					let url = `/owa/${user}/service.svc?` + new URLSearchParams({
 						action: "GetItem",
 						app: "Mini",
 						n: sessions[user]["n"]
@@ -311,10 +297,10 @@ export default function (sessions) {
 					let data = POST.I;
 					data["Body"]["ItemIds"][0]["Id"] = id;
 					let headers = HEADERS.I;
-					headers["Authorization"] = `Bearer ${sessions[user].token}`;
+					let token = sessions[user].token;
 					headers["x-owa-correlationid"] = sessions[user].coid;
 					headers["x-owa-urlpostdata"] = encodeURI(JSON.stringify(data));
-					headers["Cookie"] = writecookies({
+					let cookies = {
 						ClientId: "B21A0E20632E40438432A219219CAF0A",
 						MSPAuth: "Disabled",
 						MSPProf: "Disabled",
@@ -323,12 +309,13 @@ export default function (sessions) {
 						WLSSC: sessions[user].wlssc,
 						UC: sessions[user].uc,
 						PPLState: 1
-					});
-					let response = await fetch(url, { method: "post", headers })
+					};
+					let response = await client.outlook.post(url, { token, json: "", cookies, headers })
 					let jsondata = await response.json()
 					resolve({ html: jsondata["Body"]["ResponseMessages"]["Items"][0]["Items"][0]["NormalizedBody"]["Value"] })
 	                    
 				} catch(ex) {
+					console.log(ex);
 					resolve({ error: ex })
 				}
 			})
@@ -352,7 +339,7 @@ const CLIENT="e9b154d0-7658-433b-bb25-6b8e0a8a7c59",
 const OUTLOOKLIVE = {
 	"user-agent": "Mozilla/5.0 (Linux; Android 12; sdk_gphone64_x86_64 Build/SE1B.240122.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.6099.193 Mobile Safari/537.36",
 	"accept": "*/*",
-	"accept-encoding": "gzip, deflate, br",
+//	"accept-encoding": "gzip, deflate, br",
 	"accept-language": "en-US,en;q=0.9",
 	"action": "StartupData",
 	"ms-cv": MSCV,
@@ -383,13 +370,11 @@ const HEADERS = {
 		"Enlightened-Hrd-Client": "1",
 		"X-OneAuth-AppId": "com.microsoft.outlooklite",
 		"User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_x86_64 Build/SE1B.240122.005)",
-		"Host": "odc.officeapps.live.com",
-		"Connection": "Keep-Alive",
-		"Accept-Encoding": "gzip"
+	//	"Accept-Encoding": "gzip",
+		"Connection": "Keep-Alive"
 	},
 
 	B: {
-		"Host": "login.live.com",
 		"Connection": "keep-alive",
 		"sec-ch-ua": "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Android WebView\";v=\"120\"",
 		"sec-ch-ua-mobile": "?1",
@@ -409,7 +394,7 @@ const HEADERS = {
 		"Sec-Fetch-Mode": "navigate",
 		"Sec-Fetch-User": "?1",
 		"Sec-Fetch-Dest": "document",
-		"Accept-Encoding": "gzip, deflate, br",
+		//"Accept-Encoding": "gzip, deflate",
 		"Accept-Language": "en-US,en;q=0.9"
 	},
 
@@ -427,7 +412,7 @@ const HEADERS = {
 		"Sec-Fetch-Mode": "navigate",
 		"Sec-Fetch-User": "?1",
 		"Sec-Fetch-Dest": "document",
-		"Accept-Encoding": "gzip, deflate",
+		//"Accept-Encoding": "gzip, deflate",
 		"Accept-Language": "en-US,en;q=0.9"
 	},
 
@@ -439,7 +424,7 @@ const HEADERS = {
 		"x-client-sku": "MSAL.xplat.android",
 		"x-client-os": "32",
 		"Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
-		"Accept-Encoding": "gzip",
+		//"Accept-Encoding": "gzip",
 		"return-client-request-id": "false"
 	},
 
@@ -449,8 +434,8 @@ const HEADERS = {
 		"Accept": "application/json",
 		"ForceSync": "false",
 		"Host": "substrate.office.com",
-		"Connection": "Keep-Alive",
-		"Accept-Encoding": "gzip"
+		//"Accept-Encoding": "gzip",
+		"Connection": "Keep-Alive"
 	},
 
 	F: {
@@ -462,8 +447,8 @@ const HEADERS = {
 
 	H: {
 		"User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; sdk_gphone64_x86_64 Build/SE1B.240122.005)",
-		"Connection": "Keep-Alive",
-		"Accept-Encoding": "gzip"
+		//"Accept-Encoding": "gzip",
+		"Connection": "Keep-Alive"
 	},
 
 	I: {

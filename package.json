@@ -11,6 +11,7 @@
     "domainiac": "https://github.com/lsdoleander/domainiac.git",
     "express": "^5.1.0",
     "express-ws": "^5.0.2",
+    "fetching": "https://github.com/lsdoleander/fetching.git",
     "imapflow": "^1.0.186",
     "json5": "^2.2.3",
     "postal-mime": "^2.4.3",

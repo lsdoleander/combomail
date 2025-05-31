@@ -1,6 +1,12 @@
+import fetching from 'fetching';
 
+export default function setup(sessions) {		
+	const client = {
+		oauth: fetching("https://oauth2.mail.com/"),
+		mobsi: fetching("https://mobsi.mail.com/"),
+		hsp2: fetching("https://hsp2.mail.com/")
+	};
 
-export default function setup(sessions) {
 	return {
 		queue: "main",
 		DOMAINS,
@@ -29,60 +35,65 @@ export default function setup(sessions) {
 					}
 				}
 
-				let url = "https://oauth2.mail.com/token"
-				let headers = HEADERS.A;
-				let data = POST.A;
-				data["username"] = user;
-				data["password"] = pass;
+				try {
+					
+					let headers = HEADERS.A;
+					let data = POST.A;
+					data["username"] = user;
+					data["password"] = pass;
 
-				let response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-				let jsondata = await response.json();
-				
-				let access_token = jsondata["access_token"]
-				let refresh_token = jsondata["refresh_token"]
-				if (!refresh_token || !access_token) {
-					resolve({ success: false })
-				} else {
-					let result = await refresh(refresh_token);
-					if (result.success) {
-						access_token = result.access_token;
-						sessions.create({ user, pass, session:{ access_token, refresh_token }});
-						resolve(factory(user));
+					let response = await client.oauth.post("/token", { form:data, headers });
+					let jsondata = await response.json();
+					
+					let access_token = jsondata["access_token"]
+					let refresh_token = jsondata["refresh_token"]
+					if (!refresh_token || !access_token) {
+						resolve({ success: false })
 					} else {
-						resolve(result);
+						let result = await refresh(refresh_token);
+						if (result.success) {
+							access_token = result.access_token;
+							sessions.create({ user, pass, session:{ access_token, refresh_token }});
+							resolve(factory(user));
+						} else {
+							resolve(result);
+						}
 					}
-				}
+				} catch(ex) {
+					console.log(ex)
+				}	
 			})
 		}	
 		
-		function check(access_token) {
+		function check(token) {
 			return new Promise(async resolve=>{
-				let url = "https://mobsi.mail.com/rest/MobSI/UserData"
 				let headers = HEADERS.D
-				headers["Authorization"] = `Bearer ${access_token}`
-				let response = await fetch (url, { method: "head", headers });
+				let response = await client.mobsi.head("/rest/MobSI/UserData", { headers, token });
 				resolve(response.ok);
 			})
 		}
 
 		function refresh(refresh_token) {
 			return new Promise(async resolve=>{
-				let url = "https://oauth2.mail.com/token"
-				let headers = HEADERS.A;
-				let data = POST.B;
-				data["refresh_token"] = refresh_token;
-				let response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
+				try {
+					let headers = HEADERS.A;
+					let data = POST.B;
+					data["refresh_token"] = refresh_token;
+					let response = await client.oauth.post("/token", { form:data, headers });
 
-				data = POST.C;
-				data["refresh_token"] = refresh_token
-				response = await fetch (url, { method: "post", body: new URLSearchParams(data), headers });
-				let jsondata = await response.json();
-				let access_token = jsondata["access_token"]
+					data = POST.C;
+					data["refresh_token"] = refresh_token
+					response = await client.oauth.post("/token", { form:data, headers });
+					let jsondata = await response.json();
+					let access_token = jsondata["access_token"]
 
-				if (!access_token) {
-					resolve({ success: false, error: "Token Permissions Grant Failed" })
-				} else {
-					resolve ({ success: true, access_token });
+					if (!access_token) {
+						resolve({ success: false, error: "Token Permissions Grant Failed" })
+					} else {
+						resolve ({ success: true, access_token });
+					}
+				}  catch(ex) {
+					console.log(ex);
 				}
 			})
 		}
@@ -92,10 +103,10 @@ export default function setup(sessions) {
 				if (sessions.userdata[user]) {
 					resolve(sessions.userdata[user]);
 				} else {
-					let url = "https://mobsi.mail.com/rest/MobSI/UserData"
+				try {
+					let token = sessions[user].access_token;
 					let headers = HEADERS.D
-					headers["Authorization"] = `Bearer ${sessions[user].access_token}`
-					let response = await fetch (url, { method: "get", headers });
+					let response = await client.mobsi.get("/rest/MobSI/UserData", { headers, token });
 					if (!response.ok) {
 						return resolve({ error: "access token expired." })
 					}
@@ -108,20 +119,22 @@ export default function setup(sessions) {
 					}
 					sessions.update({ user, data })
 					resolve(data);
+				}  catch(ex) {
+					console.log(ex);
+				}
 				}
 			})
 		}
 
 		function search(searchtext) {
 			return new Promise(async resolve=>{
-				let url = "https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false"
+				try {
 				let data = POST.E
 				let headers = HEADERS.E
-				headers["Host"] = "hsp2.mail.com"
-				headers["Content-Type"] = "application/json"
-				headers["Authorization"] = `Bearer ${sessions[user].access_token}`
+				let token = sessions[user].access_token;
 				data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
-				let response = await fetch(url, { method: "post", body: JSON.stringify(data), headers });
+				let response = await client.hsp2.post("/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
+					 json: data, headers, token });
 
 				let jsondata = await response.json()
 
@@ -151,16 +164,19 @@ export default function setup(sessions) {
 				searchresults.userdata = await userdata(),
 
 				resolve(searchresults);
+				}  catch(ex) {
+					console.log(ex);
+				}
 			});
 		}
 
 		function body(id) {
 			return new Promise(async resolve=>{
 				try {
-					let url = `https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`
 					let headers = HEADERS.F;
-					headers["Authorization"] = `Bearer ${sessions[user].access_token}`
-					let response = await fetch (url, { headers });
+					let token = sessions[user].access_token;
+					let response = await client.hsp2.get (`/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`,
+						{ headers, token });
 					let html = await response.text();
 					resolve({ html });
 				} catch(ex) {
