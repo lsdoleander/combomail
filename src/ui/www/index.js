@@ -239,7 +239,7 @@ $(()=>{
 
 		let rh = $(window).height()-$("#hsplit").position().top;
 		let hm = Math.round(rh * 0.35);
-		let hb = (rh - sizehelp - hm);
+		let hb = (rh - (sizehelp * 1.5) - hm);
 
 		$("#contains-hitlist").css({
 			height: `${rh}px`

@@ -63,7 +63,7 @@ export default (function(){
 				return { map, combo, userdata };
 			}
 
-			function del(user){
+			function del({ user, pass }){
 				const stmt = db.prepare("DELETE FROM sessions WHERE user = @user");
 				stmt.run({ user });
 			}

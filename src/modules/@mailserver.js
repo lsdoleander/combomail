@@ -31,13 +31,13 @@ const sessions = (function(){
 		if (session) map[user] = session;
 		userdata[user] = data;
 	};
-	map.delete = function(user) {
+	map.delete = function({ user, pass }) {
 		map[user] = undefined;
 		userdata[user] = undefined;
 		map.valid--;
 		stats.valid--;
 //		map.combo.splice(map.combo.indexOf(`${user}:${pass}`), 1);
-		datasource.session.delete(user);
+		datasource.session.delete({ user, pass });
 	}
 	map.userdata = userdata
 	return map
@@ -314,8 +314,6 @@ export default {
 			const server = await select(domain);
 			const api = await server.login(user);
 			const body = await api.body(id);
-
-			console.log(body);
 
 			resolve(body);
 		})

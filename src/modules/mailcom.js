@@ -1,4 +1,6 @@
+
 import fetching from 'fetching';
+import retryable from './@retryable.js'
 
 export default function setup(sessions) {		
 	const client = {
@@ -35,8 +37,7 @@ export default function setup(sessions) {
 					}
 				}
 
-				try {
-					
+				const { access_token, refresh_token } = await retryable(resolve, async ({ success, fail, retry })=>{
 					let headers = HEADERS.A;
 					let data = POST.A;
 					data["username"] = user;
@@ -48,20 +49,20 @@ export default function setup(sessions) {
 					let access_token = jsondata["access_token"]
 					let refresh_token = jsondata["refresh_token"]
 					if (!refresh_token || !access_token) {
-						resolve({ success: false })
+						fail();
 					} else {
 						let result = await refresh(refresh_token);
 						if (result.success) {
 							access_token = result.access_token;
-							sessions.create({ user, pass, session:{ access_token, refresh_token }});
-							resolve(factory(user));
+							success({ access_token, refresh_token })
 						} else {
-							resolve(result);
+							retry()
 						}
 					}
-				} catch(ex) {
-					console.log(ex)
-				}	
+				})
+				
+				sessions.create({ user, pass, session: { access_token, refresh_token }});
+				resolve(factory(user));
 			})
 		}	
 		

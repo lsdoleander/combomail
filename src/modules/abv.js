@@ -1,6 +1,7 @@
 		
 import { v4 } from 'uuid'
 import fetching from 'fetching'
+import retryable from './@retryable.js'
 
 export default function (sessions) {
 
@@ -28,7 +29,7 @@ export default function (sessions) {
 					}
 				}
 
-				try {
+				const { token } = await retryable(resolve, async({ success, fail })=>{
 					let headers = HEADERS;
 					headers["Host"] = "passport.abv.bg";
 					headers["Connection"] = "close";
@@ -43,14 +44,14 @@ export default function (sessions) {
 
 					let token = jsondata["access_token"];
 					if (postdata["error"] === "unauthorized_user" || !token){
-						resolve ({ success: false })
+						fail()
+					} else {
+						success({ token })
 					}
+				})
 
-					sessions.create({ user, pass, session: token });
-				} catch(ex) {
-					console.log(ex);
-					resolve({ error: ex })
-				}
+				sessions.create({ user, pass, session: token });
+				resolve(factory(user))
 			})
 		}
 
