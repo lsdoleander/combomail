@@ -39,14 +39,15 @@ export default function (sessions) {
 					const uuid = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
-					let response = await client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers });
-					let text = await response.text();
-					if (text === "MSAccount") {
-						return success({ coid: uuid });
-					} else {
-						return fail ("Login Failed: !== MSAccount");
-					}
-				})
+					client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers }).then(async response=>{
+						let text = await response.text();
+						if (text === "MSAccount") {
+							return success({ coid: uuid });
+						} else {
+							return fail ("Login Failed: !== MSAccount");
+						}
+					}).catch(retry);
+				}, 100)
 					
 				// REQUEST 2: Get the login URL and required generated values
 				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry })=>{
@@ -56,34 +57,35 @@ export default function (sessions) {
 					let headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
-					let response = await client.login.get("/oauth20_authorize.srf", { query:data, headers })
-					let html = await response.text();
+					client.login.get("/oauth20_authorize.srf", { query:data, headers }).then(async response=>{
+						let html = await response.text();
 
-					
-					let ma = html.match(/urlPost:'([^']*)'/);
-					let mb = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/);
+						
+						let ma = html.match(/urlPost:'([^']*)'/);
+						let mb = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/);
 
-					if (!ma || !mb) {
-						return retry("Parser error [urlPost|ppft]");
-					}
+						if (!ma || !mb) {
+							return retry("Parser error [urlPost|ppft]");
+						}
 
-					let cookies3 = {
-						MSPRequ: response.cookies["MSPRequ"],
-						uaid: response.cookies["uaid"],
-						RefreshTokenSso: response.cookies["RefreshTokenSso"],
-						MSPOK: response.cookies["MSPOK"],
-						OParams: response.cookies["OParams"],
-						MicrosoftApplicationsTelemetryDeviceId: coid
-					};
+						let cookies3 = {
+							MSPRequ: response.cookies["MSPRequ"],
+							uaid: response.cookies["uaid"],
+							RefreshTokenSso: response.cookies["RefreshTokenSso"],
+							MSPOK: response.cookies["MSPOK"],
+							OParams: response.cookies["OParams"],
+							MicrosoftApplicationsTelemetryDeviceId: coid
+						};
 
-					let url = new URL(ma[1]);
-					let ppft = mb[1];
+						let url = new URL(ma[1]);
+						let ppft = mb[1];
 
-					success({
-						url3: url.pathname + url.search,
-						ppft,
-						cookies3
-					})
+						success({
+							url3: url.pathname + url.search,
+							ppft,
+							cookies3
+						})
+					}).catch(retry);
 				})
 				
 				// REQUEST 3
@@ -96,42 +98,50 @@ export default function (sessions) {
 					let headers = HEADERS.C;
 					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
-					let response = await client.login.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers })
-					
-					const mspcid = response.cookies["MSPCID"];
-					const nap = response.cookies["NAP"];
-					const anon = response.cookies["ANON"];
-					const wlssc = response.cookies["WLSSC"];
+					client.login.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers }).then(async response=>{
 
-					if (mspcid) {
-						let code = response.headers["location"].match(/code=([^&]*)&/)[1];
-						let cid = mspcid.toUpperCase();
-						success({ mspcid, nap, anon, wlssc, code, cid })
-					} else {
-						html = await response.text();
+						const mspcid = response.cookies["MSPCID"];
+						const nap = response.cookies["NAP"];
+						const anon = response.cookies["ANON"];
+						const wlssc = response.cookies["WLSSC"];
+						const loc = response.headers["location"];
+						let code;
 
-						if (html.includes("error")){
-							fail("Error Reported")
-
-						} else if (html.includes("account or password is incorrect")) {
-							return fail("PASSWORD CHANGE")
-
-						} else if (html.includes("https://login.live.com/finisherror.srf") ||
-							html.includes("https://account.live.com/Abuse") ||
-							html.includes("too many times with") ||
-							html.includes("/cancel?")){
-							
-							return fail("BLOCKED")
-
-						} else if (html.includes("https://account.live.com/identity/confirm")){
-							return fail("CAN BYPASS")
-
-						} else if (html.includes("https://account.live.com/recover")) {
-							return fail("2FA")
-						} else {
-							return fail("Unknown")
+						if (loc) {
+							let m = loc.match(/code=([^&]*)&/);
+							if (m) code = m[1];
 						}
-					}
+
+						if (mspcid && code) {
+							let cid = mspcid.toUpperCase();
+							success({ mspcid, nap, anon, wlssc, code, cid })
+							
+						} else {
+							html = await response.text();
+
+							if (html.includes("error")){
+								fail("Error Reported")
+
+							} else if (html.includes("account or password is incorrect")) {
+								return fail("PASSWORD CHANGE")
+
+							} else if (html.includes("https://login.live.com/finisherror.srf") ||
+								html.includes("https://account.live.com/Abuse") ||
+								html.includes("too many times with") ||
+								html.includes("/cancel?")){
+								
+								return fail("BLOCKED")
+
+							} else if (html.includes("https://account.live.com/identity/confirm")){
+								return fail("CAN BYPASS")
+
+							} else if (html.includes("https://account.live.com/recover")) {
+								return fail("2FA")
+							} else {
+								return fail("Unknown")
+							}
+						}
+					}).catch(retry);
 				})
 
 				// REQUEST 4 OAUTH TOKEN
@@ -139,15 +149,16 @@ export default function (sessions) {
 					let headers = HEADERS.D;
 					let data = POST.D;
 					data["code"] = code;
-					let response = await client.login.post("/oauth20_token.srf", { form:data, headers })
-					let jsondata = await response.json();
-					const token = jsondata["access_token"];
+					client.login.post("/oauth20_token.srf", { form:data, headers }).then(async response=>{
+						let jsondata = await response.json();
+						const token = jsondata["access_token"];
 
-					if (!token) { 
-						retry("No Token");
-					} else {
-						success({ token })
-					}
+						if (!token) { 
+							retry("No Token");
+						} else {
+							success({ token })
+						}
+					}).catch(retry);
 				});	
 									
 				// REQUEST 5
@@ -165,14 +176,15 @@ export default function (sessions) {
 						ANON: anon,
 						WLSSC: wlssc
 					};
-					let response = await client.outlook.get(url, { headers, token, query:data, cookies })
-					const uc = response.cookies["UC"];
+					client.outlook.get(url, { headers, token, query:data, cookies }).then(async response=>{
+						const uc = response.cookies["UC"];
 
-					if (uc) {
-						success({ uc })
-					} else {
-						retry("No UC");
-					}
+						if (uc) {
+							success({ uc })
+						} else {
+							retry("No UC");
+						}
+					}).catch(retry);
 				});
 
 				sessions.create({ user, pass, session:{ n:1, coid, cid, nap, anon, wlssc, token, uc }});

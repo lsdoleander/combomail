@@ -1,10 +1,10 @@
 
-	export default function retryable(resolve,_function) {
+	export default function retryable(resolve,_function, max=10, delay=5000) {
 		return new Promise(async success=>{
 			(function exe(tries){
 				function retry(x) {
-					if (tries < 10) {
-						setTimeout(()=>{ exe(tries+1) }, 5000);
+					if (tries < max) {
+						setTimeout(()=>{ exe(tries+1) }, delay);
 					} else {
 						resolve({ success: false, error: "tries exceeded", x })
 					}
