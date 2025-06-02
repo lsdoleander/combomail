@@ -5,11 +5,6 @@ import retryable from './@retryable.js'
 
 export default function (sessions) {
 
-	const client = {
-		passport: fetching("https://passport.abv.bg/"),
-		apis: fetching("https://apis.abv.bg/")
-	}
-
 	return {
 		DOMAINS: [ "abv.bg" ],
 		queue: "abv",
@@ -17,6 +12,11 @@ export default function (sessions) {
 	}
 	
 	function login(user, pass) {
+
+	const client = {
+		passport: fetching("https://passport.abv.bg/"),
+		apis: fetching("https://apis.abv.bg/")
+	}
 	
 		function authenticate(){
 			return new Promise(async resolve=>{

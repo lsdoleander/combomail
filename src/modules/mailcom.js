@@ -2,12 +2,7 @@
 import fetching from 'fetching';
 import retryable from './@retryable.js'
 
-export default function setup(sessions) {		
-	const client = {
-		oauth: fetching("https://oauth2.mail.com/"),
-		mobsi: fetching("https://mobsi.mail.com/"),
-		hsp2: fetching("https://hsp2.mail.com/")
-	};
+export default function setup(sessions) {	
 
 	return {
 		queue: "main",
@@ -15,7 +10,12 @@ export default function setup(sessions) {
 		login
 	}
 
-	function login(user, pass) {
+	function login(user, pass) {	
+	const client = {
+		oauth: fetching("https://oauth2.mail.com/"),
+		mobsi: fetching("https://mobsi.mail.com/"),
+		hsp2: fetching("https://hsp2.mail.com/")
+	};
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {

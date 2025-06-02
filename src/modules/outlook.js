@@ -8,12 +8,6 @@ const MSCV = "sIJkt2ClwstSShBYTMGzvX.20";
 
 export default function (sessions) {
 
-	const client = {
-		officeapps: fetching("https://odc.officeapps.live.com"),
-		login: fetching("https://login.live.com/"),
-		outlook: fetching("https://outlook.live.com/"),
-		substrate: fetching("https://substrate.office.com/")
-	}
 	
 	return {
 		queue: "outlook",
@@ -22,6 +16,12 @@ export default function (sessions) {
 	}
 
 	function login(user, pass) {
+	const client = {
+		officeapps: fetching("https://odc.officeapps.live.com"),
+		login: fetching("https://login.live.com/"),
+		outlook: fetching("https://outlook.live.com/"),
+		substrate: fetching("https://substrate.office.com/")
+	}
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {
