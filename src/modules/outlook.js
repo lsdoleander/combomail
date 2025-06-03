@@ -4,7 +4,7 @@ import fetching from 'fetching';
 import retryable from './@retryable.js'
 
 const MSCV = "sIJkt2ClwstSShBYTMGzvX";
-
+const clientid = "e9b154d0-7658-433b-bb25-6b8e0a8a7c59"
 
 export default function (sessions) {
 	return {
@@ -14,8 +14,12 @@ export default function (sessions) {
 	}
 
 	function login(user, pass) {
+		
+		const sessionid = v4();
+		
 		const client = {
-			officeapps: fetching("https://odc.officeapps.live.com"),
+			live: fetching("https://live.com/"),
+			officeapps: fetching("https://odc.officeapps.live.com/"),
 			login: fetching("https://login.live.com/"),
 			outlook: fetching("https://outlook.live.com/"),
 			substrate: fetching("https://substrate.office.com/")
@@ -32,31 +36,31 @@ export default function (sessions) {
 					}
 				}
 
-
 				// REQUEST 1
-				const { clientid, sessionid, coid } = await retryable(resolve, async({ success,fail,retry })=>{
+				const { coid } = await retryable(resolve, async({ success,fail,retry })=>{
 					const uuid = v4();
-					const cl = v4();
-					const ses = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
 					client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers }).then(async response=>{
 						let text = await response.text();
 						if (text === "MSAccount") {
-							return success({ clientid: cl, sessionid: ses, coid: uuid });
+							return success({ coid: uuid });
 						} else {
 							return fail ("Login Failed: !== MSAccount");
 						}
-					}).catch(retry);
+					}).catch(function(){
+						console.log(x)
+						retry()
+					});
 				}, 100)
-					
+
 				// REQUEST 2: Get the login URL and required generated values
 				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry })=>{
 					let data = POST.B;
 					data["login_hint"] = user
 					data["uaid"] = coid.replace("-", "")
 					data["client_id"] = clientid;
-					
+
 					let headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
@@ -88,9 +92,13 @@ export default function (sessions) {
 							ppft,
 							cookies3
 						})
-					}).catch(retry);
+	
+					}).catch(function(){
+						console.log(x)
+						retry()
+					});
 				})
-				
+
 				// REQUEST 3
 				const { mspcid, nap, anon, wlssc, code, cid } = await retryable(resolve, async({ success,fail,retry })=>{
 					let data = POST.C;
@@ -144,7 +152,11 @@ export default function (sessions) {
 								return fail("Unknown")
 							}
 						}
-					}).catch(retry);
+			
+					}).catch(function(){
+						console.log(x)
+						retry()
+					});
 				})
 
 				// REQUEST 4 OAUTH TOKEN
@@ -162,9 +174,13 @@ export default function (sessions) {
 						} else {
 							success({ token })
 						}
-					}).catch(retry);
+		
+					}).catch(function(){
+						console.log(x)
+						retry()
+					});
 				});	
-									
+
 				// REQUEST 5
 				const { uc } = await retryable(resolve, async ({ success,fail,retry })=>{
 					let url = `/owa/${user}/startupdata.ashx`;
@@ -173,6 +189,7 @@ export default function (sessions) {
 					let headers = HEADERS.F;
 					headers["x-owa-correlationid"] = coid;
 					headers["x-owa-sessionid"] = sessionid;
+					headers["ms-cv"] = MSCV + ".0";
 					let cookies = {
 						ClientId: clientid.replace("-","").toUpperCase(),
 						MSPAuth: "Disabled",
@@ -189,7 +206,11 @@ export default function (sessions) {
 						} else {
 							retry("No UC");
 						}
-					}).catch(retry);
+			
+					}).catch(function(){
+						console.log(x)
+						retry()
+					});
 				});
 
 				sessions.create({ user, pass, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
@@ -340,6 +361,7 @@ export default function (sessions) {
 					headers["x-owa-correlationid"] = sessions[user].coid;
 					headers["x-owa-urlpostdata"] = encodeURI(JSON.stringify(data));
 					headers["x-owa-sessionid"] = sessions[user].sessionid;
+					headers["ms-cv"] = MSCV+"."+sessions[user]["n"]
 					let cookies = {
 						ClientId: sessions[user].clientid.replace("-","").toUpperCase(),
 						MSPAuth: "Disabled",
@@ -379,7 +401,6 @@ const OUTLOOKLIVE = {
 //	"accept-encoding": "gzip, deflate, br",
 	"accept-language": "en-US,en;q=0.9",
 	"action": "StartupData",
-	"ms-cv": MSCV,
 	"origin": "https://outlook.live.com",
 	"prefer": 'exchange.behavior="IncludeThirdPartyOnlineMeetingProviders"',
 	"referer": "https://outlook.live.com/",
