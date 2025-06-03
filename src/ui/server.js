@@ -58,16 +58,21 @@ process.on('uncaughtException', err => {
 				ws.send(JSON.stringify(begin.message));
 				if (begin.query) {
 					query = begin.query;
-					interv = setInterval(gostats,5000)
+					interv = setInterval(gostats,500)
 				}
 				
 			} else if (message.action === "search"){
-				query = mailserver.search({ term: message.term });
-				interv = setInterval(gostats,5000);
+				query = mailserver.search(message);
+				interv = setInterval(gostats,500);
 
 			} else if (message.action === "combo"){
-				query = mailserver.combo({ combo: message.combo });
-				interv = setInterval(gostats,5000)
+				query = mailserver.combo(message);
+				interv = setInterval(gostats,500)
+
+			} else if (message.action === "qssess"){
+				mailserver.qssess(message).then(imported =>{
+				 	ws.send(JSON.stringify(imported))
+				});
 
 			} else if (message.action === "subsearch"){
 				mailserver.subsearch(message).then(list=>{

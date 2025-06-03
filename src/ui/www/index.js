@@ -10,7 +10,7 @@ $(()=>{
 
 	const socket = new WebSocket("ws://localhost:8675/saki");
 
-	let searchterm, subterm, fadercache = {};
+	let searchterm, subterm, comboqueue, fadercache = {};
 
 	function factory(m) {
 		return function handler(e) {
@@ -140,10 +140,14 @@ $(()=>{
 		const pb = $(".progress-bar");
 		pb.css({ width: `${percent}%` })
 		pb.text(`${percent}%`);
-		$("#valid").text(message.valid);
 		if (message.hits) {
 			$("#hits").text(message.hits);
 		}
+		updateValid(message);
+	}
+
+	function updateValid(message){
+		$("#valid").text(message.valid);
 	}
 
 	function fader(el, step, from, until, ms) {
@@ -193,16 +197,23 @@ $(()=>{
 
 	socket.addEventListener("message", function(event){
 		let message = JSON.parse(event.data);
-		if (message.action === "hits") {
+		switch (message.action){
+		case "hits":
 			renderHits(message)
-		} else if (message.action === "stats") {
+		case "stats":
 			renderProgress(message)
-		} else if (message.action === "finish") {
+		case "finish":
 			finish();
-		} else if (message.action === "begin") {
+		case "begin":
 			renderBegin(message);
-		} else if (message.action === "subsearch") {
+		case "subsearch":
 			renderEmails(message);
+		case: "imported":
+			updateValid(message);
+			if (comboqueue) {
+				sendCombos(comboqueue);
+				comboqueue = undefined;
+			}
 		}
 	})
 
@@ -273,6 +284,21 @@ $(()=>{
 		ev.preventDefault();
 	})
 
+	function sendCombos(combo){
+		let message = {
+			action: "combo",
+			combo
+		};
+
+		$(".progress").removeClass("d-none");
+		$("#contains-valid").removeClass("d-none").addClass("d-flex");
+		$("#contains-hits").removeClass("d-flex").addClass("d-none");
+		$("#btngo").prop("disabled", true);
+		fader($("#btngo"), -0.05, 1, 0.5);
+
+		socket.send(JSON.stringify(message));
+	}
+
 	$("body").on("drop", ev=>{
 		ev.preventDefault();
 		$("#top").css({ display: "block" });
@@ -281,14 +307,20 @@ $(()=>{
 		let data = ev.originalEvent.dataTransfer;
 
 		let combo = [];
+		let qssess = [];
 
 		function readnext(f) {
 			return new Promise(resolve=>{
 				if (f.type === "text/plain") {
 					let r = new FileReader();
 					$(r).on("load", _=>{
-						combo = [...combo, ...r.result.trim().split(/\r?\n/)];
-						resolve();
+						if (/\.qssess$/.test(f.name)) {
+							qssess = [...combo, ...r.result.trim().split(/\r?\n/)];
+							resolve();
+						} else {
+							combo = [...combo, ...r.result.trim().split(/\r?\n/)];
+							resolve();
+						}
 					})
 					r.readAsText(f);
 				} else {
@@ -311,20 +343,24 @@ $(()=>{
 		}
 		
 		Promise.all(promises).then(function(){
-			if (combo.length > 0) {
+			let sentqssess = false;
+
+			if (qssess.length > 0) {
 				let message = {
-					action: "combo",
-					combo
+					action: "qssess",
+					qssess
 				};
 
-				$(".progress").removeClass("d-none");
-				$("#contains-valid").removeClass("d-none").addClass("d-flex");
-				$("#contains-hits").removeClass("d-flex").addClass("d-none");
-				$("#btngo").prop("disabled", true);
-				fader($("#btngo"), -0.05, 1, 0.5);
-
 				socket.send(JSON.stringify(message));
+				sentqssess = true;
+			}
 
+			if (combo.length > 0) {
+				if (!sentqssess) {
+					sendCombos(combo);
+				} else {
+					comboqueue = combo;
+				}
 			}
 		})
 

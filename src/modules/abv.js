@@ -50,7 +50,7 @@ export default function (sessions) {
 					}
 				})
 
-				sessions.create({ user, pass, session: token });
+				sessions.create({ user, pass, session: { token }});
 				resolve(factory(user))
 			})
 		}

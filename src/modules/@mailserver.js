@@ -15,7 +15,7 @@ import async from 'async'
 import path from 'path'
 import fs from 'fs'
 
-const sessions = (function(){
+function loadsessions(){
 	const { map, combo, userdata } = datasource.session.load() || { map: {}, combo: [], userdata: {} };
 	
 	map.combo = combo;
@@ -41,7 +41,9 @@ const sessions = (function(){
 	}
 	map.userdata = userdata
 	return map
-})()
+}
+
+let sessions = loadsessions();
 
 const servers = {
 	abv: abv(sessions),
@@ -102,7 +104,7 @@ function select(domain, email, tries) {
 					} else {
 						resolve();
 					}
-				}, 30000);
+				}, 45000);
 
 				resolver(domain, email).then(server=>{
 					if (!cancelled) {
@@ -306,6 +308,17 @@ export default {
 	search({ term, hits, finish }) {
 		hitlist = [];
 		return base({ action: "search", combo: sessions.combo, term, hits, finish })
+	},
+
+	qssess({ qssess }){
+		return new Promise(resolve=>{
+			datasource.session.import(qssess);
+			sessions = loadsessions();
+			resolve({
+				action: "imported",
+				valid: sessions.valid
+			})
+		})
 	},
 
 	body(user, id) {

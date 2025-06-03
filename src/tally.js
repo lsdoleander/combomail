@@ -16,7 +16,7 @@
 	}
 
 	export function tally() {
-		let fn = process.argv[1] || "servers.txt";
+		let fn = process.argv[1] || "tally/servers.txt";
 		let counter = {};
 		let domains = [];
 		const text = fs.readFileSync(fn, 'utf8');
@@ -50,7 +50,7 @@
 						if (server) {
 							let str = `\n${domain}:${server.hostname}:${server.port}`;
 							console.log(server)
-							fs.appendFileSync(path.resolve("hoster.dat"), str, "utf-8");
+							fs.appendFileSync(path.resolve("tally/hoster.dat"), str, "utf-8");
 						} else {
 							console.log(domain, " -- Not Found")
 						}

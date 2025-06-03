@@ -101,7 +101,7 @@ export default function (sessions) {
 				return new Promise(async resolve=>{
 					try {
 						await client.connect();
-						sessions.create({ user, pass, session: "imap" });
+						sessions.create({ user, pass, session: { type: "imap" }});
 						resolve({
 							success: true,
 							search,
