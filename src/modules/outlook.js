@@ -48,10 +48,7 @@ export default function (sessions) {
 						} else {
 							return fail ("Login Failed: !== MSAccount");
 						}
-					}).catch(function(){
-						console.log(x)
-						retry()
-					});
+					}).catch(retry)
 				}, 100)
 
 				// REQUEST 2: Get the login URL and required generated values
@@ -93,10 +90,7 @@ export default function (sessions) {
 							cookies3
 						})
 	
-					}).catch(function(){
-						console.log(x)
-						retry()
-					});
+					}).catch(retry)
 				})
 
 				// REQUEST 3
@@ -153,10 +147,7 @@ export default function (sessions) {
 							}
 						}
 			
-					}).catch(function(){
-						console.log(x)
-						retry()
-					});
+					}).catch(retry)
 				})
 
 				// REQUEST 4 OAUTH TOKEN
@@ -175,10 +166,7 @@ export default function (sessions) {
 							success({ token })
 						}
 		
-					}).catch(function(){
-						console.log(x)
-						retry()
-					});
+					}).catch(retry)
 				});	
 
 				// REQUEST 5
@@ -207,10 +195,7 @@ export default function (sessions) {
 							retry("No UC");
 						}
 			
-					}).catch(function(){
-						console.log(x)
-						retry()
-					});
+					}).catch(retry)
 				});
 
 				sessions.create({ user, pass, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
