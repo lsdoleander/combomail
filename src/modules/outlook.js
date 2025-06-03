@@ -3,12 +3,10 @@ import { v4 } from 'uuid';
 import fetching from 'fetching';
 import retryable from './@retryable.js'
 
-const MSCV = "sIJkt2ClwstSShBYTMGzvX.20";
+const MSCV = "sIJkt2ClwstSShBYTMGzvX";
 
 
 export default function (sessions) {
-
-	
 	return {
 		queue: "outlook",
 		DOMAINS,
@@ -16,12 +14,13 @@ export default function (sessions) {
 	}
 
 	function login(user, pass) {
-	const client = {
-		officeapps: fetching("https://odc.officeapps.live.com"),
-		login: fetching("https://login.live.com/"),
-		outlook: fetching("https://outlook.live.com/"),
-		substrate: fetching("https://substrate.office.com/")
-	}
+		const client = {
+			officeapps: fetching("https://odc.officeapps.live.com"),
+			login: fetching("https://login.live.com/"),
+			outlook: fetching("https://outlook.live.com/"),
+			substrate: fetching("https://substrate.office.com/")
+		}
+
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {
@@ -35,14 +34,16 @@ export default function (sessions) {
 
 
 				// REQUEST 1
-				const { coid } = await retryable(resolve, async({ success,fail,retry })=>{
+				const { clientid, sessionid, coid } = await retryable(resolve, async({ success,fail,retry })=>{
 					const uuid = v4();
+					const cl = v4();
+					const ses = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
 					client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers }).then(async response=>{
 						let text = await response.text();
 						if (text === "MSAccount") {
-							return success({ coid: uuid });
+							return success({ clientid: cl, sessionid: ses, coid: uuid });
 						} else {
 							return fail ("Login Failed: !== MSAccount");
 						}
@@ -54,6 +55,8 @@ export default function (sessions) {
 					let data = POST.B;
 					data["login_hint"] = user
 					data["uaid"] = coid.replace("-", "")
+					data["client_id"] = clientid;
+					
 					let headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
@@ -149,6 +152,7 @@ export default function (sessions) {
 					let headers = HEADERS.D;
 					let data = POST.D;
 					data["code"] = code;
+					data["client_id"] = clientid;
 					client.login.post("/oauth20_token.srf", { form:data, headers }).then(async response=>{
 						let jsondata = await response.json();
 						const token = jsondata["access_token"];
@@ -168,8 +172,9 @@ export default function (sessions) {
 
 					let headers = HEADERS.F;
 					headers["x-owa-correlationid"] = coid;
+					headers["x-owa-sessionid"] = sessionid;
 					let cookies = {
-						ClientId: "B21A0E20632E40438432A219219CAF0A",
+						ClientId: clientid.replace("-","").toUpperCase(),
 						MSPAuth: "Disabled",
 						MSPProf: "Disabled",
 						NAP: nap,
@@ -187,7 +192,7 @@ export default function (sessions) {
 					}).catch(retry);
 				});
 
-				sessions.create({ user, pass, session:{ n:1, coid, cid, nap, anon, wlssc, token, uc }});
+				sessions.create({ user, pass, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
 				resolve(factory(user));
 			})
 		}
@@ -243,7 +248,7 @@ export default function (sessions) {
 				try {
 
 					// REQUEST 7
-					let url = `/search/api/v2/query?cv=${MSCV}&n=${sessions[user]["n"]}`
+					let url = `/search/api/v2/query?cv=${MSCV}.${sessions[user]["n"]}&n=${sessions[user]["n"]}`
 
 					sessions[user]["n"]++;
 					sessions.update({ user, session:sessions[user] });
@@ -252,7 +257,9 @@ export default function (sessions) {
 					let headers = HEADERS.E;
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 					headers["X-ClientRequestId"] = sessions[user].coid
-	
+					headers["x-owa-sessionid"] = sessions[user].sessionid;
+					headers["x-clientid"] = sessions[user].clientid.replace("-", "").toUpperCase()
+
 					let data = POST.G;
 					data["EntityRequests"][0]["Query"]["QueryString"] = searchtext
 					data["AnswerEntityRequests"][0]["Query"]["QueryString"] = searchtext
@@ -332,8 +339,9 @@ export default function (sessions) {
 					let token = sessions[user].token;
 					headers["x-owa-correlationid"] = sessions[user].coid;
 					headers["x-owa-urlpostdata"] = encodeURI(JSON.stringify(data));
+					headers["x-owa-sessionid"] = sessions[user].sessionid;
 					let cookies = {
-						ClientId: "B21A0E20632E40438432A219219CAF0A",
+						ClientId: sessions[user].clientid.replace("-","").toUpperCase(),
 						MSPAuth: "Disabled",
 						MSPProf: "Disabled",
 						NAP: sessions[user].nap,
@@ -365,9 +373,6 @@ export default function (sessions) {
 	}
 }
 
-const CLIENT="e9b154d0-7658-433b-bb25-6b8e0a8a7c59",
-	SESSIONID=v4();
-
 const OUTLOOKLIVE = {
 	"user-agent": "Mozilla/5.0 (Linux; Android 12; sdk_gphone64_x86_64 Build/SE1B.240122.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.6099.193 Mobile Safari/537.36",
 	"accept": "*/*",
@@ -386,7 +391,6 @@ const OUTLOOKLIVE = {
 	"sec-fetch-site": "same-origin",
 	"x-owa-host-app": "outlook_android",
 	"x-owa-hosted-ux": "true",
-	"x-owa-sessionid": SESSIONID,
 	"x-req-source": "Mail",
 	"x-requested-with": "com.microsoft.outlooklite"
 };
@@ -493,7 +497,6 @@ const HEADERS = {
 
 const POST = {
 	B: {
-		"client_id": CLIENT,
 		"scope": "profile offline_access openid https://outlook.office.com/M365.Access",
 		"redirect_uri": "msauth://com.microsoft.outlooklite/fcg80qvoM1YMKJZibjBwQcDfOno%3D",
 		"response_type": "code",
@@ -538,7 +541,6 @@ const POST = {
 
 	D: {
 		"client_info": "1",
-		"client_id": CLIENT,
 		"redirect_uri": "msauth://com.microsoft.outlooklite/fcg80qvoM1YMKJZibjBwQcDfOno%3D",
 		"grant_type": "authorization_code",
 		"scope": "profile offline_access openid https://outlook.office.com/M365.Access"
