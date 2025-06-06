@@ -30,8 +30,7 @@ $(()=>{
 	}
 
 	function renderBegin(message){
-		$("#valid").text(message.valid);
-		$("#contains-valid").removeClass("d-none").addClass("d-flex");
+		updateValid(message);
 		
 		if (message.running) {
 			$("#btngo").prop("disabled", true);
