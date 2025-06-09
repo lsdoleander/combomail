@@ -5,3 +5,4 @@ yarn.lock
 servers.txt
 tally/
 *.log
+gen/

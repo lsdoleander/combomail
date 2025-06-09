@@ -207,7 +207,7 @@ $(()=>{
 			renderBegin(message);
 		case "subsearch":
 			renderEmails(message);
-		case: "imported":
+		case "imported":
 			updateValid(message);
 			if (comboqueue) {
 				sendCombos(comboqueue);

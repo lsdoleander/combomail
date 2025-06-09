@@ -8,12 +8,12 @@ import imap from './imap.js'
 import mailcom from './mailcom.js'
 import outlook from './outlook.js'
 
-import resolver from '../resolver/index.js'
-
+import factory from 'mailblazer'
 import async from 'async'
-
 import path from 'path'
 import fs from 'fs'
+
+const resolver = factory().resolve;
 
 function loadsessions(){
 	const { map, combo, userdata } = datasource.session.load() || { map: {}, combo: [], userdata: {} };
@@ -54,6 +54,7 @@ const servers = {
 
 let running;
 let comms;
+let abort;
 let stats = {
 	total: 0,
 	processed: 0,
@@ -155,7 +156,10 @@ function base({ pnid, action, term, combo }) {
 	let deletes = [];
 	let pendlock = false;
 	let pendindex = 0;
-	let pendintv = setInterval(function(){
+	let pendintv = setInterval(savestatus,1000)
+	let masterkill = false;
+
+	function savestatus() {
 		if (!pendlock) {
 			pendlock = true;
 			for (let d of deletes) {
@@ -174,7 +178,31 @@ function base({ pnid, action, term, combo }) {
 
 			pendlock = false;
 		}
-	},1000)
+	}
+
+	abort = ()=>{
+		let startedsave = false;
+
+		clearInterval(pendintv);
+
+		(function suspend(){
+			if (pendlock) {
+				setTimeout(suspend,50);
+			} else {
+				if (!startedsave) {
+					startedsave = true;
+					savestatus();
+					setTimeout(suspend,200);
+				} else {
+					System.exit(0);
+				}
+			}
+		})()
+
+		for (let key of queue) {
+			if (queue[key].started && !queue[key].idle()) queue[key].kill();
+		}
+	}
 
 	function factory(domain, user, pass) {
 		return async cb=>{
@@ -250,26 +278,30 @@ function base({ pnid, action, term, combo }) {
 	const NOOP = (N=>{});
 
 	queue["_triage_"].drain(function() {
+		if (!masterkill) {
+			let _started_ = [];
+			
+			if (queue.abv.started) _started_.push(queue.abv.drain());
+			if (queue.outlook.started) _started_.push(queue.outlook.drain());
+			if (queue.main.started) _started_.push(queue.main.drain());
 
-		let _started_ = [];
-		
-		if (queue.abv.started) _started_.push(queue.abv.drain());
-		if (queue.outlook.started) _started_.push(queue.outlook.drain());
-		if (queue.main.started) _started_.push(queue.main.drain());
+			Promise.all(_started_).then(function(){
+				clearInterval(pendintv);
 
-		Promise.all(_started_).then(function(){
-
-			if (action === "combo") {
-				datasource.combo.delete(pnid);
-			} else {
-				hitlist.sort(function(a,b){
-					return (a.results[0].date < b.results[0].date) ? -1:1
-				})
-				datasource.search.update(pnid, hitlist, []);
-			}
-			running = undefined;
-			if (comms) comms.finish();
-		})
+				if (!masterkill) {
+					if (action === "combo") {
+						datasource.combo.delete(pnid);
+					} else {
+						hitlist.sort(function(a,b){
+							return (a.results[0].date < b.results[0].date) ? -1:1
+						})
+						datasource.search.update(pnid, hitlist, []);
+					}
+					running = undefined;
+					if (comms) comms.finish();
+				}
+			})
+		}
 	});
 
 	return {
@@ -299,8 +331,16 @@ if (restart) {
 	}
 }
 
-export default {
+function ifneedtoabort() {
+	if (abort) abort();
+}
 
+process.on("SIGINT", ifneedtoabort);
+process.on("SIGHUP", ifneedtoabort);
+process.on("SIGTERM", ifneedtoabort);
+process.on("SIGBREAK", ifneedtoabort);
+
+export default {
 	combo({ combo, finish }) {
 		return base({ action: "combo", combo, finish })
 	},

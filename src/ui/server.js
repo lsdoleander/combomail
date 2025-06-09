@@ -4,12 +4,11 @@ import path from 'path'
 import express from 'express';
 import ws from 'express-ws';
 import cors from 'cors';
+import dev from '../development.js';
 
 import mailserver from '../modules/@mailserver.js';
 
 import launcher from './launcher.js';
-
-const __dirname = import.meta.dirname;
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
@@ -26,7 +25,7 @@ process.on('uncaughtException', err => {
 	let app = express();
 	app.use(cors());
 	app.use(express.json())
-	app.use(express.static(path.join(__dirname, 'www')))
+	dev(app, path.join(import.meta.dirname, "www"));
 	ws(app);
 
 	app.ws("/saki", function(ws, req) {

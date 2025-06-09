@@ -72,14 +72,25 @@
 
 		function start() {
 			const out = openSync('./browser.log', 'a');
-		//	const err = openSync('./browser.log', 'a');
-			let ui = spawn(app, [`--app=${url}`, "--new-window" ],{
+			const ui = spawn(app, [`--app=${url}`, "--new-window" ],{
 			  detached: true,
 			  stdio: [ 'ignore', out, out ],
 			})
+			const pid = ui.pid;
 			ui.unref();
-			return ui.pid;
+			return pid;
 		}
+
+		const closebrowser = ()=>{
+			kill(pid, (e,d)=>{
+				process.exit();
+			})
+		};
+
+		process.on("SIGINT", closebrowser);
+		process.on("SIGHUP", closebrowser);
+		process.on("SIGTERM", closebrowser);
+		process.on("SIGBREAK", closebrowser);
 
 		return {
 			browser: app,

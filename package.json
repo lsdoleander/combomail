@@ -1,25 +1,42 @@
 {
   "name": "combomail",
-  "version": "1.0.0",
+  "version": "0.3.1",
   "type": "module",
   "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-terser": "^0.4.4",
+    "bun": "^1.2.15",
+    "rollup": "^4.42.0"
+  },
   "dependencies": {
+    "@rollup/plugin-alias": "^5.1.1",
     "async": "^3.2.6",
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
-    "domainiac": "https://github.com/lsdoleander/domainiac.git",
     "express": "^5.1.0",
     "express-ws": "^5.0.2",
     "fetching": "https://github.com/lsdoleander/fetching.git",
     "imapflow": "^1.0.186",
     "json5": "^2.2.3",
+    "mailblazer": "https://github.com/paulwardrip/mailblazer.git",
     "postal-mime": "^2.4.3",
     "ps-node": "^0.1.6",
     "uuid": "^11.0.2"
   },
   "scripts": {
-    "servers": "node src/tally.js",
-    "combomail": "node src/ui/server.js"
+    "clean": "rm -rf gen dist",
+    "build": "yarn clean && mkdir gen && yarn static && yarn rollup && yarn dist",
+    "static": "node src/statictool.js gen/www.js src/ui/www/",
+    "rollup": "rollup -c",
+    "dist": "mkdir dist && yarn win && yarn linux && yarn zip && yarn tar",
+    "win": "mkdir -p gen/windows && bun build --compile --target=bun-windows-x64 ./gen/bundle.min.js --outfile gen/windows/combomail.exe",
+    "linux": "mkdir -p gen/linux &&  bun build --compile --target=bun-linux-x64 ./gen/bundle.min.js --outfile gen/linux/combomail",
+    "zip": "cat gen/windows/combomail.exe | zip > dist/combomail-windows-x64.zip",
+    "tar": "cd gen/linux && tar cvf ../../dist/combomail-linux-x64.tar.xz -I 'xz -9 -T2' ."
   }
 }
