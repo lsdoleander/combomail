@@ -95,8 +95,9 @@ process.on('uncaughtException', err => {
 
 	app.listen(8675);
 
-	setTimeout(function(){
+	setTimeout(async function(){
 		let ui = launcher("http://localhost:8675/");
-		console.log(`UI spawned (browser: ${ui.browser}, PID: ${ui.pid})`);
+		let pid = await ui.pid();
+		console.log(`UI spawned (browser: ${ui.browser}, PID: ${pid})`);
 	500});
 })()

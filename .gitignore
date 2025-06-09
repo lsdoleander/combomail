@@ -1,8 +1,5 @@
 .idea
 node_modules
-src/conf/test.txt
-yarn.lock
+tally/*
 servers.txt
-tally/
-*.log
-gen/
+gen

@@ -29,14 +29,14 @@
     "uuid": "^11.0.2"
   },
   "scripts": {
-    "clean": "rm -rf gen dist",
-    "build": "yarn clean && mkdir gen && yarn static && yarn rollup && yarn dist",
+    "clean": "node src/build.js",
+    "build": "yarn static && yarn rollup && yarn dist",
     "static": "node src/statictool.js gen/www.js src/ui/www/",
     "rollup": "rollup -c",
-    "dist": "mkdir dist && yarn win && yarn linux && yarn zip && yarn tar",
-    "win": "mkdir -p gen/windows && bun build --compile --target=bun-windows-x64 ./gen/bundle.min.js --outfile gen/windows/combomail.exe",
-    "linux": "mkdir -p gen/linux &&  bun build --compile --target=bun-linux-x64 ./gen/bundle.min.js --outfile gen/linux/combomail",
-    "zip": "cat gen/windows/combomail.exe | zip > dist/combomail-windows-x64.zip",
-    "tar": "cd gen/linux && tar cvf ../../dist/combomail-linux-x64.tar.xz -I 'xz -9 -T2' ."
+    "dist": "yarn win && yarn linux && yarn zip && yarn tar",
+    "win": "bun build --compile --target=bun-windows-x64 ./gen/bundle.min.js --outfile gen/win/combomail.exe",
+    "linux": "bun build --compile --target=bun-linux-x64 ./gen/bundle.min.js --outfile gen/linux/combomail",
+    "zip": "cat gen/win/combomail.exe | zip > dist/combomail-windows-x64.zip",
+    "tar": "cd gen/linux && tar cvf ../../dist/combomail-linux-x64.tar.xz -I 'xz -7 -T2' ."
   }
 }

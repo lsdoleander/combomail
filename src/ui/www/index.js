@@ -97,14 +97,13 @@ $(()=>{
 		})
 	}
 
-	let iframe = document.getElementById("contains-body");
+	let iframe = document.getElementById("mailbody");
 
 	$(iframe).on("load", event=>{
 		console.log("Iframe Loaded");
 		let style = iframe.contentDocument.createElement("style");
 		style.textContent = `body {
 			margin: 0;
-			padding-right: 0.5rem !important;
 		}`;
 		iframe.contentDocument.head.appendChild(style)
 	})
@@ -128,17 +127,26 @@ $(()=>{
 					id: m.id
 				});
 				
-				$(iframe).removeClass("d-none");
+				$("#contains-body").removeClass("d-none");
 				iframe.src = url;
 			})
 		}
 	}
 
 	function renderProgress(message){
-		const percent = ((message.processed / message.total)*100).toFixed(2);
-		const pb = $(".progress-bar");
-		pb.css({ width: `${percent}%` })
-		pb.text(`${percent}%`);
+		const percent = Math.round((message.processed / message.total)*10000)/100;
+		const remain = 100-percent;
+		const pba = $("#pba");
+		const pbb = $("#pbb");
+		pba.css({ width: `${percent}%` });
+		pbb.css({ width: `${remain}%` });
+		if (percent > 25) {
+			pba.text(`${percent}%`);
+			pbb.text("");
+		} else {
+			pbb.text(`${percent}%`);
+			pba.text("");
+		}
 		if (message.hits) {
 			$("#hits").text(message.hits);
 		}

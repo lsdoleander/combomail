@@ -38,7 +38,7 @@
 					console.log("Found:", exe);
 					return exe;
 				} else {
-					console.log("No:", b);
+					//console.log("No:", b);
 				}
 			}
 		}
@@ -55,30 +55,47 @@
 			}
 		})();
 
-		let pid = (function check() {
-			lookup({ command: app, arguments: `--app=${url} --new-window` }, (err, list)=>{
-				if (list.length === 0) {
-					return start();
-				} else if (list.length === 1) {
-					return list[0].pid;
-				} else {
-					for (let dupe of list) {
-						kill(dupe.pid, (e,d)=>{ if (!e) console.log("killed", dupe.pid) })
+		let prid = (function check() {
+			return new Promise(resolve=>{
+				lookup({ command: app, arguments: "combomail" }, async (err, list) => {
+					if (list.length === 0) {
+						console.log("lookup: ui not running... start!")
+						let p = await start();
+						resolve(p);
+					} else if (list.length === 1) {
+						console.log("lookup: ui already running, go!")
+						resolve( list[0].pid );
+					} else {
+						for (let dupe of list) {
+						console.log("lookup: kill stale ui process:", dupe.pid);
+							kill(dupe.pid, (e,d)=>{ if (!e) console.log("killed", dupe.pid) })
+						}
+						console.log("lookup: now re, we-start!")
+						let p = await start();
+						resolve(p);
 					}
-					return start();
-				}
+				});
 			});
 		})();
 
 		function start() {
-			const out = openSync('./browser.log', 'a');
-			const ui = spawn(app, [`--app=${url}`, "--new-window" ],{
-			  detached: true,
-			  stdio: [ 'ignore', out, out ],
+			return new Promise(resolve=>{
+				const out = openSync('./browser.log', 'a');
+				const ui = spawn(app, [`--app=${url}`, "--new-window", "--window-name=combomail", "--ash-enable-night-light",
+					"--disable-background-mode", "--disable-sync", "--disable-plugins" ],{
+				  //detached: true,
+				  stdio: [ 'ignore', out, out ],
+				})
+				setTimeout(async function(){
+					let pid = ui.pid;
+					if (!pid) (function check() {
+						lookup({ command: app, arguments: "--window-name=combomail" }, (err, list)=>{
+							if (list) resolve(list[list.length-1]);
+							else resolve();
+						})
+					})();
+				},5000)
 			})
-			const pid = ui.pid;
-			ui.unref();
-			return pid;
 		}
 
 		const closebrowser = ()=>{
@@ -97,7 +114,9 @@
 			running: function() {
 				return browser(app);
 			},
-			pid,
+			pid: async function(){
+				return prid;
+			},
 			kill: function() {
 				kill(pid);
 			}

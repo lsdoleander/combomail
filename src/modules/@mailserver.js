@@ -185,6 +185,12 @@ function base({ pnid, action, term, combo }) {
 
 		clearInterval(pendintv);
 
+		if (queue) {
+			for (let key of queue) {
+				if (queue[key].started && !queue[key].idle()) queue[key].kill();
+			}
+		}
+
 		(function suspend(){
 			if (pendlock) {
 				setTimeout(suspend,50);
@@ -194,14 +200,10 @@ function base({ pnid, action, term, combo }) {
 					savestatus();
 					setTimeout(suspend,200);
 				} else {
-					System.exit(0);
+					process.exit(0);
 				}
 			}
 		})()
-
-		for (let key of queue) {
-			if (queue[key].started && !queue[key].idle()) queue[key].kill();
-		}
 	}
 
 	function factory(domain, user, pass) {
@@ -297,7 +299,10 @@ function base({ pnid, action, term, combo }) {
 						})
 						datasource.search.update(pnid, hitlist, []);
 					}
+
 					running = undefined;
+					abort = undefined;
+
 					if (comms) comms.finish();
 				}
 			})
@@ -333,6 +338,7 @@ if (restart) {
 
 function ifneedtoabort() {
 	if (abort) abort();
+	else process.exit(0);
 }
 
 process.on("SIGINT", ifneedtoabort);

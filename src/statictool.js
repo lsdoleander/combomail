@@ -10,7 +10,8 @@ function fixurlpath(u){
 	return (!u || u === "" || u === "/") ? "/" : u.replace(/^\/?(.*)\/?$/,"/"+u+"/");
 }
 
-function subdir(dir, urlpath) {
+function subdir(dir, url) {
+	let urlpath = fixurlpath(url);
 	let meat = '';
 	let files = readdirSync(dir);
 	for (let file of files) {
@@ -31,7 +32,7 @@ function subdir(dir, urlpath) {
 
 export default function statictool(dest, dir, urlpath) {
 	console.log(`<application-webui destination="${dest}" dir="${dir}" urlpath="${urlpath===""?"/":urlpath}" />`);
-	let data = subdir(dir, fixurlpath(urlpath));
+	let data = subdir(dir, urlpath);
 	let gen = template(data);
 	writeFileSync(dest, gen);
 }
