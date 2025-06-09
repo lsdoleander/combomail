@@ -3,3 +3,5 @@ node_modules
 tally/*
 servers.txt
 gen
+*.log
+yarn.lock
