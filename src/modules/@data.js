@@ -40,7 +40,7 @@ export default (function(){
 				});
 			}
 
-			function importer({ lines }){
+			function importer( lines ){
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
 				for (let s of lines) {
 					let o = JSON.parse(s);

@@ -324,21 +324,21 @@ $(()=>{
 
 		function readnext(f) {
 			return new Promise(resolve=>{
-				if (f.type === "text/plain") {
-					let r = new FileReader();
-					$(r).on("load", _=>{
-						if (/\.qssess$/.test(f.name)) {
-							qssess = [...combo, ...r.result.trim().split(/\r?\n/)];
-							resolve();
-						} else {
-							combo = [...combo, ...r.result.trim().split(/\r?\n/)];
-							resolve();
-						}
-					})
-					r.readAsText(f);
-				} else {
-					resolve();
-				}
+				let r = new FileReader();
+				$(r).on("load", _=>{
+					
+					if (/\.qssess$/.test(f.name)) {
+						qssess = [...combo, ...r.result.trim().split(/\r?\n/)];
+						resolve();
+					} else if (f.type === "text/plain") {
+						combo = [...combo, ...r.result.trim().split(/\r?\n/)];
+						resolve();
+					} else {
+						resolve();
+					}
+				})
+				r.readAsText(f);
+				
 			})
 		}
 
