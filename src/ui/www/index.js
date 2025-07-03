@@ -206,21 +206,27 @@ $(()=>{
 		let message = JSON.parse(event.data);
 		switch (message.action){
 		case "hits":
-			renderHits(message)
+			renderHits(message);
+			break;
 		case "stats":
-			renderProgress(message)
+			renderProgress(message);
+			break;
 		case "finish":
 			finish();
+			break;
 		case "begin":
 			renderBegin(message);
+			break;
 		case "subsearch":
 			renderEmails(message);
+			break;
 		case "imported":
 			updateValid(message);
 			if (comboqueue) {
 				sendCombos(comboqueue);
 				comboqueue = undefined;
 			}
+			break;
 		}
 	})
 
