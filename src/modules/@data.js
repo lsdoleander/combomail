@@ -29,7 +29,7 @@ export default (function(){
 		session: (function(){
 
 			function create({ user, pass, session }){
-				del(user)
+				del({ user })
 
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
 				stmt2.run({
@@ -45,6 +45,7 @@ export default (function(){
 				for (let s of lines) {
 					try {
 						let o = JSON.parse(s);
+						del(o)
 						stmt2.run({
 							json: (typeof o.session === 'object') ? 1 : 0,
 							session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
@@ -80,7 +81,7 @@ export default (function(){
 				return { map, combo, userdata };
 			}
 
-			function del({ user, pass }){
+			function del({ user }){
 				const stmt = db.prepare("DELETE FROM sessions WHERE user = @user");
 				stmt.run({ user });
 			}
@@ -114,29 +115,33 @@ export default (function(){
 				stmt.run({ id })
 			},
 
-			load(id) {
-				const stmt = db.prepare("SELECT pending FROM combo WHERE id=@id")
-				return stmt.get({ id });
-			},
-
 			incomplete(){
-				const stmt = db.prepare("SELECT id, pending FROM combo WHERE complete=0")
+				const stmt = db.prepare("SELECT id, pending FROM combo WHERE complete=0 ORDER BY timestamp DESC")
 				return stmt.get();
 			}
 		},
 
 		search: {
 			create(term, hits, pending) {
-				const stmt = db.prepare("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
-				let id = v4();
-				stmt.run({
-					id,
-					timestamp: new Date().getTime(),
-					term,
-					hits: JSON.stringify(hits),
-					pending: JSON.stringify(pending)
-				})
-				return id;
+				function prepare(){
+					const stmt = db.prepare("DELETE FROM search WHERE term=@term");
+					stmt.run({ term })
+				}
+				function insert(){
+					const stmt = db.prepare("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
+					let id = v4();
+					stmt.run({
+						id,
+						timestamp: new Date().getTime(),
+						term,
+						hits: JSON.stringify(hits),
+						pending: JSON.stringify(pending)
+					})
+					return id;
+				}
+
+				prepare();
+				return insert();
 			},
 
 			update(id, hits, pending) {
@@ -154,13 +159,18 @@ export default (function(){
 				stmt.run({ id })
 			},
 
-			load(id) {
-				const stmt = db.prepare("SELECT term, hits, pending FROM search WHERE id=@id")
-				return stmt.get({ id });
+			load(term) {
+				const stmt = db.prepare("SELECT hits FROM search WHERE term=@term ORDER BY timestamp DESC")
+				return stmt.get({ term });
+			},
+
+			list() {
+				const stmt = db.prepare("SELECT id, term, timestamp FROM search ORDER BY timestamp DESC")
+				return stmt.all();
 			},
 
 			incomplete(){
-				const stmt = db.prepare("SELECT id, term, hits, pending FROM search WHERE complete=0")
+				const stmt = db.prepare("SELECT id, term, hits, pending FROM search WHERE complete=0 ORDER BY timestamp DESC")
 				return stmt.get();
 			}
 		}

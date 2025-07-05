@@ -26,6 +26,7 @@
 		  			<span id="hits" class="flex-grow-1 py-1 px-2 rounded me-2"></span> Hits</div>
 		  		<div id="contains-valid" class="d-flex align-items-center me-3 text-end" style="width: 8rem">
 		  			<span id="valid" class="flex-grow-1 py-1 px-2 rounded me-2"></span> Valid</div>
+		  		<div id="contains-history" class="d-flex me-2"></div>
 			    <input id="term" class="form-control me-2 py-1" type="search" placeholder="Search" aria-label="Search"/>
 			    <button id="btngo" class="btn btn-outline-success" type="submit">Search</button>
 			</div>
@@ -75,7 +76,7 @@
 	</template>
 
 	<template id="messagelist" type="text/html">
-		<div class="sticky-top bg-body-tertiary shadow p-1 mb-2 rounded">
+		<div class="sticky-top bg-body-tertiary shadow p-1 mb-2 rounded" style="z-index: 9">
 			<form id="submail" class="d-flex flex-row position-relative">
 				<div class="d-flex align-items-center me-2">
 					<input type="text" class="form-control" id="subsearch" />
@@ -87,6 +88,23 @@
 			</form>
 		</div>
 		<div id="mail" class="shadow-sm rounded list-group"></div>
+	</template>
+
+	<template id="searchlist" type="text/html">
+		<div class="btn-group" id="search-history">
+		  <button type="button" class="btn bg-${mode}-subtle shows-term" data-bs-toggle="dropdown" aria-expanded="false">
+		    ${label}
+		  </button>
+		  <button type="button" class="btn btn-info dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+    		<span class="visually-hidden">Toggle Dropdown</span>
+  		  </button>
+		  <ul class="dropdown-menu" style="z-index: 10"></ul>
+		</div>
+	</template>
+
+	<template id="searchoption" type="text/html">
+		<li><a class="dropdown-item" href="#"><span class="badge bg-info-subtle search-timestamp">${timestamp}</span>
+			<span class="search-term">${term}</span></a></li>
 	</template>
 
 	<div id="sizing" style="height:1rem"></div>

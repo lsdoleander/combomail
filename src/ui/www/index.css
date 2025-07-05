@@ -111,3 +111,13 @@ iframe {
 #subsearch {
   padding: 0 .35rem;
 }
+
+#search-history .dropdown-menu li {
+  padding: 0;
+}
+
+#search-history .dropdown-menu .dropdown-item .search-timestamp {
+  font-size: 0.65rem;
+  color: dodgerblue !important;
+}
+

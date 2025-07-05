@@ -61,7 +61,8 @@ let stats = {
 	valid: 0,
 	hits: 0
 }
-	
+
+let runterm;
 let hitlist = [];
 
 function parseuser(lout) {
@@ -319,6 +320,10 @@ function base({ pnid, action, term, combo }) {
 let restart = datasource.search.incomplete();
 if (restart) {
 	hitlist = JSON.parse(restart.hits);
+	hitlist.sort(function(a,b){
+		return (a.results[0].date < b.results[0].date) ? -1:1
+	})
+	runterm = restart.term;
 	base({
 		prid: restart.id,
 		combo: JSON.parse(restart.pending),
@@ -347,13 +352,39 @@ process.on("SIGTERM", ifneedtoabort);
 process.on("SIGBREAK", ifneedtoabort);
 
 export default {
-	combo({ combo, finish }) {
-		return base({ action: "combo", combo, finish })
+	combo({ combo }) {
+		return base({ action: "combo", combo })
 	},
 
-	search({ term, hits, finish }) {
+	search({ term }) {
 		hitlist = [];
-		return base({ action: "search", combo: sessions.combo, term, hits, finish })
+		runterm = term;
+		return base({ action: "search", combo: sessions.combo, term })
+	},
+
+	history({ term }) {
+		let row = datasource.search.load(term);
+		let hits = JSON.parse(row.hits);
+		hits.sort(function(a,b){
+			return (a.results[0].date < b.results[0].date) ? -1:1
+		})
+		return {
+			action: "history",
+			hits 
+		}
+	},
+
+	list() {
+		let data, list = datasource.search.list();
+		if (list instanceof Array) {
+			data = list;
+		} else {
+			data = [ list ];
+		}
+		return {
+			action: "list",
+		 	data
+		}
 	},
 
 	qssess({ qssess }){
@@ -408,13 +439,10 @@ export default {
 			valid: sessions.valid 
 		};
 		if (running) {
-			if (running === "search") {
-				let run = datasource.search.incomplete();
-				if (run) {
-					message.running = running;
-					message.hits = run.hits;
-					message.term = run.term;
-				}
+			if (running === "search") {			
+				message.running = running;
+				message.hits = hitlist;
+				message.term = runterm;
 			}
 
 			query = {

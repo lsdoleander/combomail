@@ -77,6 +77,14 @@ process.on('uncaughtException', err => {
 				mailserver.subsearch(message).then(list=>{
 					if (list) ws.send(JSON.stringify(list));
 				})	
+				
+			} else if (message.action === "list"){
+				let list = mailserver.list();
+				ws.send(JSON.stringify(list));
+
+			} else if (message.action === "history"){
+				let history = mailserver.history(message);
+				ws.send(JSON.stringify(history));
 			}
 		})
 	});
