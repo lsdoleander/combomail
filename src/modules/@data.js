@@ -43,13 +43,17 @@ export default (function(){
 			function importer( lines ){
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
 				for (let s of lines) {
-					let o = JSON.parse(s);
-					stmt2.run({
-						json: (typeof o.session === 'object') ? 1 : 0,
-						session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
-						user: o.user,
-						pass: o.pass
-					});
+					try {
+						let o = JSON.parse(s);
+						stmt2.run({
+							json: (typeof o.session === 'object') ? 1 : 0,
+							session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
+							user: o.user,
+							pass: o.pass
+						});
+					} catch(e) {
+						// Line Didn't Parse
+					}
 				}
 			}
 					
