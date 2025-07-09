@@ -23,6 +23,7 @@
     "fetching": "https://github.com/lsdoleander/fetching.git",
     "imapflow": "^1.0.186",
     "json5": "^2.2.3",
+    "konsole": "https://github.com/lsdoleander/konsole.git",
     "mailblazer": "https://github.com/paulwardrip/mailblazer.git",
     "postal-mime": "^2.4.3",
     "ps-node": "^0.1.6",

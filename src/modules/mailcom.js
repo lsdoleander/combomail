@@ -104,25 +104,25 @@ export default function setup(sessions) {
 				if (sessions.userdata[user]) {
 					resolve(sessions.userdata[user]);
 				} else {
-				try {
-					let token = sessions[user].access_token;
-					let headers = HEADERS.D
-					let response = await client.mobsi.get("/rest/MobSI/UserData", { headers, token });
-					if (!response.ok) {
-						return resolve({ error: "access token expired." })
-					}
+					try {
+						let token = sessions[user].access_token;
+						let headers = HEADERS.D
+						let response = await client.mobsi.get("/rest/MobSI/UserData", { headers, token });
+						if (!response.ok) {
+							return resolve({ error: "access token expired." })
+						}
 
-					let jsondata = await response.json();
-					let data = {
-						name: `${jsondata["contact"]["firstName"]} ${jsondata["contact"]["lastName"]}`,
-						country: jsondata["address"]["countryIso"],
-						birthdate: dateformat(new Date(jsondata["details"]["birthDate"]))
+						let jsondata = await response.json();
+						let data = {
+							name: `${jsondata["contact"]["firstName"]} ${jsondata["contact"]["lastName"]}`,
+							country: jsondata["address"]["countryIso"],
+							birthdate: dateformat(new Date(jsondata["details"]["birthDate"]))
+						}
+						sessions.update({ user, data })
+						resolve(data);
+					}  catch(ex) {
+						console.log(ex);
 					}
-					sessions.update({ user, data })
-					resolve(data);
-				}  catch(ex) {
-					console.log(ex);
-				}
 				}
 			})
 		}
@@ -130,41 +130,41 @@ export default function setup(sessions) {
 		function search(searchtext) {
 			return new Promise(async resolve=>{
 				try {
-				let data = POST.E
-				let headers = HEADERS.E
-				let token = sessions[user].access_token;
-				data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
-				let response = await client.hsp2.post("/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
-					 json: data, headers, token });
+					let data = POST.E
+					let headers = HEADERS.E
+					let token = sessions[user].access_token;
+					data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
+					let response = await client.hsp2.post("/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
+						 json: data, headers, token });
 
-				let jsondata = await response.json()
+					let jsondata = await response.json()
 
-				let searchresults = {
-					total: jsondata["totalCount"],
-					results: [],
-					user
-				}
-
-				for (let mail of jsondata["mail"]) {
-					let from = mail["mailHeader"]["from"];
-					let parts = from.match(/\"(.*)\" \<(.*)\>/);
-					let m = {
-						id: mail["mailURI"],
-						subject: mail["mailHeader"]["subject"],
-						date: new Date().setTime(mail["mailHeader"]["date"]),
-						attachments: mail["attribute"]["hasDownloadableAttachments"],
-						read: mail["attribute"]["read"],
-						from: {
-							address: parts ? parts[2] : from
-						}
+					let searchresults = {
+						total: jsondata["totalCount"],
+						results: [],
+						user
 					}
-					if (parts) m.from.name = parts[1];
-					searchresults.results.push(m);
-				}
 
-				searchresults.userdata = await userdata(),
+					for (let mail of jsondata["mail"]) {
+						let from = mail["mailHeader"]["from"];
+						let parts = from.match(/\"(.*)\" \<(.*)\>/);
+						let m = {
+							id: mail["mailURI"],
+							subject: mail["mailHeader"]["subject"],
+							date: new Date().setTime(mail["mailHeader"]["date"]),
+							attachments: mail["attribute"]["hasDownloadableAttachments"],
+							read: mail["attribute"]["read"],
+							from: {
+								address: parts ? parts[2] : from
+							}
+						}
+						if (parts) m.from.name = parts[1];
+						searchresults.results.push(m);
+					}
 
-				resolve(searchresults);
+					searchresults.userdata = await userdata(),
+
+					resolve(searchresults);
 				}  catch(ex) {
 					console.log(ex);
 				}

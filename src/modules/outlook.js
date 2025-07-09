@@ -2,6 +2,9 @@
 import { v4 } from 'uuid';
 import fetching from 'fetching';
 import retryable from './@retryable.js'
+import { debuffer, datadir } from 'konsole';
+
+let debug = debuffer(datadir.share("combomail")).logger("imap");
 
 const MSCV = "sIJkt2ClwstSShBYTMGzvX";
 const clientid = "e9b154d0-7658-433b-bb25-6b8e0a8a7c59"
@@ -49,7 +52,7 @@ export default function (sessions) {
 							return fail ("Login Failed: !== MSAccount");
 						}
 					}).catch(retry)
-				}, 100)
+				}, { max: 100, logsto=debug })
 
 				// REQUEST 2: Get the login URL and required generated values
 				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry })=>{
@@ -91,7 +94,7 @@ export default function (sessions) {
 						})
 	
 					}).catch(retry)
-				})
+				}, { logsto=debug })
 
 				// REQUEST 3
 				const { mspcid, nap, anon, wlssc, code, cid } = await retryable(resolve, async({ success,fail,retry })=>{
@@ -148,7 +151,7 @@ export default function (sessions) {
 						}
 			
 					}).catch(retry)
-				})
+				}, { logsto=debug })
 
 				// REQUEST 4 OAUTH TOKEN
 				const { token } = await retryable(resolve, async ({ success,fail,retry })=>{
@@ -167,7 +170,7 @@ export default function (sessions) {
 						}
 		
 					}).catch(retry)
-				});	
+				}, { logsto=debug })
 
 				// REQUEST 5
 				const { uc } = await retryable(resolve, async ({ success,fail,retry })=>{
@@ -196,7 +199,7 @@ export default function (sessions) {
 						}
 			
 					}).catch(retry)
-				});
+				}, { logsto=debug })
 
 				sessions.create({ user, pass, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
 				resolve(factory(user));

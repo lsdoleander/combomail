@@ -1,6 +1,6 @@
 
 import Database from 'better-sqlite3';
-import datadir from '../ui/datadir.js';
+import { datadir } from 'konsole';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -9,7 +9,7 @@ import { v4 } from 'uuid';
 export default (function(){
 
 	let db = (function() {
-		let dir = datadir("combomail");
+		let dir = datadir.share("combomail");
 		let datafile = path.join(dir, "sessions.db");
 		let create = !fs.existsSync(datafile);
 

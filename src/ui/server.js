@@ -5,22 +5,15 @@ import express from 'express';
 import ws from 'express-ws';
 import cors from 'cors';
 import dev from '../development.js';
+import { debuffer, datadir } from 'konsole';
 
 import mailserver from '../modules/@mailserver.js';
 
 import launcher from './launcher.js';
 
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection:', reason);
-    console.error("at Promise:");
-    console.trace(promise);
-});
-process.on('uncaughtException', err => {
-    console.error('Uncaught Exception');
-    console.trace(err);
-});
-
 (function start(){
+
+	debuffer(datadir.share("combomail"))
 
 	let app = express();
 	app.use(cors());
@@ -106,6 +99,5 @@ process.on('uncaughtException', err => {
 	setTimeout(async function(){
 		let ui = launcher("http://localhost:8675/");
 		let pid = await ui.pid();
-		console.log(`UI spawned (browser: ${ui.browser}, PID: ${pid})`);
 	500});
 })()

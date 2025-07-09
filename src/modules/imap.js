@@ -3,6 +3,9 @@ import { ImapFlow } from 'imapflow'
 import PostalMime from 'postal-mime';
 import util from 'node:util';
 
+import { debuffer, datadir } from 'konsole';
+
+let debug = debuffer(datadir.share("combomail")).logger("imap");
 
 export default function (sessions) {
 	return function imap(host, port) {
@@ -67,6 +70,8 @@ export default function (sessions) {
 
 								let headers = m.headers.toString("utf-8");// Node.js
 								const email = await PostalMime.parse(headers);
+								debug.log(user, email);
+
 						      	let from = email.from.match(/([^<]+)\s?<([^>]+)>/);
 								let r = {
 									ui: email.uid,
@@ -81,7 +86,7 @@ export default function (sessions) {
 					    	}
 
 						} catch (ex) {
-							console.log(ex.message)
+							debug.log(ex.message)
 
 						} finally {
 						    lock.release();

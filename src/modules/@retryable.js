@@ -1,5 +1,5 @@
 
-	export default function retryable(resolve,_function, max=10, delay=5000) {
+	export default function retryable(resolve,_function, opts={ max:10, delay:5000, logsto:console }) {
 		return new Promise(async success=>{
 			(function exe(tries){
 				function retry(x) {
@@ -15,6 +15,7 @@
 						if (!e) {
 							resolve({ success: false })
 						} else {
+							logsto.log(e);
 							resolve({ success: false, error: e })
 						}
 					}})
