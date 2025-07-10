@@ -5454,7 +5454,6 @@ export default {
 	"dravanet.hu": [ "mail.dravanet.hu", 993 ],
 	"drblewis.co.uk": [ "mail.drblewis.co.uk", 993 ],
 	"drchip.es": [ "drchip.es", 993 ],
-	"drdrb.com:https": [ "//carddav.fastmail.com/.well-known/carddav",  ],
 	"dream-tec.de": [ "dream-tec.de", 993 ],
 	"dream.jp": [ "imap.dream.jp", 993 ],
 	"dream.ocn.ne.jp": [ "dream.ocn.ne.jp", 993 ],
