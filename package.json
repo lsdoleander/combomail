@@ -32,6 +32,7 @@
   "scripts": {
     "update": "git pull && yarn add https://github.com/lsdoleander/fetching.git && yarn add https://github.com/lsdoleander/konsole.git && yarn add https://github.com/paulwardrip/mailblazer.git",
     "clean": "node src/build.js",
+    "clear": "node src/datareset.js",
     "test": "node src/ui/server.js",
     "build": "yarn static && yarn rollup && yarn dist",
     "static": "node src/statictool.js gen/www.js src/ui/www/",
