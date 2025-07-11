@@ -282,18 +282,20 @@ export default function (sessions) {
 						user
 					};
 
-					for (let result of jsondata["EntitySets"][0]["ResultSets"][0]["Results"]){
-						searchresults.results.push({
-							id: result["Source"]["ItemId"]["Id"],
-							subject: result["Source"]["ConversationTopic"],
-							attachments: result["Source"]["HasAttachments"],
-							date: new Date(result["Source"]["LastDeliveryTime"]).getTime(),
-							read: result["Source"]["UnreadCount"] === 0,
-							from: {
-								name: result["Source"]["From"]["EmailAddress"]["Name"],
-								address: result["Source"]["From"]["EmailAddress"]["Address"]
-							}
-						});
+					if (searchresults.total > 0) {
+						for (let result of jsondata["EntitySets"][0]["ResultSets"][0]["Results"]){
+							searchresults.results.push({
+								id: result["Source"]["ItemId"]["Id"],
+								subject: result["Source"]["ConversationTopic"],
+								attachments: result["Source"]["HasAttachments"],
+								date: new Date(result["Source"]["LastDeliveryTime"]).getTime(),
+								read: result["Source"]["UnreadCount"] === 0,
+								from: {
+									name: result["Source"]["From"]["EmailAddress"]["Name"],
+									address: result["Source"]["From"]["EmailAddress"]["Address"]
+								}
+							});
+						}
 					}
 
 					searchresults.userdata = await userdata();
