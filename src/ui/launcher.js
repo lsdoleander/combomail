@@ -57,7 +57,7 @@
 
 		let prid = (function check() {
 			return new Promise(resolve=>{
-				lookup({ command: app, arguments: "combomail" }, async (err, list) => {
+				lookup({ command: app, arguments: "--window-name=combomail" }, async (err, list) => {
 					if (list.length === 0) {
 						console.log("lookup: ui not running... start!")
 						let p = await start();
@@ -86,15 +86,20 @@
 				  //detached: true,
 				  stdio: [ 'ignore', out, out ],
 				})
-				setTimeout(async function(){
-					let pid = ui.pid;
-					if (!pid) (function check() {
-						lookup({ command: app, arguments: "--window-name=combomail" }, (err, list)=>{
-							if (list) resolve(list[list.length-1]);
-							else resolve();
-						})
-					})();
-				},5000)
+				let tries = 0;
+				function look4pid() {
+					setTimeout(async function(){
+						tries++;
+						let pid = ui.pid;
+						if (!pid) (function check() {
+							lookup({ command: app, arguments: "--window-name=combomail" }, (err, list)=>{
+								if (list) resolve(list[list.length-1]);
+								else if (tries < 5) look4pid();
+								else resolve();
+							})
+						})();
+					},5000)
+				}
 			})
 		}
 
