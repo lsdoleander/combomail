@@ -239,10 +239,13 @@ export default function (sessions) {
 						name: jsondata["names"][0]["displayName"],
 						country: jsondata["accounts"][0]["location"], 
 						birthdate: `${jsondata["accounts"][0]["birthMonth"]}/${jsondata["accounts"][0]["birthDay"]}/${jsondata["accounts"][0]["birthYear"]}`,
-						phone: jsondata["phones"][0]["phoneNumber"],
 						email: user,
 						avatar: await avatar()
 					};
+
+					if (jsondata.phones && jsondata.phones.length > 0) {
+						data.phone = jsondata["phones"][0]["phoneNumber"];
+					}
 
 					sessions.update({ user, data });
 					resolve(data);
