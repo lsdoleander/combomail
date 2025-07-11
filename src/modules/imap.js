@@ -29,13 +29,27 @@ export default function (sessions) {
 							let mailbox = await client.mailboxOpen('INBOX');
 
 							let words = terms.trim().split(" ");
+							let subject = [];
+
 							let ors = [];
 							for (let word of words) {
-								ors.push({ from: word });
-								if (!/.*@.*/.test(word)) ors.push({ subject: word })
+								
+								if (/.*@.*/.test(word)) {
+									ors.push({ from: word });
+								} else {
+									subject.push(word);
+								}
 							}
 
+							if (subject.length > 0) {
+								ors.push({ subject: subject.join(" ") })
+							}
+
+							console.log(ors);
+
 							let list = await client.search({ or: ors }, { uid: true });
+							console.log(list);
+
 							resolve(fetcher(list));
 							
 						} catch (ex) {
@@ -62,16 +76,12 @@ export default function (sessions) {
 						
 					  	try {
 						    for await (const m of client.fetch(id, {
-/*						      envelope: true,
-						      bodyParts: true,
-						      bodyStructure: true,*/
-						      headers: true,
-						      uid: true
-						    })) {
+							      headers: true,
+							      uid: true
+							    })) {
 
-								let headers = m.headers.toString("utf-8");// Node.js
+								let headers = m.headers.toString("utf-8");
 								const email = await PostalMime.parse(headers);
-								debug.log(user, email);
 
 								let r = {
 									ui: email.uid,
