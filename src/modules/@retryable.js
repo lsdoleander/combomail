@@ -3,8 +3,8 @@
 		return new Promise(async success=>{
 			(function exe(tries){
 				function retry(x) {
-					if (tries < max) {
-						setTimeout(()=>{ exe(tries+1) }, delay);
+					if (tries < opts.max) {
+						setTimeout(()=>{ exe(tries+1) }, opts.delay);
 					} else {
 						resolve({ success: false, error: "tries exceeded", x })
 					}
@@ -15,7 +15,7 @@
 						if (!e) {
 							resolve({ success: false })
 						} else {
-							logsto.log(e);
+							opts.logsto.log(e);
 							resolve({ success: false, error: e })
 						}
 					}})

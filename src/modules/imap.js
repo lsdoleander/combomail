@@ -45,10 +45,7 @@ export default function (sessions) {
 								ors.push({ subject: subject.join(" ") })
 							}
 
-							console.log(ors);
-
 							let list = await client.search({ or: ors }, { uid: true });
-							console.log(list);
 
 							resolve(fetcher(list));
 							
@@ -62,7 +59,7 @@ export default function (sessions) {
 					return new Promise(async resolve=>{
 						
 						let out = {
-							total: id.length,
+							total: id?.length,
 							userdata: {
 								email: user
 							},
@@ -70,34 +67,38 @@ export default function (sessions) {
 							user
 						};
 
-						let list = id.length > 25 ? id.splice(id.length - 25) : id;
+						if (id?.length > 0) {
+							let list = id.length > 25 ? id.splice(id.length - 25) : id;
 
-						const lock = await client.getMailboxLock('INBOX');
-						
-					  	try {
-						    for await (const m of client.fetch(id, {
-							      headers: true,
-							      uid: true
-							    })) {
+							const lock = await client.getMailboxLock('INBOX');
+							
+						  	try {
+							    for await (const m of client.fetch(id, {
+								      headers: true,
+								      uid: true
+								    })) {
 
-								let headers = m.headers.toString("utf-8");
-								const email = await PostalMime.parse(headers);
+									let headers = m.headers.toString("utf-8");
+									const email = await PostalMime.parse(headers);
 
-								let r = {
-									ui: email.uid,
-									from: email.from,
-									subject: email.subject,
-									date: email.date ? new Date(email.date).getTime() : null
-								};
-								out.results.push(r);
-					    	}
+									let r = {
+										ui: email.uid,
+										from: email.from,
+										subject: email.subject,
+										date: email.date ? new Date(email.date).getTime() : null
+									};
+									out.results.push(r);
+						    	}
 
-						} catch (ex) {
-							debug.log(ex.message)
+							} catch (ex) {
+								debug.log(id, ex)
 
-						} finally {
-						    lock.release();
-						    client.close();
+							} finally {
+							    lock.release();
+							    client.close();
+							    resolve(out);
+							}
+						} else {
 						    resolve(out);
 						}
 					})
