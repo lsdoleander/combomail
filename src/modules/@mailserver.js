@@ -247,11 +247,11 @@ function base({ pnid, action, term, combo }) {
 													if (comms) comms.hits(list);
 												}
 											} else  {
-												debug.log(`Search Error (${server.name}:`, list.error);
+												debug.log(`Search Error (${server.name}):`, list.error);
 											}
 										}
 									} else if (api.error){
-										debug.log(`Login Error (${server.name}:`, api.error);
+										debug.log(`Login Error (${server.name}):`, api.error);
 									}
 
 									stats.processed++
