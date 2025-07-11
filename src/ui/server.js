@@ -13,7 +13,7 @@ import launcher from './launcher.js';
 
 (function start(){
 
-	debuffer(datadir.share("combomail"))
+	debuffer(path.join(datadir.share("combomail"),"logs"))
 
 	let app = express();
 	app.use(cors());

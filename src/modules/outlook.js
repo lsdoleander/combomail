@@ -4,7 +4,7 @@ import fetching from 'fetching';
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
 
-let debug = debuffer(datadir.share("combomail")).logger("outlook");
+let debug = debuffer(path.join(datadir.share("combomail"),"logs")).logger("outlook");
 
 const MSCV = "sIJkt2ClwstSShBYTMGzvX";
 const clientid = "e9b154d0-7658-433b-bb25-6b8e0a8a7c59"

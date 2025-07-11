@@ -5,7 +5,7 @@ import util from 'node:util';
 
 import { debuffer, datadir } from 'konsole';
 
-let debug = debuffer(datadir.share("combomail")).logger("imap");
+let debug = debuffer(path.join(datadir.share("combomail"),"logs")).logger("imap");
 
 export default function (sessions) {
 	return function imap(host, port) {
@@ -65,23 +65,20 @@ export default function (sessions) {
 /*						      envelope: true,
 						      bodyParts: true,
 						      bodyStructure: true,*/
-						      headers: true
+						      headers: true,
+						      uid: true
 						    })) {
 
 								let headers = m.headers.toString("utf-8");// Node.js
 								const email = await PostalMime.parse(headers);
 								debug.log(user, email);
 
-						      	let from = email.from.match(/([^<]+)\s?<([^>]+)>/);
 								let r = {
 									ui: email.uid,
-									from: {
-										address: from ? from[2] : email.from,
-									},
+									from: email.from,
 									subject: email.subject,
-									date: new Date(email.date).getTime()
+									date: email.date ? new Date(email.date).getTime() : null
 								};
-								if (from) r.from.name = from[1];
 								out.results.push(r);
 					    	}
 
