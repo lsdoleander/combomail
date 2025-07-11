@@ -10,6 +10,7 @@ let debug = debuffer(datadir.share("combomail","logs")).logger("imap");
 export default function (sessions) {
 	return function imap(host, port) {
 		return {
+			name: "imap",
 			queue: "main",
 			login(user, pass) {
 				const client = new ImapFlow({
@@ -76,6 +77,8 @@ export default function (sessions) {
 							    for await (const m of client.fetch(id, {
 								      headers: true,
 								      uid: true
+								    }, { 
+								    	uid: true 
 								    })) {
 
 									let headers = m.headers.toString("utf-8");

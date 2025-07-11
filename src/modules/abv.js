@@ -11,6 +11,7 @@ export default function (sessions) {
 	return {
 		DOMAINS: [ "abv.bg" ],
 		queue: "abv",
+		name: "abv.bg",
 		login
 	}
 	

@@ -12,6 +12,7 @@ const clientid = "e9b154d0-7658-433b-bb25-6b8e0a8a7c59"
 export default function (sessions) {
 	return {
 		queue: "outlook",
+		name: "outlook",
 		DOMAINS,
 		login
 	}

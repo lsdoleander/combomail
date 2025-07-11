@@ -9,6 +9,7 @@ export default function setup(sessions) {
 
 	return {
 		queue: "main",
+		name: "mail.com",
 		DOMAINS,
 		login
 	}

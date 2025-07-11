@@ -40,7 +40,6 @@ function loadsessions(){
 		userdata[user] = undefined;
 		map.valid--;
 		stats.valid--;
-//		map.combo.splice(map.combo.indexOf(`${user}:${pass}`), 1);
 		datasource.session.delete({ user, pass });
 	}
 	map.userdata = userdata
@@ -191,7 +190,7 @@ function base({ pnid, action, term, combo }) {
 		clearInterval(pendintv);
 
 		if (queue) {
-			for (let key of queue) {
+			for (let key in queue) {
 				if (queue[key].started && !queue[key].idle()) queue[key].kill();
 			}
 		}
@@ -249,11 +248,11 @@ function base({ pnid, action, term, combo }) {
 													if (comms) comms.hits(list);
 												}
 											} else  {
-												debug.log("Search Error:", list.error);
+												debug.log(`Search Error (${server.name}:`, list.error);
 											}
 										}
 									} else if (api.error){
-										debug.log("Login Error:", api.error);
+										debug.log(`Login Error (${server.name}:`, api.error);
 									}
 
 									stats.processed++

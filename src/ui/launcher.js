@@ -5,7 +5,7 @@
 	import { lookup, kill } from 'ps-node'
 	import { join } from 'node:path'
 
-	import datadir from './datadir.js'
+	import { datadir } from 'konsole'
 
 	export default function launch(url) {
 		function browser(name) {
