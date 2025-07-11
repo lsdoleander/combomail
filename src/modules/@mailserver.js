@@ -13,6 +13,10 @@ import async from 'async'
 import path from 'path'
 import fs from 'fs'
 
+import { debuffer, datadir } from 'konsole';
+
+let debug = debuffer(datadir.share("combomail","logs")).logger("~mailserver");
+
 const resolver = factory().resolve;
 
 function loadsessions(){
@@ -245,11 +249,11 @@ function base({ pnid, action, term, combo }) {
 													if (comms) comms.hits(list);
 												}
 											} else  {
-												console.log("Search Error:", list.error);
+												debug.log("Search Error:", list.error);
 											}
 										}
 									} else if (api.error){
-										console.log("Login Error:", api.error);
+										debug.log("Login Error:", api.error);
 									}
 
 									stats.processed++

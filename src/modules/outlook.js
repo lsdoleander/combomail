@@ -246,7 +246,7 @@ export default function (sessions) {
 					sessions.update({ user, data });
 					resolve(data);
 				} catch (ex) {
-					console.log(ex);
+					debug.log(ex);
 					resolve({ error: ex});
 				}
 			})
@@ -299,7 +299,7 @@ export default function (sessions) {
 					resolve(searchresults);
 
 				} catch(ex) {
-					console.log(ex);
+					debug.log(ex);
 					resolve({ error: ex })
 				}
 			})
@@ -323,7 +323,7 @@ export default function (sessions) {
 						resolve(`data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`);
 					});
 				} catch(ex) {
-					console.log(ex);
+					debug.log(ex);
 					resolve({ error: ex });
 				}
 			})
@@ -365,7 +365,7 @@ export default function (sessions) {
 					resolve({ html: jsondata["Body"]["ResponseMessages"]["Items"][0]["Items"][0]["NormalizedBody"]["Value"] })
 	                    
 				} catch(ex) {
-					console.log(ex);
+					debug.log(ex);
 					resolve({ error: ex })
 				}
 			})

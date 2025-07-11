@@ -98,7 +98,7 @@ export default function setup(sessions) {
 						resolve ({ success: true, access_token });
 					}
 				}  catch(ex) {
-					console.log(ex);
+					debug.log(ex);
 				}
 			})
 		}
@@ -125,7 +125,7 @@ export default function setup(sessions) {
 						sessions.update({ user, data })
 						resolve(data);
 					}  catch(ex) {
-						console.log(ex);
+						debug.log(ex);
 					}
 				}
 			})
@@ -170,7 +170,7 @@ export default function setup(sessions) {
 
 					resolve(searchresults);
 				}  catch(ex) {
-					console.log(ex);
+					debug.log(ex);
 				}
 			});
 		}
