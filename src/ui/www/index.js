@@ -227,7 +227,7 @@ $(()=>{
 			}
 		}
 
-		let $btn = $("#search-history button");
+		let $btn = $("#search-history button.shows-term");
 		$btn.text(term);
 		if (shbtn === "secondary") $btn.removeClass("btn-secondary").addClass("btn-info");
 		shbtn = "info";
