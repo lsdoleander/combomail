@@ -3,9 +3,8 @@ import { v4 } from 'uuid'
 import fetching from 'fetching'
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
-import path from 'node:path'
 
-let debug = debuffer(path.join(datadir.share("combomail"),"logs")).logger("abv");
+let debug = debuffer(datadir.share("combomail","logs")).logger("abv");
 
 export default function (sessions) {
 

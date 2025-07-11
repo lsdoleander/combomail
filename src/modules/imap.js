@@ -5,7 +5,7 @@ import util from 'node:util';
 
 import { debuffer, datadir } from 'konsole';
 
-let debug = debuffer(path.join(datadir.share("combomail"),"logs")).logger("imap");
+let debug = debuffer(datadir.share("combomail","logs")).logger("imap");
 
 export default function (sessions) {
 	return function imap(host, port) {

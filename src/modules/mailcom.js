@@ -3,7 +3,7 @@ import fetching from 'fetching';
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
 
-let debug = debuffer(path.join(datadir.share("combomail"),"logs")).logger("mailcom");
+let debug = debuffer(datadir.share("combomail","logs")).logger("mailcom");
 
 export default function setup(sessions) {	
 
