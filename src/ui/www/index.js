@@ -171,10 +171,10 @@ $(()=>{
 			pbb.text(`${percent}%`);
 			pba.text("");
 		}
-		if (message.hits) {
+		if (typeof message.hits !== 'undefined') {
 			$("#hits").text(message.hits);
 		}
-		updateValid(message);
+		$("#valid").text(message.valid);
 	}
 
 	function renderList(message) {

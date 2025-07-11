@@ -39,7 +39,6 @@ function loadsessions(){
 		map[user] = undefined;
 		userdata[user] = undefined;
 		map.valid--;
-		stats.valid--;
 		datasource.session.delete({ user, pass });
 	}
 	map.userdata = userdata
