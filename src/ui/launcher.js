@@ -104,8 +104,12 @@
 		}
 
 		const closebrowser = ()=>{
-			kill(pid, (e,d)=>{
-				process.exit();
+			prid.then(pid=>{
+				if (pid) {
+					kill(pid, (e,d)=>{
+						process.exit();
+					})
+				}
 			})
 		};
 
@@ -123,7 +127,13 @@
 				return prid;
 			},
 			kill: function() {
-				kill(pid);
+				prid.then(pid=>{
+					if (pid) {
+						kill(pid, (e,d)=>{
+							process.exit();
+						})
+					}
+				})
 			}
 		}
 	}
