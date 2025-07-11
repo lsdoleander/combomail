@@ -11,18 +11,6 @@ body {
   color: #909090;
 }
 
-/*#mail {
-  border: 1px solid white;
-  background-color: #202020;
-  color: #C0C0C0;
-}
-*/
-/*#body {
-  background-color: white;
-  border: 1px solid black;
-  color: #202020;
-}*/
-
 #pba {
   background-color: cyan;
   opacity: .8;
@@ -61,10 +49,6 @@ button.icon {
   width: 16px;
   height: 16px;
 }
-
-/*nav.navbar {
-  background-color: #AFAFAF
-}*/
 
 #hits, #valid {
   font-size: 0.80rem;
