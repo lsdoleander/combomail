@@ -28,25 +28,30 @@ export default function (sessions) {
 					return new Promise(async resolve=>{
 						try {
 							let mailbox = await client.mailboxOpen('INBOX');
-
 							let words = terms.trim().split(" ");
-							let subject = [];
-
-							let ors = [];
+							let subject = [], from = [];
 							for (let word of words) {
-								
 								if (/.*@.*/.test(word)) {
-									ors.push({ from: word });
+									from.push(word);
 								} else {
 									subject.push(word);
 								}
 							}
-
+							let search = {};
+							if (from.length === 1) {
+								search.from = from;
+							} else if (from.length > 1) {
+								let ors = [];
+								for (let sender of from) {
+									ors.push({ from: sender });
+								}
+								search.or = ors;
+							}
 							if (subject.length > 0) {
-								ors.push({ subject: subject.join(" ") })
+								search.subject = subject.join(" ");
 							}
 
-							let list = await client.search({ or: ors }, { uid: true });
+							let list = await client.search(search, { uid: true });
 
 							resolve(fetcher(list));
 							

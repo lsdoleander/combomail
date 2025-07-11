@@ -320,10 +320,19 @@ export default function (sessions) {
 					let token = sessions[user].token;
 					let imgtype;
 					client.substrate.get(url, { headers, token }).then(r => {
-						imgtype = r.headers["content-type"];
-						return r.arrayBuffer();
+						imgtype = r.headers["content-type"]
+						if (r.ok && imgtype) {
+							return r.arrayBuffer();
+						} else {
+							debug.log("Avatar !ok", r.status, imgtype);
+							return new Promise(resolve=>resolve());
+						}
 					}).then(blob => {
-						resolve(`data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`);
+						if (blob) {
+							resolve(`data:${imgtype};base64,${Buffer.from(blob).toString("base64")}`);
+						} else {
+							resolve();
+						}
 					});
 				} catch(ex) {
 					debug.log(ex);
