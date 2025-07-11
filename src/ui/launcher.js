@@ -44,7 +44,7 @@
 		}
 
 		const app = (function init(){
-			let dir = datadir("combomail");
+			let dir = datadir.share("combomail");
 			let conf = join(dir, "launch.conf")
 			if (existsSync(conf)) {
 				return readFileSync(conf,'utf-8');
