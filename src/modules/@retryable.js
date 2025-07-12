@@ -6,7 +6,8 @@
 					if (tries < opts.max) {
 						setTimeout(()=>{ exe(tries+1) }, opts.delay);
 					} else {
-						resolve({ success: false, error: "tries exceeded", x })
+						opts.logsto.log(x);
+						resolve({ success: false, error: "tries exceeded" })
 					}
 				}
 

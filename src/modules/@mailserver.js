@@ -140,8 +140,8 @@ function base({ pnid, action, term, combo }) {
 	
 	const queue = {
 		_triage_: _q_(100),
-		main: _q_(65),
-		outlook: _q_(25),
+		main: _q_(100),
+		outlook: _q_(20),
 		abv: _q_(1)
 	}
 
