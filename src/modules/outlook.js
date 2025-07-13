@@ -843,7 +843,7 @@ export const DOMAINS = [
 	"windowslive.com"
 ]
 
-export const COMMONMISTAKES = {
+export const COMMONMISTAKES = [
 	"hotmail.cm",
 	"hotmail.co",
 	"hotmail.comm",
@@ -863,4 +863,4 @@ export const COMMONMISTAKES = {
 	"live.cos",
 	"live.cos.ar",
 	"msn.es"
-}
+]
