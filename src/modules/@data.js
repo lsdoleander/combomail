@@ -63,19 +63,19 @@ export default (function(){
 					queue.push(function(cb){
 						try {
 							let o = JSON.parse(s);
-							debug.log("importer: Parsed", import.processed)
+							debug.log("importer: Parsed", imports.processed)
 							del(o)
-							debug.log("importer: Deleted", import.processed)
+							debug.log("importer: Deleted", imports.processed)
 							stmt2.run({
 								json: (typeof o.session === 'object') ? 1 : 0,
 								session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
 								user: o.user,
 								pass: o.pass
 							});
-							debug.log("importer: Inserted", import.processed)
+							debug.log("importer: Inserted", imports.processed)
 						} catch(e) {
 							// Line Didn't Parse
-							debug.log("importer: Error", import.processed)
+							debug.log("importer: Error", imports.processed)
 							debug.trace(e)
 						} finally {
 							imports.processed++
