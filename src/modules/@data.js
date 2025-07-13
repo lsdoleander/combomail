@@ -44,7 +44,7 @@ export default (function(){
 				});
 			}
 
-			function importer( lines ){
+		/*	function importer( lines ){
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
 				let queue = [];
 				
@@ -87,8 +87,21 @@ export default (function(){
 				series(queue, function(){
 					imports.complete = true;
 				})
+			}*/
+				
+
+			function importer( o ){
+				del(o)
+
+				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
+				stmt2.run({
+					json: (typeof o.session === 'object') ? 1 : 0,
+					session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
+					user: o.user,
+					pass: o.pass
+				});
 			}
-					
+
 			function update({ user, session, data }){
 				const stmt2 = db.prepare(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} WHERE user=@user`);
 				stmt2.run({

@@ -394,25 +394,52 @@ export default {
 
 	qssess({ qssess }, sendstatus){
 		return new Promise(resolve=>{
-			let istat = datasource.session.import(qssess);
-			let last = 0;
-			let isintv = setInterval(function(){
-				let data = istat();
-				if (data.complete) {
-					clearInterval(isintv);
+			console.log("qssess: start", qssess?.length)
 
-					sessions = loadsessions();
-					resolve({
-						action: "imported",
-						valid: sessions.valid
-					})
-				} else {
-					if (data.processed > last){
-						last = data.processed;
-						sendstatus(data)
+			let queue = [];
+			
+			let imports = {
+				action: "importing",
+				total: qssess.length,
+				processed: 0
+			}
+
+			for (let s of qssess) {
+				queue.push(function(cb){
+					try {
+						let o = JSON.parse(s);
+						debug.log("qssess: Parsed", imports.processed)
+						datasource.session.import(o);
+						debug.log("qssess: Inserted", imports.processed)
+					} catch(e) {
+						// Line Didn't Parse
+						debug.log("qssess: Error", imports.processed)
+						debug.trace(e)
+					} finally {
+						imports.processed++
+						cb();
 					}
+				});
+			}
+
+			let last = -1;
+			let isintv = setInterval(function(){
+				if (imports.processed > last){
+					console.log("qssess: send status")
+					last = imports.processed;
+					sendstatus(imports)
 				}
 			},250)
+
+			series(queue, function(){
+				clearInterval(isintv);
+
+				sessions = loadsessions();
+				resolve({
+					action: "imported",
+					valid: sessions.valid
+				})
+			})
 		})
 	},
 
