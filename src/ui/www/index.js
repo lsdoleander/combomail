@@ -50,6 +50,7 @@ $(()=>{
 			backdrop: 'static',
 			keyboard: false
 		})
+		$wait.modal.show();
 	}
 
 	function renderBegin(message){
