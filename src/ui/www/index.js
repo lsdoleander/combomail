@@ -45,6 +45,11 @@ $(()=>{
 	function renderWait() {
 		$wait = $(templates.wait);
 		$("body").append($wait);
+
+		$wait.modal = new bootstrap.Modal('#modalwait', {
+			backdrop: 'static',
+			keyboard: false
+		})
 	}
 
 	function renderBegin(message){
@@ -323,7 +328,12 @@ $(()=>{
 			updateValid(message);
 			finish();
 
-			$wait.detach();
+			$wait[0].addEventListener('hidden.bs.modal', event=>{
+				$wait.modal.dispose();
+				$wait.detach();
+			});
+
+			$wait.modal.hide();
 
 			if (comboqueue) {
 				sendCombos(comboqueue);
