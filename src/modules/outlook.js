@@ -1,8 +1,10 @@
 
-import { v4 } from 'uuid';
-import fetching from 'fetching';
+import { v4 } from 'uuid'
+import fetching from 'fetching'
 import retryable from './@retryable.js'
-import { debuffer, datadir } from 'konsole';
+import { debuffer, datadir } from 'konsole'
+
+import nord from "../conf/nord.js"
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("outlook");
 
@@ -10,6 +12,7 @@ const MSCV = "sIJkt2ClwstSShBYTMGzvX";
 const clientid = "e9b154d0-7658-433b-bb25-6b8e0a8a7c59"
 
 export default function (sessions) {
+
 	return {
 		queue: "outlook",
 		name: "outlook",
@@ -17,8 +20,16 @@ export default function (sessions) {
 		login
 	}
 
+	let nidx = -1;
+	
+	function nextproxy() {
+		nidx++
+		if (nidx === nord.length) nidx = 0;
+		return nord[nidx];
+	}
+
 	function login(user, pass) {
-		
+		let proxy = nextproxy();
 		const sessionid = v4();
 		
 		const client = {
@@ -41,11 +52,11 @@ export default function (sessions) {
 				}
 
 				// REQUEST 1
-				const { coid } = await retryable(resolve, async({ success,fail,retry })=>{
+				const { coid } = await retryable(resolve, async({ success,fail,retry,newproxy })=>{
 					const uuid = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
-					client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers }).then(async response=>{
+					client.officeapps.get(`/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers, proxy }).then(async response=>{
 						let text = await response.text();
 						if (text === "MSAccount") {
 							return success({ coid: uuid });
@@ -53,10 +64,10 @@ export default function (sessions) {
 							return fail ("Login Failed: !== MSAccount");
 						}
 					}).catch(retry)
-				}, { max: 100, logsto: debug })
+				}, { max: 100, logsto: debug, nextproxy })
 
 				// REQUEST 2: Get the login URL and required generated values
-				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry })=>{
+				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry,newproxy })=>{
 					let data = POST.B;
 					data["login_hint"] = user
 					data["uaid"] = coid.replace("-", "")
@@ -65,7 +76,7 @@ export default function (sessions) {
 					let headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
-					client.login.get("/oauth20_authorize.srf", { query:data, headers }).then(async response=>{
+					client.login.get("/oauth20_authorize.srf", { query:data, headers, proxy }).then(async response=>{
 						let html = await response.text();
 
 						
@@ -95,10 +106,10 @@ export default function (sessions) {
 						})
 	
 					}).catch(retry)
-				}, { logsto: debug })
+				}, { logsto: debug, nextproxy })
 
 				// REQUEST 3
-				const { mspcid, nap, anon, wlssc, code, cid } = await retryable(resolve, async({ success,fail,retry })=>{
+				const { mspcid, nap, anon, wlssc, code, cid } = await retryable(resolve, async({ success,fail,retry,newproxy })=>{
 					let data = POST.C;
 					data["login"] = user
 					data["loginfmt"] = user
@@ -107,7 +118,7 @@ export default function (sessions) {
 					let headers = HEADERS.C;
 					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
-					client.login.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers }).then(async response=>{
+					client.login.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers, proxy }).then(async response=>{
 
 						const mspcid = response.cookies["MSPCID"];
 						const nap = response.cookies["NAP"];
@@ -152,15 +163,15 @@ export default function (sessions) {
 						}
 			
 					}).catch(retry)
-				}, { logsto: debug })
+				}, { logsto: debug, nextproxy })
 
 				// REQUEST 4 OAUTH TOKEN
-				const { token } = await retryable(resolve, async ({ success,fail,retry })=>{
+				const { token } = await retryable(resolve, async ({ success,fail,retry,newproxy })=>{
 					let headers = HEADERS.D;
 					let data = POST.D;
 					data["code"] = code;
 					data["client_id"] = clientid;
-					client.login.post("/oauth20_token.srf", { form:data, headers }).then(async response=>{
+					client.login.post("/oauth20_token.srf", { form:data, headers, proxy }).then(async response=>{
 						let jsondata = await response.json();
 						const token = jsondata["access_token"];
 
@@ -171,10 +182,10 @@ export default function (sessions) {
 						}
 		
 					}).catch(retry)
-				}, { logsto: debug })
+				}, { logsto: debug, nextproxy })
 
 				// REQUEST 5
-				const { uc } = await retryable(resolve, async ({ success,fail,retry })=>{
+				const { uc } = await retryable(resolve, async ({ success,fail,retry,newproxy })=>{
 					let url = `/owa/${user}/startupdata.ashx`;
 					let data = { app: "Mini", n: 0 };
 
@@ -190,7 +201,7 @@ export default function (sessions) {
 						ANON: anon,
 						WLSSC: wlssc
 					};
-					client.outlook.get(url, { headers, token, query:data, cookies }).then(async response=>{
+					client.outlook.get(url, { headers, token, query:data, cookies, proxy }).then(async response=>{
 						const uc = response.cookies["UC"];
 
 						if (uc) {
@@ -200,7 +211,7 @@ export default function (sessions) {
 						}
 			
 					}).catch(retry)
-				}, { logsto: debug })
+				}, { logsto: debug, nextproxy })
 
 				sessions.create({ user, pass, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
 				resolve(factory(user));
@@ -214,7 +225,7 @@ export default function (sessions) {
 				headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 				headers["X-ClientRequestId"] = sessions[user].coid
 				let token = sessions[user].token;
-				let response = await client.substrate.get(url, { headers, token })
+				let response = await client.substrate.get(url, { headers, token, proxy })
 				resolve(response.ok);
 			});
 		}

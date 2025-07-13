@@ -2,6 +2,8 @@
 	export default function retryable(resolve,_function, opts={ max:10, delay:5000, logsto:console }) {
 		return new Promise(async success=>{
 			(function exe(tries){
+				let newproxy;
+
 				function retry(x) {
 					if (tries < opts.max) {
 						setTimeout(()=>{ exe(tries+1) }, opts.delay);
@@ -12,7 +14,7 @@
 				}
 
 				try {
-					_function({ retry, success, fail: function(e){
+					_function({ retry, success, newproxy, fail: function(e){
 						if (!e) {
 							resolve({ success: false })
 						} else {
@@ -21,6 +23,7 @@
 						}
 					}})
 				} catch(x) {
+					if (opts.nextproxy) newproxy = opts.nextproxy();
 					retry(x)
 				}
 			})(0);
