@@ -1,6 +1,6 @@
 		
 import { v4 } from 'uuid'
-import fetching from 'fetching'
+import client from 'fetching'
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
 
@@ -25,11 +25,6 @@ export default function (sessions) {
 	
 	function login(user, pass) {
 		let proxy = nextproxy();
-
-		const client = {
-			passport: fetching("https://passport.abv.bg/"),
-			apis: fetching("https://apis.abv.bg/")
-		}
 	
 		function authenticate(){
 			return new Promise(async resolve=>{
@@ -52,7 +47,7 @@ export default function (sessions) {
 					data["username"] = user;
 					data["password"] = pass;
 					
-					let response = await client.passport.post("/sc/oauth/token", { form: data, headers, proxy });
+					let response = await client.post("https://passport.abv.bg/sc/oauth/token", { form: data, headers, proxy });
 					let jsondata = await response.json();
 
 					let token = jsondata["access_token"];
@@ -76,7 +71,7 @@ export default function (sessions) {
 				let data = "autoreply=1&contacts=1&fid=10&folders=1&foreign_profiles=1&messages=1&pushnotifications=0&quotas=1&settings=1" 
 				let headers = HEADERS;
 				headers["Connection"] = "close"
-				let response = await client.apis.post("/mobile/sc/bootstrap", { form:data, headers, token, proxy });
+				let response = await client.post("https://apis.abv.bg/mobile/sc/bootstrap", { form:data, headers, token, proxy });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.user." + hits + ".log", JSON.stringify(jsondata, null, 2));
 				resolve();
@@ -91,7 +86,7 @@ export default function (sessions) {
 				data["query"] = searchtext
 				hits++;
 
-				let response = await client.apis.post("/mobile/sc/messages/get/list/search", { 
+				let response = await client.post("https://apis.abv.bg/mobile/sc/messages/get/list/search", { 
 					form:data, headers, token, proxy });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.debug." + hits + ".log", JSON.stringify(jsondata, null, 2));
@@ -112,7 +107,7 @@ export default function (sessions) {
 				let data = FORMS.D;
 				data["msgid"] = id;
 				let headers = HEADERS;
-				let response = await client.apis.post("/mobile/sc/message/get", { form:data, headers, token, proxy });
+				let response = await client.post("https://apis.abv.bg/mobile/sc/message/get", { form:data, headers, token, proxy });
 				let html = await response.text();
 				fs.writeFileSync("abv.body." + hits + ".log", html);
 				resolve({ html });

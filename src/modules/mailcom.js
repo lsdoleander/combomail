@@ -1,7 +1,10 @@
 
-import fetching from 'fetching';
+import client from 'fetching';
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
+
+import nord from "../conf/nord.js"
+let proxyqueue = nord;
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("mailcom");
 
@@ -14,13 +17,14 @@ export default function setup(sessions) {
 		login
 	}
 
-	function login(user, pass) {	
-		const client = {
-			oauth: fetching("https://oauth2.mail.com/"),
-			mobsi: fetching("https://mobsi.mail.com/"),
-			hsp2: fetching("https://hsp2.mail.com/")
-		};
-		
+	function nextproxy() {
+		if (proxyqueue.length === 0) proxyqueue = nord;
+		return proxyqueue.pop();
+	}
+
+	function login(user, pass) {
+		let proxy = nextproxy();
+
 		function authenticate(){
 			return new Promise(async resolve=>{
 				if (sessions[user]) {
@@ -42,13 +46,15 @@ export default function setup(sessions) {
 					}
 				}
 
-				const { access_token, refresh_token } = await retryable(resolve, async ({ success, fail, retry })=>{
+				const { access_token, refresh_token } = await retryable(resolve, async ({ success, fail, retry, newproxy })=>{
+					if (newproxy) proxy = newproxy;
+
 					let headers = HEADERS.A;
 					let data = POST.A;
 					data["username"] = user;
 					data["password"] = pass;
 
-					let response = await client.oauth.post("/token", { form:data, headers });
+					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
 					let jsondata = await response.json();
 					
 					let access_token = jsondata["access_token"]
@@ -64,7 +70,7 @@ export default function setup(sessions) {
 							retry()
 						}
 					}
-				})
+				}, { nextproxy })
 				
 				sessions.create({ user, pass, session: { access_token, refresh_token }});
 				resolve(factory(user));
@@ -74,7 +80,7 @@ export default function setup(sessions) {
 		function check(token) {
 			return new Promise(async resolve=>{
 				let headers = HEADERS.D
-				let response = await client.mobsi.head("/rest/MobSI/UserData", { headers, token });
+				let response = await client.head("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy });
 				resolve(response.ok);
 			})
 		}
@@ -85,11 +91,11 @@ export default function setup(sessions) {
 					let headers = HEADERS.A;
 					let data = POST.B;
 					data["refresh_token"] = refresh_token;
-					let response = await client.oauth.post("/token", { form:data, headers });
+					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
 
 					data = POST.C;
 					data["refresh_token"] = refresh_token
-					response = await client.oauth.post("/token", { form:data, headers });
+					response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
 					let jsondata = await response.json();
 					let access_token = jsondata["access_token"]
 
@@ -112,7 +118,7 @@ export default function setup(sessions) {
 					try {
 						let token = sessions[user].access_token;
 						let headers = HEADERS.D
-						let response = await client.mobsi.get("/rest/MobSI/UserData", { headers, token });
+						let response = await client.get("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy });
 						if (!response.ok) {
 							return resolve({ error: "access token expired." })
 						}
@@ -139,8 +145,8 @@ export default function setup(sessions) {
 					let headers = HEADERS.E
 					let token = sessions[user].access_token;
 					data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
-					let response = await client.hsp2.post("/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
-						 json: data, headers, token });
+					let response = await client.post("https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
+						 json: data, headers, token, proxy });
 
 					let jsondata = await response.json()
 
@@ -181,8 +187,8 @@ export default function setup(sessions) {
 				try {
 					let headers = HEADERS.F;
 					let token = sessions[user].access_token;
-					let response = await client.hsp2.get (`/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`,
-						{ headers, token });
+					let response = await client.get (`https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`,
+						{ headers, token, proxy });
 					let html = await response.text();
 					resolve({ html });
 				} catch(ex) {
