@@ -132,7 +132,7 @@ function base({ pnid, action, term, combo }) {
 		total: combo.length,
 		processed: 0,
 		valid: 0,
-		hits: 0
+		hits: 0,
 		running
 	}
 
