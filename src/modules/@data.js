@@ -1,6 +1,5 @@
 
 import Database from 'better-sqlite3'
-import { datadir } from 'konsole'
 import path from 'node:path'
 import fs from 'node:fs'
 import { series } from 'async'
