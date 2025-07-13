@@ -431,7 +431,7 @@ export default {
 				}
 			},250)
 
-			series(queue, function(){
+			async.series(queue, function(){
 				clearInterval(isintv);
 
 				sessions = loadsessions();
