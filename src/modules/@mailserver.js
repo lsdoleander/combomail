@@ -398,6 +398,7 @@ export default {
 
 			let queue = [];
 			
+			let lastsend = -1;
 			let imports = {
 				action: "importing",
 				total: qssess.length,
@@ -417,16 +418,15 @@ export default {
 						debug.trace(e)
 					} finally {
 						imports.processed++
-						cb();
+						setTimeout(cb,2);
 					}
 				});
 			}
 
-			let last = -1;
 			let isintv = setInterval(function(){
-				if (imports.processed > last){
-					console.log("qssess: send status")
-					last = imports.processed;
+				if (imports.processed > lastsend) {
+					debug.log("qssess: send status")
+					lastsend = imports.processed;
 					sendstatus(imports)
 				}
 			},250)

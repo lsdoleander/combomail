@@ -323,6 +323,8 @@ $(()=>{
 			updateValid(message);
 			finish();
 
+			$wait.detach();
+
 			if (comboqueue) {
 				sendCombos(comboqueue);
 				comboqueue = undefined;
@@ -471,6 +473,8 @@ $(()=>{
 				$(".progress").removeClass("d-none");
 				$("#btngo").prop("disabled", true);
 				fader($("#btngo"), -0.05, 1, 0.5);
+
+				renderWait();
 
 				socket.send(JSON.stringify(message));
 				sentqssess = true;
