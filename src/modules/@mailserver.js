@@ -231,7 +231,7 @@ function base({ pnid, action, term, combo }) {
 							}, 60000);
 
 							server.login(user, pass).then(async api => {
-								clearInterval(timedout);
+								clearTimeout(timedout);
 
 								if (!cancelled) {
 									if (api.success) {
@@ -394,8 +394,6 @@ export default {
 
 	qssess({ qssess }, sendstatus){
 		return new Promise(resolve=>{
-			console.log("qssess: start", qssess?.length)
-
 			let queue = [];
 			
 			let lastsend = -1;
@@ -409,13 +407,9 @@ export default {
 				queue.push(function(cb){
 					try {
 						let o = JSON.parse(s);
-						debug.log("qssess: Parsed", imports.processed)
 						datasource.session.import(o);
-						debug.log("qssess: Inserted", imports.processed)
 					} catch(e) {
 						// Line Didn't Parse
-						debug.log("qssess: Error", imports.processed)
-						debug.trace(e)
 					} finally {
 						imports.processed++
 						setTimeout(cb,2);
@@ -425,7 +419,6 @@ export default {
 
 			let isintv = setInterval(function(){
 				if (imports.processed > lastsend) {
-					debug.log("qssess: send status")
 					lastsend = imports.processed;
 					sendstatus(imports)
 				}

@@ -44,7 +44,7 @@ $(()=>{
 	let $wait;
 	function renderWait() {
 		$wait = $(templates.wait);
-		$("body").append($wait);
+		$("body").prepend($wait);
 
 		$wait.modal = new bootstrap.Modal('#modalwait', {
 			backdrop: 'static',
@@ -184,10 +184,6 @@ $(()=>{
 			pbb.text(`${percent}%`);
 			pba.text("");
 		}
-		if (typeof message.hits !== 'undefined') {
-			$("#hits").text(message.hits);
-		}
-		$("#valid").text(message.valid);
 	}
 
 	function renderList(message) {
@@ -305,6 +301,8 @@ $(()=>{
 			break;
 		case "stats":
 			renderProgress(message);
+			$("#hits").text(message.hits);
+			$("#valid").text(message.valid);
 			break;
 		case "finish":
 			finish();
@@ -359,6 +357,7 @@ $(()=>{
 		$("#contains-hits").removeClass("d-none").addClass("d-flex");
 		$("#term").val("");
 		$("#btngo").prop("disabled", true);
+		
 		fader($("#btngo"), -0.05, 1, 0.5);
 
 		let message = {
@@ -498,6 +497,7 @@ $(()=>{
 					comboqueue = combo;
 				}
 			}
+
 		})
 
 	})

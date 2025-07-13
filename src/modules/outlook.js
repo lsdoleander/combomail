@@ -5,6 +5,7 @@ import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole'
 
 import nord from "../conf/nord.js"
+let proxyqueue = nord;
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("outlook");
 
@@ -20,13 +21,10 @@ export default function (sessions) {
 		COMMONMISTAKES,
 		login
 	}
-
-	let nidx = -1;
 	
 	function nextproxy() {
-		nidx++
-		if (nidx === nord.length) nidx = 0;
-		return nord[nidx];
+		if (proxyqueue.length === 0) proxyqueue = nord;
+		return proxyqueue.pop();
 	}
 
 	function login(user, pass) {
