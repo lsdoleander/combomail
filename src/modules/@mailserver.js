@@ -133,6 +133,7 @@ function base({ pnid, action, term, combo }) {
 		processed: 0,
 		valid: 0,
 		hits: 0
+		running
 	}
 
 	function _q_(size){
@@ -485,7 +486,7 @@ export default {
 
 			query = {
 				progress() {
-					return stats;
+					return stats
 				}
 			}
 		}

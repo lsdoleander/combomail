@@ -248,6 +248,10 @@ $(()=>{
 		$("#valid").text(message.valid);
 	}
 
+	function updateHits(message){
+		if (message.running === "search") $("#hits").text(message.hits);
+	}
+
 	function fader(el, step, from, until, ms) {
 		return new Promise(resolve=>{
 
@@ -301,8 +305,8 @@ $(()=>{
 			break;
 		case "stats":
 			renderProgress(message);
-			$("#hits").text(message.hits);
-			$("#valid").text(message.valid);
+			updateHits(message);
+			updateValid(message);
 			break;
 		case "finish":
 			finish();
@@ -357,8 +361,11 @@ $(()=>{
 		$("#contains-hits").removeClass("d-none").addClass("d-flex");
 		$("#term").val("");
 		$("#btngo").prop("disabled", true);
-		
+
 		fader($("#btngo"), -0.05, 1, 0.5);
+
+		updateValid({ valid: 0 });
+		updateHits({ hits: 0 });
 
 		let message = {
 			action: "search",

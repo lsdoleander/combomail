@@ -39,7 +39,7 @@ import launcher from './launcher.js';
 		function gostats(){
 			let data = query.progress();
 			data.action = "stats"
-			ws.send(JSON.stringify(data));
+			ws.send(JSON.stringify(data));	
 		}
 
 		ws.on("message", data=>{
