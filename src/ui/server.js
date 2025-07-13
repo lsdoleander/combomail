@@ -62,7 +62,11 @@ import launcher from './launcher.js';
 				interv = setInterval(gostats,500)
 
 			} else if (message.action === "qssess"){
-				mailserver.qssess(message).then(imported =>{
+				function sendstatus(data){
+					ws.send(JSON.stringify(data))
+				}
+
+				mailserver.qssess(message, sendstatus).then(imported =>{
 				 	ws.send(JSON.stringify(imported))
 				});
 

@@ -17,6 +17,7 @@ export default function (sessions) {
 		queue: "outlook",
 		name: "outlook",
 		DOMAINS,
+		COMMONMISTAKES,
 		login
 	}
 
@@ -841,3 +842,25 @@ export const DOMAINS = [
 	"outlook.sk",
 	"windowslive.com"
 ]
+
+export const COMMONMISTAKES = {
+	"hotmail.cm",
+	"hotmail.co",
+	"hotmail.comm",
+	"hotmail.con",
+	"hotmail.om",
+	"hotmail.com.com",
+	"hotmail.coom",
+	"hotmail.cos",
+	"outlook.cm",
+	"outlook.co",
+	"outlook.comm",
+	"outlook.con",
+	"outlook.om",
+	"outlook.com.com",
+	"outlook.coom",
+	"outlook.cos",
+	"live.cos",
+	"live.cos.ar",
+	"msn.es"
+}

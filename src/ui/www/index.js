@@ -6,7 +6,8 @@ $(()=>{
 			mail: $("#message").detach().html(),
 			message: $("#messagelist").detach().html(),
 			search: $("#searchlist").detach().html(),
-			term: $("#searchoption").detach().html()
+			term: $("#searchoption").detach().html(),
+			wait: $("#plzwait").detach().html()
 		}
 	})()
 
@@ -38,6 +39,12 @@ $(()=>{
 		P=F.formatToParts(N),
 		V=P.map(p=>p.value);
 		return (V.join(''));
+	}
+
+	let $wait;
+	function renderWait() {
+		$wait = $(templates.wait);
+		$("body").append($wait);
 	}
 
 	function renderBegin(message){
@@ -282,7 +289,6 @@ $(()=>{
 		fader($("#btngo"), 0.1, 0.5, 1).then(function(){
 			$("#btngo").prop("disabled", false);
 		})
-		running = false;
 	}
 
 	socket.addEventListener("message", function(event){
@@ -296,6 +302,7 @@ $(()=>{
 			break;
 		case "finish":
 			finish();
+			running = false;
 			break;
 		case "begin":
 			renderBegin(message);
@@ -309,8 +316,13 @@ $(()=>{
 		case "history":
 			renderHistory(message);
 			break;
+		case "importing":
+			renderProgress(message);
+			break;
 		case "imported":
 			updateValid(message);
+			finish();
+
 			if (comboqueue) {
 				sendCombos(comboqueue);
 				comboqueue = undefined;
@@ -455,6 +467,10 @@ $(()=>{
 					action: "qssess",
 					qssess
 				};
+
+				$(".progress").removeClass("d-none");
+				$("#btngo").prop("disabled", true);
+				fader($("#btngo"), -0.05, 1, 0.5);
 
 				socket.send(JSON.stringify(message));
 				sentqssess = true;

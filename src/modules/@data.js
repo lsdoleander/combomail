@@ -1,10 +1,11 @@
 
-import Database from 'better-sqlite3';
-import { datadir } from 'konsole';
-import path from 'node:path';
-import fs from 'node:fs';
+import Database from 'better-sqlite3'
+import { datadir } from 'konsole'
+import path from 'node:path'
+import fs from 'node:fs'
+import { series } from 'async'
 
-import { v4 } from 'uuid';
+import { v4 } from 'uuid'
 
 export default (function(){
 
@@ -42,20 +43,42 @@ export default (function(){
 
 			function importer( lines ){
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
-				for (let s of lines) {
-					try {
-						let o = JSON.parse(s);
-						del(o)
-						stmt2.run({
-							json: (typeof o.session === 'object') ? 1 : 0,
-							session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
-							user: o.user,
-							pass: o.pass
-						});
-					} catch(e) {
-						// Line Didn't Parse
-					}
+				let queue = [];
+				
+				let imports = {
+					action: "importing",
+					total: lines.length,
+					processed: 0,
+					complete: false
 				}
+
+				return function() {
+					return imports;
+				}
+
+				for (let s of lines) {
+					queue.push(function(cb){
+						try {
+							let o = JSON.parse(s);
+							del(o)
+							stmt2.run({
+								json: (typeof o.session === 'object') ? 1 : 0,
+								session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
+								user: o.user,
+								pass: o.pass
+							});
+						} catch(e) {
+							// Line Didn't Parse
+						} finally {
+							imports.processed++
+							cb();
+						}
+					});
+				}
+
+				series(queue, function(){
+					imports.complete = true;
+				})
 			}
 					
 			function update({ user, session, data }){

@@ -86,6 +86,9 @@ function select(domain, email, tries) {
 			if (server[1] === 143 || server[1] === 993) return resolve(servers.imap(server[0], server[1]));
 			else resolve();
 
+		} else if (servers.outlook.COMMONMISTAKES.includes(domain)) {
+			resolve();
+			
 		} else if (servers.abv.DOMAINS.includes(domain)) {
 			return resolve(servers.abv);
 
@@ -389,14 +392,23 @@ export default {
 		}
 	},
 
-	qssess({ qssess }){
+	qssess({ qssess }, sendstatus){
 		return new Promise(resolve=>{
-			datasource.session.import(qssess);
-			sessions = loadsessions();
-			resolve({
-				action: "imported",
-				valid: sessions.valid
-			})
+			let istat = datasource.session.import(qssess);
+			let isintv = setInterval(function(){
+				let data = istat();
+				if (data.complete) {
+					clearInterval(isintv);
+
+					sessions = loadsessions();
+					resolve({
+						action: "imported",
+						valid: sessions.valid
+					})
+				} else {
+					sendstatus(data)
+				}
+			},250)
 		})
 	},
 
