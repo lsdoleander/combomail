@@ -58,7 +58,7 @@ export default function (sessions) {
 					}
 				}, { nextproxy })
 
-				sessions.create({ user, pass, session: { token }});
+				sessions.create({ user, pass, module: "abv", session: { token }});
 				resolve(factory(user))
 			})
 		}

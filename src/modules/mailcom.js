@@ -72,7 +72,7 @@ export default function setup(sessions) {
 					}
 				}, { nextproxy })
 				
-				sessions.create({ user, pass, session: { access_token, refresh_token }});
+				sessions.create({ user, pass, module: "mailcom", session: { access_token, refresh_token }});
 				resolve(factory(user));
 			})
 		}	

@@ -174,7 +174,7 @@ export default function (sessions) {
 				return new Promise(async resolve=>{
 					try {
 						await client.connect();
-						sessions.create({ user, pass, session: { type: "imap" }});
+						sessions.create({ user, pass, module: "imap", session: { type: "imap" }});
 						resolve({
 							success: true,
 							search,

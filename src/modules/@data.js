@@ -21,7 +21,7 @@ export default (function(){
 		data.pragma('journal_mode = WAL');
 
 		if (create) {
-			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, data TEXT, session TEXT, json INTEGER)");
+			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, module TEXT, data TEXT, session TEXT, json INTEGER)");
 			data.exec("CREATE TABLE search (id TEXT, timestamp INTEGER, term TEXT, hits TEXT, pending TEXT, complete INTEGER)");
 			data.exec("CREATE TABLE combo (id TEXT, timestamp INTEGER, pending TEXT, complete INTEGER)");
 		}
@@ -32,15 +32,16 @@ export default (function(){
 	return {
 		session: (function(){
 
-			function create({ user, pass, session }){
+			function create({ user, pass, module, session }){
 				del({ user })
 
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
 				stmt2.run({
 					json: (typeof session === "object") ? 1 : 0,
 					session: (typeof session === "object") ? JSON.stringify(session) : session,
-					user: user,
-					pass: pass
+					module,
+					user,
+					pass
 				});
 			}
 
