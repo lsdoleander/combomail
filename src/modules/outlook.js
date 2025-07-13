@@ -47,7 +47,7 @@ export default function (sessions) {
 					const uuid = v4();
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
-					client.get(`https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers, proxy }).then(async response=>{
+					client.get(`https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers, proxy, logger:debug }).then(async response=>{
 						let text = await response.text();
 						if (text === "MSAccount") {
 							return success({ coid: uuid });
@@ -67,7 +67,7 @@ export default function (sessions) {
 					let headers = HEADERS.B;
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
-					client.get("https://login.live.com/oauth20_authorize.srf", { query:data, headers, proxy }).then(async response=>{
+					client.get("https://login.live.com/oauth20_authorize.srf", { query:data, headers, proxy, logger:debug }).then(async response=>{
 						let html = await response.text();
 
 						
@@ -109,7 +109,7 @@ export default function (sessions) {
 					let headers = HEADERS.C;
 					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
-					client.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers, proxy }).then(async response=>{
+					client.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers, proxy, logger:debug }).then(async response=>{
 
 						const mspcid = response.cookies["MSPCID"];
 						const nap = response.cookies["NAP"];
@@ -162,7 +162,7 @@ export default function (sessions) {
 					let data = POST.D;
 					data["code"] = code;
 					data["client_id"] = clientid;
-					client.post("https://login.live.com/oauth20_token.srf", { form:data, headers, proxy }).then(async response=>{
+					client.post("https://login.live.com/oauth20_token.srf", { form:data, headers, proxy, logger:debug }).then(async response=>{
 						let jsondata = await response.json();
 						const token = jsondata["access_token"];
 
@@ -191,7 +191,7 @@ export default function (sessions) {
 						ANON: anon,
 						WLSSC: wlssc
 					};
-					client.get(`https://outlook.live.com/owa/${user}/startupdata.ashx`, { headers, token, query:data, cookies, proxy }).then(async response=>{
+					client.get(`https://outlook.live.com/owa/${user}/startupdata.ashx`, { headers, token, query:data, cookies, proxy, logger:debug }).then(async response=>{
 						const uc = response.cookies["UC"];
 
 						if (uc) {
@@ -214,7 +214,7 @@ export default function (sessions) {
 				headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 				headers["X-ClientRequestId"] = sessions[user].coid
 				let token = sessions[user].token;
-				let response = await client.get("https://substrate.office.com/profileb2/v2.0/me/V1Profile", { headers, token, proxy })
+				let response = await client.get("https://substrate.office.com/profileb2/v2.0/me/V1Profile", { headers, token, proxy, logger:debug })
 				resolve(response.ok);
 			});
 		}
@@ -231,7 +231,7 @@ export default function (sessions) {
 					headers["X-AnchorMailbox"] = `CID:${sessions[user].cid}`
 					headers["X-ClientRequestId"] = sessions[user].coid
 					let token = sessions[user].token;
-					let response = await client.get("https://substrate.office.com/profileb2/v2.0/me/V1Profile", { headers, token, proxy })
+					let response = await client.get("https://substrate.office.com/profileb2/v2.0/me/V1Profile", { headers, token, proxy, logger:debug })
 					let jsondata = await response.json()
 
 					let data = {
@@ -275,7 +275,7 @@ export default function (sessions) {
 					let data = POST.G;
 					data["EntityRequests"][0]["Query"]["QueryString"] = searchtext
 					data["AnswerEntityRequests"][0]["Query"]["QueryString"] = searchtext
-					let response = await client.post(url, { json:data, token, headers, proxy })
+					let response = await client.post(url, { json:data, token, headers, proxy, logger:debug })
 					let jsondata = await response.json()
 
 					let searchresults = {
@@ -320,7 +320,7 @@ export default function (sessions) {
 					headers["X-ClientRequestId"] = sessions[user].coid;
 					let token = sessions[user].token;
 					let imgtype;
-					client.get("https://substrate.office.com/imageB2/v1.0/me/image/$value", { headers, token, proxy }).then(r => {
+					client.get("https://substrate.office.com/imageB2/v1.0/me/image/$value", { headers, token, proxy, logger:debug }).then(r => {
 						imgtype = r.headers["content-type"]
 						if (r.ok && imgtype) {
 							return r.arrayBuffer();
@@ -373,7 +373,7 @@ export default function (sessions) {
 						UC: sessions[user].uc,
 						PPLState: 1
 					};
-					let response = await client.post(url, { token, json: "", cookies, headers, proxy })
+					let response = await client.post(url, { token, json: "", cookies, headers, proxy, logger:debug })
 					let jsondata = await response.json()
 					resolve({ html: jsondata["Body"]["ResponseMessages"]["Items"][0]["Items"][0]["NormalizedBody"]["Value"] })
 	                    

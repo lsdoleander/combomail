@@ -47,7 +47,7 @@ export default function (sessions) {
 					data["username"] = user;
 					data["password"] = pass;
 					
-					let response = await client.post("https://passport.abv.bg/sc/oauth/token", { form: data, headers, proxy });
+					let response = await client.post("https://passport.abv.bg/sc/oauth/token", { form: data, headers, proxy, logger:debug });
 					let jsondata = await response.json();
 
 					let token = jsondata["access_token"];
@@ -71,7 +71,7 @@ export default function (sessions) {
 				let data = "autoreply=1&contacts=1&fid=10&folders=1&foreign_profiles=1&messages=1&pushnotifications=0&quotas=1&settings=1" 
 				let headers = HEADERS;
 				headers["Connection"] = "close"
-				let response = await client.post("https://apis.abv.bg/mobile/sc/bootstrap", { form:data, headers, token, proxy });
+				let response = await client.post("https://apis.abv.bg/mobile/sc/bootstrap", { form:data, headers, token, proxy, logger:debug });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.user." + hits + ".log", JSON.stringify(jsondata, null, 2));
 				resolve();
@@ -87,7 +87,7 @@ export default function (sessions) {
 				hits++;
 
 				let response = await client.post("https://apis.abv.bg/mobile/sc/messages/get/list/search", { 
-					form:data, headers, token, proxy });
+					form:data, headers, token, proxy, logger:debug });
 				let jsondata = await response.json();
 				fs.writeFileSync("abv.debug." + hits + ".log", JSON.stringify(jsondata, null, 2));
 				
@@ -107,7 +107,7 @@ export default function (sessions) {
 				let data = FORMS.D;
 				data["msgid"] = id;
 				let headers = HEADERS;
-				let response = await client.post("https://apis.abv.bg/mobile/sc/message/get", { form:data, headers, token, proxy });
+				let response = await client.post("https://apis.abv.bg/mobile/sc/message/get", { form:data, headers, token, proxy, logger:debug });
 				let html = await response.text();
 				fs.writeFileSync("abv.body." + hits + ".log", html);
 				resolve({ html });

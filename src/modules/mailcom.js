@@ -54,7 +54,7 @@ export default function setup(sessions) {
 					data["username"] = user;
 					data["password"] = pass;
 
-					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
+					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy, logger:debug });
 					let jsondata = await response.json();
 					
 					let access_token = jsondata["access_token"]
@@ -80,7 +80,7 @@ export default function setup(sessions) {
 		function check(token) {
 			return new Promise(async resolve=>{
 				let headers = HEADERS.D
-				let response = await client.head("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy });
+				let response = await client.head("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy, logger:debug });
 				resolve(response.ok);
 			})
 		}
@@ -91,11 +91,11 @@ export default function setup(sessions) {
 					let headers = HEADERS.A;
 					let data = POST.B;
 					data["refresh_token"] = refresh_token;
-					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
+					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy, logger:debug });
 
 					data = POST.C;
 					data["refresh_token"] = refresh_token
-					response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy });
+					response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy, logger:debug });
 					let jsondata = await response.json();
 					let access_token = jsondata["access_token"]
 
@@ -118,7 +118,7 @@ export default function setup(sessions) {
 					try {
 						let token = sessions[user].access_token;
 						let headers = HEADERS.D
-						let response = await client.get("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy });
+						let response = await client.get("https://mobsi.mail.com/rest/MobSI/UserData", { headers, token, proxy, logger:debug });
 						if (!response.ok) {
 							return resolve({ error: "access token expired." })
 						}
@@ -146,7 +146,7 @@ export default function setup(sessions) {
 					let token = sessions[user].access_token;
 					data["include"][0]["conditions"].push(`mail.header:from,replyTo,cc,bcc,to,subject:${searchtext}`)
 					let response = await client.post("https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/Query?absoluteURI=false", {
-						 json: data, headers, token, proxy });
+						 json: data, headers, token, proxy, logger:debug });
 
 					let jsondata = await response.json()
 
@@ -188,7 +188,7 @@ export default function setup(sessions) {
 					let headers = HEADERS.F;
 					let token = sessions[user].access_token;
 					let response = await client.get (`https://hsp2.mail.com/service/msgsrv/Mailbox/primaryMailbox/Mail/${id}/Body?absoluteURI=false`,
-						{ headers, token, proxy });
+						{ headers, token, proxy, logger:debug });
 					let html = await response.text();
 					resolve({ html });
 				} catch(ex) {
