@@ -395,6 +395,7 @@ export default {
 	qssess({ qssess }, sendstatus){
 		return new Promise(resolve=>{
 			let istat = datasource.session.import(qssess);
+			let last = 0;
 			let isintv = setInterval(function(){
 				let data = istat();
 				if (data.complete) {
@@ -406,7 +407,10 @@ export default {
 						valid: sessions.valid
 					})
 				} else {
-					sendstatus(data)
+					if (data.processed > last){
+						last = data.processed;
+						sendstatus(data)
+					}
 				}
 			},250)
 		})

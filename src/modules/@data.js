@@ -7,6 +7,10 @@ import { series } from 'async'
 
 import { v4 } from 'uuid'
 
+import { debuffer, datadir } from 'konsole';
+
+let debug = debuffer(datadir.share("combomail","logs")).logger("~db");
+
 export default (function(){
 
 	let db = (function() {
@@ -60,15 +64,20 @@ export default (function(){
 					queue.push(function(cb){
 						try {
 							let o = JSON.parse(s);
+							debug.log("importer: Parsed", import.processed)
 							del(o)
+							debug.log("importer: Deleted", import.processed)
 							stmt2.run({
 								json: (typeof o.session === 'object') ? 1 : 0,
 								session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
 								user: o.user,
 								pass: o.pass
 							});
+							debug.log("importer: Inserted", import.processed)
 						} catch(e) {
 							// Line Didn't Parse
+							debug.log("importer: Error", import.processed)
+							debug.trace(e)
 						} finally {
 							imports.processed++
 							cb();
