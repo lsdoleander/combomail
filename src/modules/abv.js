@@ -65,6 +65,18 @@ export default function (sessions) {
 
 		let hits = 0;
 
+		function check() {
+			return new Promise(async resolve=>{
+				let token = sessions[user];
+				let data = "autoreply=1&contacts=1&fid=10&folders=1&foreign_profiles=1&messages=1&pushnotifications=0&quotas=1&settings=1" 
+				let headers = HEADERS;
+				headers["Connection"] = "close"
+				let response = await client.post("https://apis.abv.bg/mobile/sc/bootstrap", { form:data, headers, token, proxy, logger:debug });
+				
+				resolve(response.ok);
+			})
+		}
+
 		function userdata() {
 			return new Promise(async resolve=>{
 				let token = sessions[user];

@@ -128,7 +128,7 @@ export default function (sessions) {
 							success({ mspcid, nap, anon, wlssc, code, cid })
 							
 						} else {
-							html = await response.text();
+							let html = await response.text();
 
 							if (html.includes("error")){
 								fail("Error Reported")

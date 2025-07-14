@@ -66,8 +66,6 @@ export default function (sessions) {
 							resolve({ error: ex.message })
 						}
 					})
-				}*/
-
 				function fetcher(id) {	
 					return new Promise(async resolve=>{
 						
@@ -119,10 +117,11 @@ export default function (sessions) {
 					})
 				}
 
+				}*/
+
 				function search(terms) {	
 					return new Promise(async resolve=>{
-						
-						let out = {
+						let lock, out = {
 							userdata: {
 								email: user
 							},
@@ -130,13 +129,13 @@ export default function (sessions) {
 							user
 						};
 
-						const lock = await client.getMailboxLock('INBOX');
-						const FetchQueryObject = {
-							headers: true,
-							uid: true
-					    };
+						try {
+							lock = await client.getMailboxLock('INBOX');
+							const FetchQueryObject = {
+								headers: true,
+								uid: true
+						    };
 
-					  	try {
 						    let list = await client.fetch(SearchObject(terms), FetchQueryObject);
 						    out.total = list ? list.length : 0;
 						    for (let idx = out.total; idx > (out.total > 25 ? out.total - 25 : 1); idx--) {
@@ -157,7 +156,7 @@ export default function (sessions) {
 							debug.log(id, ex)
 
 						} finally {
-						    lock.release();
+						    if (lock) lock.release();
 						    client.close();
 						    resolve(out);
 						}
