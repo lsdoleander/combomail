@@ -110,47 +110,51 @@ export default function (sessions) {
 					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
 					client.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers, proxy, logger:debug }).then(async response=>{
+						if (response.ok) {
+							const mspcid = response.cookies["MSPCID"];
+							const nap = response.cookies["NAP"];
+							const anon = response.cookies["ANON"];
+							const wlssc = response.cookies["WLSSC"];
+							const loc = response.headers["location"];
+							let code;
 
-						const mspcid = response.cookies["MSPCID"];
-						const nap = response.cookies["NAP"];
-						const anon = response.cookies["ANON"];
-						const wlssc = response.cookies["WLSSC"];
-						const loc = response.headers["location"];
-						let code;
-
-						if (loc) {
-							let m = loc.match(/code=([^&]*)&/);
-							if (m) code = m[1];
-						}
-
-						if (mspcid && code) {
-							let cid = mspcid.toUpperCase();
-							success({ mspcid, nap, anon, wlssc, code, cid })
-							
-						} else {
-							let html = await response.text();
-
-							if (html.includes("error")){
-								fail("Error Reported")
-
-							} else if (html.includes("account or password is incorrect")) {
-								return fail("PASSWORD CHANGE")
-
-							} else if (html.includes("https://login.live.com/finisherror.srf") ||
-								html.includes("https://account.live.com/Abuse") ||
-								html.includes("too many times with") ||
-								html.includes("/cancel?")){
-								
-								return fail("BLOCKED")
-
-							} else if (html.includes("https://account.live.com/identity/confirm")){
-								return fail("CAN BYPASS")
-
-							} else if (html.includes("https://account.live.com/recover")) {
-								return fail("2FA")
-							} else {
-								return fail("Unknown")
+							if (loc) {
+								let m = loc.match(/code=([^&]*)&/);
+								if (m) code = m[1];
 							}
+
+							if (mspcid && code) {
+								let cid = mspcid.toUpperCase();
+								success({ mspcid, nap, anon, wlssc, code, cid })
+								
+							} else {
+								let html = await response.text();
+
+								if (html.includes("error")){
+									fail("Error Reported")
+
+								} else if (html.includes("account or password is incorrect")) {
+									return fail("PASSWORD CHANGE")
+
+								} else if (html.includes("https://login.live.com/finisherror.srf") ||
+									html.includes("https://account.live.com/Abuse") ||
+									html.includes("too many times with") ||
+									html.includes("/cancel?")){
+									
+									return fail("BLOCKED")
+
+								} else if (html.includes("https://account.live.com/identity/confirm")){
+									return fail("CAN BYPASS")
+
+								} else if (html.includes("https://account.live.com/recover")) {
+									return fail("2FA")
+								} else {
+									return fail("Unknown")
+								}
+							}
+						} else {
+							debug.log(response)
+							fail(response.error)
 						}
 			
 					}).catch(retry)
