@@ -30,17 +30,19 @@
     "uuid": "^11.0.2"
   },
   "scripts": {
-    "update": "git pull && yarn add https://github.com/lsdoleander/fetching.git && yarn add https://github.com/lsdoleander/konsole.git && yarn add https://github.com/paulwardrip/mailblazer.git",
+    "update": "git pull && yarn && yarn update-konsole && yarn update-fetching",
+    "update-fetching": "yarn add https://github.com/lsdoleander/fetching.git",
+    "update-konsole": "yarn add https://github.com/lsdoleander/konsole.git",
+    "clear": "node src/datareset.js && rm -rf ~/.local/share/combomail/logs",
+
     "clean": "node src/build.js",
-    "clear": "node src/datareset.js",
-    "test": "node src/ui/server.js",
-    "build": "yarn static && yarn rollup && yarn dist",
+    "build": "yarn clean && yarn static && yarn rollup && yarn dist",
     "static": "node src/statictool.js gen/www.js src/ui/www/",
     "rollup": "rollup -c",
     "dist": "yarn win && yarn linux && yarn zip && yarn tar",
     "win": "bun build --compile --target=bun-windows-x64 ./gen/bundle.min.js --outfile gen/win/combomail.exe",
     "linux": "bun build --compile --target=bun-linux-x64 ./gen/bundle.min.js --outfile gen/linux/combomail",
-    "zip": "cat gen/win/combomail.exe | zip > dist/combomail-windows-x64.zip",
-    "tar": "cd gen/linux && tar cvf ../../dist/combomail-linux-x64.tar.xz -I 'xz -7 -T2' ."
+    "zip": "cd gen/win && zip -7 ../../dist/combomail-windows-x64.zip combomail.exe",
+    "tar": "cd gen/linux && tar cvf ../../dist/combomail-linux-x64.tar.xz -I 'xz -7 -T2' combomail"
   }
 }
