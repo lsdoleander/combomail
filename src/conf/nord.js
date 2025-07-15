@@ -1,4 +1,4 @@
-export default {
+export default [
 	"socks5://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@socks-nl1.nordvpn.com:1080",
 	"socks5://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@socks-nl2.nordvpn.com:1080",
 	"socks5://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@socks-nl3.nordvpn.com:1080",
@@ -13489,4 +13489,4 @@ export default {
 	"https://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@za146.nordvpn.com:90",
 	"https://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@za147.nordvpn.com:89",
 	"https://yqWs4t4nVDd4J78g9XgzuFDj:oPJRhmvhgzxCxm1jzGbchnut@za147.nordvpn.com:90"
-}
+]
