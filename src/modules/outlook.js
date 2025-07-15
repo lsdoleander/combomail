@@ -110,7 +110,7 @@ export default function (sessions) {
 					headers["Referer"] = "https://login.live.com/oauth20_authorize.srf"
 
 					client.post(url3, { form: data, cookies: cookies3, redirect: "manual", headers, proxy, logger:debug }).then(async response=>{
-						if (response.ok) {
+						if (response.ok || response.status === 302) {
 							const mspcid = response.cookies["MSPCID"];
 							const nap = response.cookies["NAP"];
 							const anon = response.cookies["ANON"];
