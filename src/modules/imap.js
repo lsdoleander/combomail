@@ -120,7 +120,7 @@ export default function (sessions) {
 				}*/
 
 				function search(terms) {	
-					return new Promise(resolve=>{
+					return new Promise(async resolve=>{
 			
 							let lock, out = {
 								userdata: {
