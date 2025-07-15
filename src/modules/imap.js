@@ -153,7 +153,7 @@ export default function (sessions) {
 					    	}
 
 						} catch (ex) {
-							debug.log(id, ex)
+							debug.log(ex)
 
 						} finally {
 						    if (lock) lock.release();
