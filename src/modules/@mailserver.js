@@ -145,8 +145,8 @@ function base({ pnid, action, term, combo }) {
 	const queue = {
 		_triage_: _q_(100),
 		main: _q_(80),
-		outlook: _q_(40),
-		abv: _q_(10)
+		outlook: _q_(10),
+		abv: _q_(5)
 	}
 
 	let pending = [...combo];

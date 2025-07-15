@@ -121,10 +121,8 @@ export default function (sessions) {
 
 				function search(terms) {	
 					return new Promise(resolve=>{
-						let goes = 0;
-						(async function retry(){
 			
-							let lock, caught, out = {
+							let lock, out = {
 								userdata: {
 									email: user
 								},
@@ -156,22 +154,15 @@ export default function (sessions) {
 						    	}
 
 							} catch (ex) {
-								if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
-									goes++
-									caught = true
-									retry();
-								} else {
-									debug.log(ex)
-								}
+								debug.log(ex)
 
 							} finally {
 							    if (lock) lock.release();
-							    if (!caught) {
+							    
 							    	client.close();
 							    	resolve(out);
-							    }
+							    
 							}
-						})()
 					})
 				}
 
