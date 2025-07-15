@@ -53,6 +53,7 @@ export default function (sessions) {
 						if (text === "MSAccount") {
 							return success({ coid: uuid });
 						} else {
+							sessions.delete({ user, pass });
 							return fail ("Login Failed: !== MSAccount");
 						}
 					}).catch(retry)
@@ -136,6 +137,8 @@ export default function (sessions) {
 									fail("Error Reported")
 
 								} else if (html.includes("account or password is incorrect")) {
+
+									sessions.delete({ user, pass });
 									return fail("PASSWORD CHANGE")
 
 								} else if (html.includes("https://login.live.com/finisherror.srf") ||

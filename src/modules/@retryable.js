@@ -6,6 +6,7 @@
 
 				function retry(x) {
 					if (tries < opts.max) {
+						if (opts.nextproxy) newproxy = opts.nextproxy();
 						setTimeout(()=>{ exe(tries+1) }, opts.delay);
 					} else {
 						opts.logsto.log(x);
@@ -23,7 +24,6 @@
 						}
 					}})
 				} catch(x) {
-					if (opts.nextproxy) newproxy = opts.nextproxy();
 					retry(x)
 				}
 			})(0);

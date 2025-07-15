@@ -176,9 +176,9 @@ export default function (sessions) {
 				}
 
 				function body(id) {
-					return new Promise(async resolve=>{
+					return new Promise(resolve=>{
 						let goes = 0;
-						(function retry(){
+						(async function retry(){
 							try {
 								const {content} = await client.download(id, ['TEXT'], { uid: true });
 								resolve({ html: content });
@@ -195,9 +195,9 @@ export default function (sessions) {
 					})
 				}
 
-				return new Promise(async resolve=>{
+				return new Promise(resolve=>{
 					let goes = 0;
-					(function retry(){
+					(async function retry(){
 						try {
 							await client.connect();
 							sessions.create({ user, pass, module: "imap", session: { type: "imap" }});
