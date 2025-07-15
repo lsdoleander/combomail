@@ -48,6 +48,7 @@ export default function (sessions) {
 					let headers = HEADERS.A;
 					headers["X-CorrelationId"] = uuid;
 					client.get(`https://odc.officeapps.live.com/odc/emailhrd/getidp?hm=1&emailAddress=${user}`, { headers, proxy, logger:debug }).then(async response=>{
+						if (response.error) retry()
 						let text = await response.text();
 						if (text === "MSAccount") {
 							return success({ coid: uuid });
@@ -55,7 +56,7 @@ export default function (sessions) {
 							return fail ("Login Failed: !== MSAccount");
 						}
 					}).catch(retry)
-				}, { max: 100, logsto: debug, nextproxy })
+				}, { max: 25, logsto: debug, nextproxy })
 
 				// REQUEST 2: Get the login URL and required generated values
 				const { cookies3, url3, ppft } = await retryable(resolve, async({ success,fail,retry,newproxy })=>{
@@ -68,6 +69,7 @@ export default function (sessions) {
 					headers["correlation-id"] = coid
 					headers["client-request-id"] = coid
 					client.get("https://login.live.com/oauth20_authorize.srf", { query:data, headers, proxy, logger:debug }).then(async response=>{
+						if (response.error) retry()
 						let html = await response.text();
 
 						
@@ -153,12 +155,11 @@ export default function (sessions) {
 								}
 							}
 						} else {
-							debug.log(response)
-							fail(response.error)
+							retry()
 						}
 			
 					}).catch(retry)
-				}, { logsto: debug, nextproxy })
+				}, { logsto: debug, nextproxy, max: 25 })
 
 				// REQUEST 4 OAUTH TOKEN
 				const { token } = await retryable(resolve, async ({ success,fail,retry,newproxy })=>{
@@ -167,6 +168,7 @@ export default function (sessions) {
 					data["code"] = code;
 					data["client_id"] = clientid;
 					client.post("https://login.live.com/oauth20_token.srf", { form:data, headers, proxy, logger:debug }).then(async response=>{
+						if (response.error) retry();
 						let jsondata = await response.json();
 						const token = jsondata["access_token"];
 
@@ -196,6 +198,7 @@ export default function (sessions) {
 						WLSSC: wlssc
 					};
 					client.get(`https://outlook.live.com/owa/${user}/startupdata.ashx`, { headers, token, query:data, cookies, proxy, logger:debug }).then(async response=>{
+						if (response.error) retry();
 						const uc = response.cookies["UC"];
 
 						if (uc) {

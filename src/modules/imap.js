@@ -120,70 +120,103 @@ export default function (sessions) {
 				}*/
 
 				function search(terms) {	
-					return new Promise(async resolve=>{
-						let lock, out = {
-							userdata: {
-								email: user
-							},
-							results: [],
-							user
-						};
+					return new Promise(resolve=>{
+						let goes = 0;
+						(async function retry(){
+			
+							let lock, caught, out = {
+								userdata: {
+									email: user
+								},
+								results: [],
+								user
+							};
 
-						try {
-							lock = await client.getMailboxLock('INBOX');
-							const FetchQueryObject = {
-								headers: true,
-								uid: true
-						    };
+							try {
+								lock = await client.getMailboxLock('INBOX');
+								const FetchQueryObject = {
+									headers: true,
+									uid: true
+							    };
 
-						    let list = await client.fetch(SearchObject(terms), FetchQueryObject);
-						    out.total = list ? list.length : 0;
-						    for (let idx = out.total; idx > (out.total > 25 ? out.total - 25 : 1); idx--) {
-						    	let m = list[idx-1];
-								let headers = m.headers.toString("utf-8");
-								const email = await PostalMime.parse(headers);
+							    let list = await client.fetch(SearchObject(terms), FetchQueryObject);
+							    out.total = list ? list.length : 0;
+							    for (let idx = out.total; idx > (out.total > 25 ? out.total - 25 : 1); idx--) {
+							    	let m = list[idx-1];
+									let headers = m.headers.toString("utf-8");
+									const email = await PostalMime.parse(headers);
 
-								let r = {
-									id: email.uid,
-									from: email.from,
-									subject: email.subject,
-									date: email.date ? new Date(email.date).getTime() : null
-								};
-								out.results.push(r);
-					    	}
+									let r = {
+										id: email.uid,
+										from: email.from,
+										subject: email.subject,
+										date: email.date ? new Date(email.date).getTime() : null
+									};
+									out.results.push(r);
+						    	}
 
-						} catch (ex) {
-							debug.log(ex)
+							} catch (ex) {
+								if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
+									goes++
+									caught = true
+									retry();
+								} else {
+									debug.log(ex)
+								}
 
-						} finally {
-						    if (lock) lock.release();
-						    client.close();
-						    resolve(out);
-						}
+							} finally {
+							    if (lock) lock.release();
+							    if (!caught) {
+							    	client.close();
+							    	resolve(out);
+							    }
+							}
+						})()
 					})
 				}
 
 				function body(id) {
 					return new Promise(async resolve=>{
-						const {content} = await client.download(id, ['TEXT'], { uid: true });
-						resolve({ html: content });
+						let goes = 0;
+						(function retry(){
+							try {
+								const {content} = await client.download(id, ['TEXT'], { uid: true });
+								resolve({ html: content });
+
+							} catch (ex) {
+								if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
+									goes++
+									retry();
+								} else {
+									resolve({ error: ex.message })
+								}
+							}
+						})()
 					})
 				}
 
 				return new Promise(async resolve=>{
-					try {
-						await client.connect();
-						sessions.create({ user, pass, module: "imap", session: { type: "imap" }});
-						resolve({
-							success: true,
-							search,
-							body
-						})
+					let goes = 0;
+					(function retry(){
+						try {
+							await client.connect();
+							sessions.create({ user, pass, module: "imap", session: { type: "imap" }});
+							resolve({
+								success: true,
+								search,
+								body
+							})
 
-					} catch (ex) {
-						if (sessions[user]) sessions.delete({ user, pass })
-						resolve({ error: ex.message })
-					}
+						} catch (ex) {
+							if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
+								goes++
+								retry();
+							} else {
+								if (sessions[user]) sessions.delete({ user, pass })
+								resolve({ error: ex.message })
+							}
+						}
+					})()
 				})
 			}
 		}
