@@ -122,24 +122,28 @@ export default function (sessions) {
 				function search(terms) {	
 					return new Promise(async resolve=>{
 			
-							let lock, out = {
-								userdata: {
-									email: user
-								},
-								results: [],
-								user
-							};
+						let lock, out = {
+							userdata: {
+								email: user
+							},
+							results: [],
+							user
+						};
 
-							try {
-								lock = await client.getMailboxLock('INBOX');
-								const FetchQueryObject = {
-									headers: true,
-									uid: true
-							    };
+						try {
+							lock = await client.getMailboxLock('INBOX');
+							const FetchQueryObject = {
+								headers: true,
+								uid: true
+						    };
 
-							    let list = await client.fetch(SearchObject(terms), FetchQueryObject);
-							    out.total = list ? list.length : 0;
-							    for (let idx = out.total; idx > (out.total > 25 ? out.total - 25 : 1); idx--) {
+						    let id = await client.search(SearchObject(terms));
+						    out.total = id ? id.length : 0;
+
+						    if (out.total > 0) {
+							    let list = id.length > 25 ? id.splice(id.length - 25) : id;
+							    let msgs = await client.fetch(list.join(","), FetchQueryObject);
+							    for (let m of msgs) {
 							    	let m = list[idx-1];
 									let headers = m.headers.toString("utf-8");
 									const email = await PostalMime.parse(headers);
@@ -152,22 +156,23 @@ export default function (sessions) {
 									};
 									out.results.push(r);
 						    	}
+						    }
 
-							} catch (ex) {
-								debug.log(ex)
+						} catch (ex) {
+							debug.log(ex)
 
-							} finally {
-							    if (lock) lock.release();
-							    
-							    	client.close();
-							    	resolve(out);
-							    
-							}
+						} finally {
+						    if (lock) lock.release();
+						    
+						    client.logout();
+						    resolve(out);
+						    
+						}
 					})
 				}
 
 				function body(id) {
-					return new Promise(resolve=>{
+					return new Promise(async resolve=>{
 						/*let goes = 0;
 						(async function retry(){*/
 							try {
@@ -181,12 +186,14 @@ export default function (sessions) {
 								} else {*/
 									resolve({ error: ex.message })
 								//}
+							} finally {
+								client.logout();
 							}
 					//	})()
 					})
 				}
 
-				return new Promise(resolve=>{
+				return new Promise(async resolve=>{
 					/*let goes = 0;
 					(async function retry(){*/
 						try {
