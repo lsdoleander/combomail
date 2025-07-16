@@ -168,27 +168,27 @@ export default function (sessions) {
 
 				function body(id) {
 					return new Promise(resolve=>{
-						let goes = 0;
-						(async function retry(){
+						/*let goes = 0;
+						(async function retry(){*/
 							try {
 								const {content} = await client.download(id, ['TEXT'], { uid: true });
 								resolve({ html: content });
 
 							} catch (ex) {
-								if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
+							/*	if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
 									goes++
 									retry();
-								} else {
+								} else {*/
 									resolve({ error: ex.message })
-								}
+								//}
 							}
-						})()
+					//	})()
 					})
 				}
 
 				return new Promise(resolve=>{
-					let goes = 0;
-					(async function retry(){
+					/*let goes = 0;
+					(async function retry(){*/
 						try {
 							await client.connect();
 							sessions.create({ user, pass, module: "imap", session: { type: "imap" }});
@@ -199,15 +199,16 @@ export default function (sessions) {
 							})
 
 						} catch (ex) {
-							if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
+							debug.log(ex);
+		/*					if (/(Unexpected\sclose|Command\sfailed|ETIMEDOUT)/.test(ex.message) && goes < 3) {
 								goes++
 								retry();
-							} else {
-								if (sessions[user]) sessions.delete({ user, pass })
+							} else {*/
+								//if (sessions[user]) sessions.delete({ user, pass })
 								resolve({ error: ex.message })
-							}
+						//	}
 						}
-					})()
+					//})()
 				})
 			}
 		}
