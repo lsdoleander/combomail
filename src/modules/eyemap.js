@@ -1,6 +1,5 @@
 import Imap from 'imap';
 import { debuffer, datadir } from 'konsole';
-import PostalMime from 'postal-mime';
 import { simpleParser } from 'mailparser';
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("imap");
