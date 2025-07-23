@@ -50,7 +50,7 @@
 			
 	 				<div class="col-sm-9 flex-grow-1">
 						<div class="row h-100">
-							<div id="contains-mail" class="d-none overflow-auto mx-0 mb-2 pe-2 ps-0"></div>
+							<div id="contains-mail" class="d-none mx-0 mb-2 pe-2 ps-0"></div>
 							<div id="contains-body" class="d-none mx-0 mb-2 pe-2 ps-0">
 								<iframe id="mailbody" class="rounded h-100 w-100"></iframe>
 							</div>
@@ -74,28 +74,32 @@
 	</template>
 
 	<template id="message" type="text/html">
-		<div class="list-group-item list-group-item-action">
-			<div class="row">
-				<div class="col-sm-4 from"></div>
-				<div class="col-sm-2 date"></div>
-				<div class="col-sm-6 subject"></div>
-			</div>
-		</div>
+		<tr>
+			<td class="from"></td>
+			<td class="date" style="width: 9rem"></td>
+			<td class="subject"></td>
+		</tr>
 	</template>
 
 	<template id="messagelist" type="text/html">
-		<div class="sticky-top bg-body-tertiary shadow p-1 mb-2 rounded" style="z-index: 9">
-			<form id="submail" class="d-flex flex-row position-relative">
-				<div class="d-flex align-items-center me-2">
-					<input type="text" class="form-control" id="subsearch" />
-				</div>
-				<div class="d-flex align-items-center flex-grow-1">
-					<button id="subsearch-click" class="rounded icon" />
-				</div>
-				<button id="subsearch-repeat" class="rounded icon position-absolute m-1 end-0"/>
-			</form>
+		<div id="mailbox" class="bg-body-tertiary pb-1 shadow h-100 rounded" style="z-index: 9">
+			<div class="p-2" id="mail-barsub">
+				<form id="submail" class="d-flex flex-row position-relative">
+					<div class="d-flex align-items-center me-2">
+						<input type="text" class="form-control" id="subsearch" />
+					</div>
+					<div class="d-flex align-items-center flex-grow-1">
+						<button id="subsearch-click" class="rounded icon" />
+					</div>
+					<button id="subsearch-repeat" class="rounded icon position-absolute m-1 end-0"/>
+				</form>
+			</div>
+			<div class="overflow-auto" id="mail-scroll">
+				<table class="table table-hover m-0">
+					<tbody id="mail"></tbody>
+				</table>
+			</div>
 		</div>
-		<div id="mail" class="shadow-sm rounded list-group"></div>
 	</template>
 
 	<template id="searchlist" type="text/html">

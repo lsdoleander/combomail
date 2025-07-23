@@ -3,9 +3,7 @@ import { v4 } from 'uuid'
 import client from 'fetching'
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole'
-
-import nord from "../conf/nord.js"
-let proxyqueue = nord;
+import { nextproxy } from "./@proxy.js"
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("outlook");
 
@@ -20,11 +18,6 @@ export default function (sessions) {
 		DOMAINS,
 		COMMONMISTAKES,
 		login
-	}
-	
-	function nextproxy() {
-		if (proxyqueue.length === 0) proxyqueue = nord;
-		return proxyqueue.pop();
 	}
 
 	function login(user, pass) {
@@ -214,6 +207,7 @@ export default function (sessions) {
 				}, { logsto: debug, nextproxy })
 
 				sessions.create({ user, pass, module: "outlook", session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
+				debug.log("session creation", user);
 				resolve(factory(user));
 			})
 		}

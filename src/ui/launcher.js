@@ -57,7 +57,13 @@
 
 		let prid = (function check() {
 			return new Promise(resolve=>{
+				console.log("lookup:", app, "arguments: --window-name=combomail")
 				lookup({ command: app, arguments: "--window-name=combomail" }, async (err, list) => {
+					console.log("lookup: err", err, "list", list)
+
+					if (err) {
+						console.log(err);
+					}
 					if (list.length === 0) {
 						console.log("lookup: ui not running... start!")
 						let p = await start();

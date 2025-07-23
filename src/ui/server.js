@@ -87,7 +87,8 @@ import launcher from './launcher.js';
 	});
 
 	app.get("/body", (request, response)=>{
-		mailserver.body(request.query.user, request.query.id).then(msg=>{
+		console.log(request.query);
+		mailserver.body(request.query).then(msg=>{
 			if (!msg.error) {
 				response.set({ "Content-Type": "text/html" });
 				response.send(msg.html);

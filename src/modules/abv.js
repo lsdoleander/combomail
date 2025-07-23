@@ -3,9 +3,7 @@ import { v4 } from 'uuid'
 import client from 'fetching'
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
-
-import nord from "../conf/nord.js"
-let proxyqueue = nord;
+import { nextproxy } from "./@proxy.js"
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("abv");
 
@@ -16,11 +14,6 @@ export default function (sessions) {
 		queue: "abv",
 		name: "abv.bg",
 		login
-	}
-	
-	function nextproxy() {
-		if (proxyqueue.length === 0) proxyqueue = nord;
-		return proxyqueue.pop();
 	}
 	
 	function login(user, pass) {
@@ -59,6 +52,7 @@ export default function (sessions) {
 				}, { nextproxy })
 
 				sessions.create({ user, pass, module: "abv", session: { token }});
+				debug.log("session creation", user);
 				resolve(factory(user))
 			})
 		}

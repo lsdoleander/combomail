@@ -45,52 +45,6 @@ export default (function(){
 				});
 			}
 
-		/*	function importer( lines ){
-				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
-				let queue = [];
-				
-				let imports = {
-					action: "importing",
-					total: lines.length,
-					processed: 0,
-					complete: false
-				}
-
-				return function() {
-					return imports;
-				}
-
-				for (let s of lines) {
-					queue.push(function(cb){
-						try {
-							let o = JSON.parse(s);
-							debug.log("importer: Parsed", imports.processed)
-							del(o)
-							debug.log("importer: Deleted", imports.processed)
-							stmt2.run({
-								json: (typeof o.session === 'object') ? 1 : 0,
-								session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
-								user: o.user,
-								pass: o.pass
-							});
-							debug.log("importer: Inserted", imports.processed)
-						} catch(e) {
-							// Line Didn't Parse
-							debug.log("importer: Error", imports.processed)
-							debug.trace(e)
-						} finally {
-							imports.processed++
-							cb();
-						}
-					});
-				}
-
-				series(queue, function(){
-					imports.complete = true;
-				})
-			}*/
-				
-
 			function importer( o ){
 				del(o)
 

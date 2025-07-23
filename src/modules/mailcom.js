@@ -2,9 +2,7 @@
 import client from 'fetching';
 import retryable from './@retryable.js'
 import { debuffer, datadir } from 'konsole';
-
-import nord from "../conf/nord.js"
-let proxyqueue = nord;
+import { nextproxy } from "./@proxy.js"
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("mailcom");
 
@@ -15,11 +13,6 @@ export default function setup(sessions) {
 		name: "mail.com",
 		DOMAINS,
 		login
-	}
-
-	function nextproxy() {
-		if (proxyqueue.length === 0) proxyqueue = nord;
-		return proxyqueue.pop();
 	}
 
 	function login(user, pass) {
@@ -56,23 +49,29 @@ export default function setup(sessions) {
 
 					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy, logger:debug });
 					let jsondata = await response.json();
-					
-					let access_token = jsondata["access_token"]
-					let refresh_token = jsondata["refresh_token"]
-					if (!refresh_token || !access_token) {
-						fail();
-					} else {
-						let result = await refresh(refresh_token);
-						if (result.success) {
-							access_token = result.access_token;
-							success({ access_token, refresh_token })
+					if (response.status === 400) {
+						fail(jsondata["error"]);
+					}
+
+					if (response.ok){
+						let access_token = jsondata["access_token"]
+						let refresh_token = jsondata["refresh_token"]
+						if (!refresh_token || !access_token) {
+							fail(jsondata["error"]);
 						} else {
-							retry()
+							let result = await refresh(refresh_token);
+							if (result.success) {
+								access_token = result.access_token;
+								success({ access_token, refresh_token })
+							} else {
+								retry()
+							}
 						}
 					}
-				}, { nextproxy })
+				}, { nextproxy, logsto: debug })
 				
 				sessions.create({ user, pass, module: "mailcom", session: { access_token, refresh_token }});
+				debug.log("session creation", user);
 				resolve(factory(user));
 			})
 		}	

@@ -4,7 +4,7 @@ import mail from '../conf/servers.js'
 import datasource from './@data.js'
 
 import abv from './abv.js'
-import imap from './imap.js'
+import imap from './eyemap.js'
 import mailcom from './mailcom.js'
 import outlook from './outlook.js'
 
@@ -125,16 +125,20 @@ function select(domain, email, tries) {
 }
 
 function base({ pnid, action, term, combo }) {
-	
-	running = action;
 
 	stats = {
 		total: combo.length,
 		processed: 0,
 		valid: 0,
-		hits: 0,
-		running
+		hits: 0
 	}
+
+	if (combo.length === 0){
+		if (comms) comms.finish();
+		return
+	}
+
+	stats.running = action;
 
 	function _q_(size){
 		return async.queue((task, cb)=>{
@@ -437,11 +441,11 @@ export default {
 		})
 	},
 
-	body(user, id) {
+	body({ user, pass, id }) {
 		return new Promise(async resolve=>{
 			const domain = user.substr(user.indexOf("@")+1);
 			const server = await select(domain);
-			const api = await server.login(user);
+			const api = await server.login(user, pass);
 			const body = await api.body(id);
 
 			resolve(body);

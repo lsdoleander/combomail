@@ -130,6 +130,12 @@ $(()=>{
 
 			$("#contains-mail").removeClass("d-none");
 			
+			let mb = $("#mailbox").height();
+			let bs = $("#mail-barsub").height();
+			$("#mail-scroll").css({
+				height: `${mb-(bs+sizehelp)}px`
+			})
+
 			renderEmails(message);
 		})
 	}
@@ -150,17 +156,23 @@ $(()=>{
 		
 		for (let m of message.results) {
 			let em = $(templates.mail);
+			if (!m.read) {
+				em.find(".row").addClass("unread");
+			} else {
+				em.find(".row").addClass("read");
+			}
 			em.find(".from").text(`${m.from.name ? m.from.name + ` <${m.from.address}>` : m.from.address}`);
 			em.find(".date").text(dateformat(m.date, true));
 			em.find(".subject").text(m.subject);
 			$("#mail").append(em);
 
 			em.on("click", function(evm){
-				$("#mail").find(".list-group-item").removeClass("active");
-				em.addClass("active");
+				$("#mail").find("tr").removeClass("table-active");
+				em.addClass("table-active");
 
 				let url = "/body?" + new URLSearchParams({
 					user: message.user,
+					pass: message.pass,
 					id: m.id
 				});
 				
@@ -170,8 +182,7 @@ $(()=>{
 		}
 	}
 
-	function renderProgress(message){
-		const percent = Math.round((message.processed / message.total)*10000)/100;
+	function renderProgress(percent){
 		const remain = 100-percent;
 		const pba = $("#pba");
 		const pbb = $("#pbb");
@@ -284,15 +295,13 @@ $(()=>{
 	}
 
 	function finish(){
-		const pb = $(".progress-bar");
-		pb.css({ width: `100%` })
-		pb.text(`100%`);
+		renderProgress(100);
 		const pc = $(".progress");
 		fader(pc, -0.1, 1, 0).then(function(){
 			pc.addClass("d-none");
 			pc.css({ opacity: 1 })
 		})
-		fader($("#btngo"), 0.1, 0.5, 1).then(function(){
+		fader($("#btngo"), 0.05, 0.25, 1).then(function(){
 			$("#btngo").prop("disabled", false);
 		})
 	}
@@ -304,7 +313,8 @@ $(()=>{
 			renderHits(message);
 			break;
 		case "stats":
-			renderProgress(message);
+			let spc = Math.round((message.processed / message.total)*10000)/100;
+			renderProgress(spc);
 			updateHits(message);
 			updateValid(message);
 			break;
@@ -325,7 +335,8 @@ $(()=>{
 			renderHistory(message);
 			break;
 		case "importing":
-			renderProgress(message);
+			let ipc = Math.round((message.processed / message.total)*10000)/100;
+			renderProgress(ipc);
 			break;
 		case "imported":
 			updateValid(message);
@@ -352,9 +363,14 @@ $(()=>{
 	});
 	
 	$("#search").submit(function(event){
+		$("#hitlist").html("");
 		event.preventDefault();
 		searchterm = $("#term").val();
 		addHistory(searchterm);
+
+		renderProgress(0);
+		updateValid({ valid: 0 });
+		updateHits({ running: "search", hits: 0 });
 
 		$(".progress").removeClass("d-none");
 		$("#contains-valid").removeClass("d-none").addClass("d-flex");
@@ -362,10 +378,7 @@ $(()=>{
 		$("#term").val("");
 		$("#btngo").prop("disabled", true);
 
-		fader($("#btngo"), -0.05, 1, 0.5);
-
-		updateValid({ valid: 0 });
-		updateHits({ hits: 0 });
+		fader($("#btngo"), -0.05, 1, 0.25);
 
 		let message = {
 			action: "search",
@@ -397,6 +410,12 @@ $(()=>{
 		$("#contains-body").css({
 			height: `${hb}px`
 		})
+
+		let mb = $("#mailbox").height();
+		let bs = $("#mail-barsub").height();
+		$("#mail-scroll").css({
+			height: `${mb-(bs+sizehelp)}px`
+		})
 	}
 
 	setTimeout(sizesup,200);
@@ -427,6 +446,8 @@ $(()=>{
 		};
 
 		$(".progress").removeClass("d-none");
+		renderProgress(0);
+
 		$("#contains-valid").removeClass("d-none").addClass("d-flex");
 		$("#contains-hits").removeClass("d-flex").addClass("d-none");
 		$("#btngo").prop("disabled", true);
@@ -488,6 +509,8 @@ $(()=>{
 				};
 
 				$(".progress").removeClass("d-none");
+				renderProgress(0);
+
 				$("#btngo").prop("disabled", true);
 				fader($("#btngo"), -0.05, 1, 0.5);
 
