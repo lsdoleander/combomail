@@ -21,6 +21,7 @@ function task(user) {
 
 const list = datasource.sessions.select();
 stats.total = list.length;
+konsole.log(stats.total);
 
 let intv = setInterval(function(){
 	konsole.replace(`${total} / ${done} : ${(done/total*100).toFixed(2)}%`);
@@ -30,7 +31,8 @@ let queue = [];
 for (const user of list) {
 	queue.push(task(users.user));
 }
-async.series(queue, function(){
+
+series(queue, function(){
 	clearInterval(intv);
 	konsole.log("All Done.")
 })
