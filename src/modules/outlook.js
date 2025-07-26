@@ -20,7 +20,7 @@ export default function (sessions) {
 		login
 	}
 
-	function login(user, pass) {
+	function login(user, pass, domain, country) {
 		let proxy = nextproxy();
 		const sessionid = v4();
 
@@ -206,7 +206,7 @@ export default function (sessions) {
 					}).catch(retry)
 				}, { logsto: debug, nextproxy })
 
-				sessions.create({ user, pass, module: "outlook", session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
+				sessions.create({ user, pass, module: "outlook", country, session:{ n:1, clientid, sessionid, coid, cid, nap, anon, wlssc, token, uc }});
 				debug.log("session creation", user);
 				resolve(factory(user));
 			})

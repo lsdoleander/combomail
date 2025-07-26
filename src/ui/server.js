@@ -75,6 +75,10 @@ import launcher from './launcher.js';
 					if (list) ws.send(JSON.stringify(list));
 				})	
 				
+			} else if (message.action === "userdata") {
+				let userdata = mailserver.userdata(message);
+				ws.send(JSON.stringify(userdata));
+
 			} else if (message.action === "list"){
 				let list = mailserver.list();
 				ws.send(JSON.stringify(list));

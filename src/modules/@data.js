@@ -8,20 +8,35 @@ import { v4 } from 'uuid'
 
 import { debuffer, datadir } from 'konsole';
 
-let debug = debuffer(datadir.share("combomail","logs")).logger("~db");
+let dpath = datadir.share("combomail");
 
-export default (function(){
+let debug = debuffer(path.join(dpath,"logs")).logger("~db");
+
+export default function(named){
+
+	let toload = (()=>{
+		const lastsave = path.join(dpath,"last.conf");
+		if (!named) {
+			if (fs.existsSync(lastsave)) {
+				return fs.readFileSync(lastsave,"utf-8");
+			} else {
+				return "sessions";
+			}
+		} else {
+			fs.writeFileSync(lastsave, named);
+			return named;
+		}
+	})()
 
 	let db = (function() {
-		let dir = datadir.share("combomail");
-		let datafile = path.join(dir, "sessions.db");
+		let datafile = path.join(dpath, toload+".db");
 		let create = !fs.existsSync(datafile);
 
 		let data = new Database(datafile);
 		data.pragma('journal_mode = WAL');
 
 		if (create) {
-			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, module TEXT, data TEXT, session TEXT, json INTEGER)");
+			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, module TEXT, country TEXT, data TEXT, session TEXT, json INTEGER)");
 			data.exec("CREATE TABLE search (id TEXT, timestamp INTEGER, term TEXT, hits TEXT, pending TEXT, complete INTEGER)");
 			data.exec("CREATE TABLE combo (id TEXT, timestamp INTEGER, pending TEXT, complete INTEGER)");
 		}
@@ -32,38 +47,34 @@ export default (function(){
 	return {
 		session: (function(){
 
-			function create({ user, pass, module, session }){
+			function create({ user, pass, country, module, session }){
 				del({ user })
 
-				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
+				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, country, session, json) VALUES (@user, @pass, @country, @session, @json)");
 				stmt2.run({
 					json: (typeof session === "object") ? 1 : 0,
 					session: (typeof session === "object") ? JSON.stringify(session) : session,
 					module,
+					country,
 					user,
 					pass
 				});
 			}
 
-			function importer( o ){
-				del(o)
-
-				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, session, json) VALUES (@user, @pass, @session, @json)");
-				stmt2.run({
-					json: (typeof o.session === 'object') ? 1 : 0,
-					session: (typeof o.session === 'object') ? JSON.stringify(o.session) : o.session,
-					user: o.user,
-					pass: o.pass
-				});
-			}
-
-			function update({ user, session, data }){
-				const stmt2 = db.prepare(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} WHERE user=@user`);
+			function update({ user, country, session, data }){
+				const stmt2 = db.prepare(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} ${country?'country=@country':''} WHERE user=@user`);
 				stmt2.run({
 					session: (typeof session === "object") ? JSON.stringify(session) : session,
 					data: data ? JSON.stringify(data) : null,
-					user: user
+					country,
+					user
 				});
+			}
+
+			function userdata({ user }) {
+				const stmt = db.prepare("SELECT data, country FROM sessions WHERE user = ?");
+				let user = stmt.get({ user });
+				return user.data;
 			}
 
 			function load(){
@@ -80,12 +91,18 @@ export default (function(){
 				return { map, combo, userdata };
 			}
 
+			function select(){
+				const stmt = db.prepare("SELECT * from sessions");
+				let sessions = stmt.all();
+				return sessions;
+			}
+
 			function del({ user }){
 				const stmt = db.prepare("DELETE FROM sessions WHERE user = @user");
 				stmt.run({ user });
 			}
 
-			return { create, update, load, import: importer, delete: del };
+			return { create, update, select, load, delete: del };
 		})(),
 
 		combo: {
@@ -175,4 +192,4 @@ export default (function(){
 		}
 	}
 	
-})()
+}

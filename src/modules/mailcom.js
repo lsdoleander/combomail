@@ -15,7 +15,7 @@ export default function setup(sessions) {
 		login
 	}
 
-	function login(user, pass) {
+	function login(user, pass, domain, country) {
 		let proxy = nextproxy();
 
 		function authenticate(){
@@ -70,7 +70,7 @@ export default function setup(sessions) {
 					}
 				}, { nextproxy, logsto: debug })
 				
-				sessions.create({ user, pass, module: "mailcom", session: { access_token, refresh_token }});
+				sessions.create({ user, pass, module: "mailcom", country, session: { access_token, refresh_token }});
 				debug.log("session creation", user);
 				resolve(factory(user));
 			})

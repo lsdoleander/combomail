@@ -16,7 +16,7 @@ export default function (sessions) {
 		login
 	}
 	
-	function login(user, pass) {
+	function login(user, pass, domain, country) {
 		let proxy = nextproxy();
 	
 		function authenticate(){
@@ -51,7 +51,7 @@ export default function (sessions) {
 					}
 				}, { nextproxy })
 
-				sessions.create({ user, pass, module: "abv", session: { token }});
+				sessions.create({ user, pass, module: "abv", country, session: { token }});
 				debug.log("session creation", user);
 				resolve(factory(user))
 			})
