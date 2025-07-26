@@ -72,9 +72,9 @@ export default function(named){
 			}
 
 			function userdata({ user }) {
-				const stmt = db.prepare("SELECT data, country FROM sessions WHERE user = ?");
-				let user = stmt.get({ user });
-				return user.data;
+				const stmt = db.prepare("SELECT data FROM sessions WHERE user = ?");
+				let data = stmt.get({ user });
+				return data.data;
 			}
 
 			function load(){
