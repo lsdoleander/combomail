@@ -29,7 +29,7 @@ body {
   cursor: pointer;
 }
 
-button.icon {
+.icon {
   cursor: pointer;
   padding: 0;
   margin: 0;
@@ -38,16 +38,20 @@ button.icon {
   height: 16px;
 }
 
-#subsearch-repeat {
-  background: url('/svg/repeat.svg');
-  width: 20px;
-  height: 20px;
+.icon.settings {
+  background: url('/svg/settings.svg');
 }
 
-#subsearch-click {
+.icon.userdata {
+  background: url('/svg/person-lines-fill.svg');
+}
+
+.icon.refresh {
+  background: url('/svg/refresh.svg');
+}
+
+.icon.search {
   background: url('/svg/search.svg');
-  width: 16px;
-  height: 16px;
 }
 
 #hits, #valid {

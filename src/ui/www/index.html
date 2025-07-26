@@ -36,7 +36,7 @@
 		  			<span id="valid" class="flex-grow-1 py-1 px-2 rounded me-2"></span> Valid</div>
 		  		<div id="contains-history" class="d-flex me-2"></div>
 			    <input id="term" class="form-control me-2 py-1" type="search" placeholder="Search" aria-label="Search"/>
-			    <button id="btngo" class="btn btn-outline-success" type="submit">Search</button>
+			    <button id="btngo" class="btn btn-primary" type="submit"><span class="icon Search</button>
 			</div>
 		  </form>
 		</nav>
@@ -84,14 +84,14 @@
 	<template id="messagelist" type="text/html">
 		<div id="mailbox" class="bg-body-tertiary pb-1 shadow h-100 rounded" style="z-index: 9">
 			<div class="p-2" id="mail-barsub">
-				<form id="submail" class="d-flex flex-row position-relative">
-					<div class="d-flex align-items-center me-2">
-						<input type="text" class="form-control" id="subsearch" />
+				<form id="submail" class="d-flex flex-row">
+					<div class="d-flex flex-grow-1">
+						<input type="text" class="form-control" id="subsearch" /><button id="subsearch-click" class="icon search" />
 					</div>
-					<div class="d-flex align-items-center flex-grow-1">
-						<button id="subsearch-click" class="rounded icon" />
+					<div class="d-flex">
+						<button id="subsearch-user" class="icon userdata"/>
+						<button id="subsearch-repeat" class="icon refresh"/>
 					</div>
-					<button id="subsearch-repeat" class="rounded icon position-absolute m-1 end-0"/>
 				</form>
 			</div>
 			<div class="overflow-auto" id="mail-scroll">
