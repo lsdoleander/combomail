@@ -6,6 +6,8 @@ import { komponent } from 'konsole'
 
 try {
 	const konsole = komponent("combomail", "cyan").komponent("country", "red");
+	konsole.log("Database migration: country populator");
+
 	let stats = {
 		total: 0,
 		done: 0
