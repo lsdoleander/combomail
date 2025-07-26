@@ -86,6 +86,10 @@ import launcher from './launcher.js';
 			} else if (message.action === "history"){
 				let history = mailserver.history(message);
 				ws.send(JSON.stringify(history));
+				
+			} else if (message.action === "sourcename"){
+				let result = mailserver.sourcename(message);
+				ws.send(JSON.stringify(result));
 			}
 		})
 	});
