@@ -1,5 +1,5 @@
 
-import datasource from './modules/@data.js'
+import sqlite from './modules/@data.js'
 import domainiac from 'domainiac'
 import { series } from 'async'
 import { komponent } from 'konsole'

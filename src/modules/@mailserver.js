@@ -21,7 +21,7 @@ let debug = debuffer(datadir.share("combomail","logs")).logger("~mailserver");
 
 const resolver = factory().resolve;
 
-let datasource = sqlite();
+let datasource = sqlite;
 
 function loadsessions(){
 	const { map, combo, userdata } = datasource.session.load() || { map: {}, combo: [], userdata: {} };
@@ -390,7 +390,7 @@ process.on("SIGBREAK", ifneedtoabort);
 export default {
 
 	sourcename({ source }) {
-		datasource = sqlite(source);
+		datasource = sqlite.load(source);
 		sessions = loadsessions();
 		resolve({
 			action: "sourcename",

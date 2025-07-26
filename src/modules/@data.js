@@ -12,7 +12,7 @@ let dpath = datadir.share("combomail");
 
 let debug = debuffer(path.join(dpath,"logs")).logger("~db");
 
-export default function(named){
+export default (function reload(named){
 
 	let toload = (()=>{
 		const lastsave = path.join(dpath,"last.conf");
@@ -45,6 +45,10 @@ export default function(named){
 	})();
 	
 	return {
+		load(name): {
+			return reload(name);
+		},
+
 		session: (function(){
 
 			function create({ user, pass, country, module, session }){
@@ -192,4 +196,4 @@ export default function(named){
 		}
 	}
 	
-}
+})()
