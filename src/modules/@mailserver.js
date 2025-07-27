@@ -28,14 +28,16 @@ function loadsessions(){
 	
 	map.combo = combo;
 	map.valid = map.combo.length;
-	map.create = function ({ user, pass, session }) {
-		datasource.session.create({ user, pass, session });
+	map.create = function ({ user, pass, module, country, session }) {
+		datasource.session.create({ user, pass, module, country, session });
+		if (!map[user]) {
+			map.combo.push(`${user}:${pass}`);
+			map.valid ++;
+		}
 		map[user] = session;
-		map.combo.push(`${user}:${pass}`);
-		map.valid ++;
 	};
-	map.update = function ({ user, data, session }) {
-		datasource.session.update({ user, data, session });
+	map.update = function ({ user, data, country, session }) {
+		datasource.session.update({ user, data, country, session });
 		if (session) map[user] = session;
 		userdata[user] = data;
 	};
@@ -47,6 +49,16 @@ function loadsessions(){
 	}
 	map.userdata = userdata
 	return map
+}
+
+function loadcountries() {
+	let c = datasource.session.countries();
+	const map = domainiac.countryNames();
+	
+	for (let i = 0; i < c.length; i++) {
+		c[i].name = map[c[i].value];
+	}
+	return c;
 }
 
 let sessions = loadsessions();
@@ -330,6 +342,7 @@ function base({ pnid, action, term, combo }) {
 				if (!masterkill) {
 					if (action === "combo") {
 						datasource.combo.delete(pnid);
+						sessions = loadsessions();
 					} else {
 						hitlist.sort(function(a,b){
 							return (a.results[0].date < b.results[0].date) ? -1:1
@@ -349,7 +362,8 @@ function base({ pnid, action, term, combo }) {
 	return {
 		progress() {
 			return stats;
-		}
+		},
+		countries: loadcountries
 	}
 }
 
@@ -392,20 +406,34 @@ export default {
 	sourcename({ source }) {
 		datasource = sqlite.load(source);
 		sessions = loadsessions();
-		resolve({
+		return {
 			action: "sourcename",
 			valid: sessions.valid
-		})
+		}
 	},
 
 	combo({ combo }) {
 		return base({ action: "combo", combo })
 	},
 
-	search({ term }) {
+	search({ term, countries, module: m }) {
 		hitlist = [];
 		runterm = term;
-		return base({ action: "search", combo: sessions.combo, term })
+		let combo;
+		if (countries && countries.length > 0 || m) {
+			combo = datasource.session.combo({ countries, module: m });
+		} else {
+			combo = sessions.combo;
+		}
+		return base({ action: "search", combo, term })
+	},
+
+	delete({ type, term }) {
+		if (type === "search") {
+			datasource.search.delete({ term });
+		} else if (type === "all") {
+			datasource.search.delete({ all: true });
+		}
 	},
 
 	history({ term }) {
@@ -427,8 +455,10 @@ export default {
 		} else {
 			data = [ list ];
 		}
+
 		return {
 			action: "list",
+			countries: loadcountries(),
 		 	data
 		}
 	},
@@ -471,7 +501,8 @@ export default {
 				sessions = loadsessions();
 				resolve({
 					action: "imported",
-					valid: sessions.valid
+					valid: sessions.valid,
+					countries: loadcountries()
 				})
 			})
 		})
@@ -533,7 +564,8 @@ export default {
 			query = {
 				progress() {
 					return stats
-				}
+				},
+				countries: loadcountries
 			}
 		}
 		return {

@@ -116,21 +116,22 @@ export default function (sessions) {
                                                 m.from = { address: m.from }
                                             }
 
-                                            parts = m.to[0].match(/([^<]+)\s?<([^>]+)>/);
-                                            if (parts) {
-                                                let name = parts[1];
-                                                if (!names.map[name.toLowerCase()]) {
-                                                    names.map[name.toLowerCase()] = 1;
-                                                } else {
-                                                    names.map[name.toLowerCase()]++;
-                                                }
+                                            if (m.to) {
+                                                parts = m.to[0].match(/([^<]+)\s?<([^>]+)>/);
+                                                if (parts) {
+                                                    let name = parts[1];
+                                                    if (!names.map[name.toLowerCase()]) {
+                                                        names.map[name.toLowerCase()] = 1;
+                                                    } else {
+                                                        names.map[name.toLowerCase()]++;
+                                                    }
 
-                                                if (names.map[name.toLowerCase()] > names.count) {
-                                                    names.count = names.map[name.toLowerCase()];
-                                                    names.top = name;
+                                                    if (names.map[name.toLowerCase()] > names.count) {
+                                                        names.count = names.map[name.toLowerCase()];
+                                                        names.top = name;
+                                                    }
                                                 }
                                             }
-
                                             searchresults.results.splice(0,0,m);
                                         })
                                     });
@@ -147,8 +148,10 @@ export default function (sessions) {
                                         imap.end();
 
                                         let data = {
-                                            name: names.top,
                                             country
+                                        }
+                                        if (names.count > 0) {
+                                            data.name = names.top
                                         }
 
                                         sessions.update({ user, data });
@@ -199,7 +202,7 @@ export default function (sessions) {
                         imap = new Imap(imapConfig);
                         imap.once('ready', () => {
                             debug.debug("ready("+user+")");
-                            sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
+                            if (!sessions[user]) sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
                             debug.log("session created:", user);
 
                             resolve({

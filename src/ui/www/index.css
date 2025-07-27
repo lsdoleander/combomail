@@ -38,20 +38,87 @@ body {
   height: 16px;
 }
 
-.icon.settings {
-  background: url('/svg/settings.svg');
+button span.icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  padding: 0;
 }
 
-.icon.userdata {
-  background: url('/svg/person-lines-fill.svg');
+.icon.database {
+  background: url('/svg/database.svg');
 }
 
 .icon.refresh {
   background: url('/svg/refresh.svg');
+  margin: -4px 0 -4px 1rem;
+}
+
+.icon.reset {
+  background: url('/svg/reset.svg');
+  margin: -6px 0;
+}
+
+.icon.save {
+  background: url('/svg/save.svg');
+  margin: -4px 0;
 }
 
 .icon.search {
   background: url('/svg/search.svg');
+  margin: -8px 0;
+}
+
+.icon.settings {
+  background: url("/svg/settings.svg");
+  margin: -6px 0;
+}
+
+.icon.sub {
+  background: url('/svg/sub.svg');
+  margin: -8px 0 -4px 0.5rem;
+}
+
+.icon.trash {
+  background: url('/svg/trash.svg');
+  margin: -6px 2px -6px 0;
+}
+
+.icon.user{
+  background: url('/svg/user.svg');
+  margin: -4px 0 -4px 0.5rem;
+}
+
+.icon.x {
+  background: url('/svg/x-fill.svg');
+  /* margin: -2px -1px; */
+}
+
+#history {
+  border: 1px solid #808080;
+}
+
+.delete-container {
+  position: absolute;
+  border: 2px solid #808080;
+  height: 1.75rem;
+  width: 1.75rem;
+  top: -2px;
+  right: -1.75rem;
+  padding: 2px 4px;
+}
+
+#extended input, #extended select {
+  width: 100%;
+  margin: 0 0 0.25rem;
+}
+
+#nukesearches {
+  margin: 1rem 0 0;
+}
+
+#settings, #nukesearches {
+  color: white;
 }
 
 #hits, #valid {
@@ -100,13 +167,11 @@ iframe {
   padding: 0 .35rem;
 }
 
-#search-history .dropdown-menu li {
+#submail button {
+  background: none;
+  border: 0;
   padding: 0;
-}
-
-#search-history .dropdown-menu .dropdown-item .search-timestamp {
-  font-size: 0.65rem;
-  color: dodgerblue !important;
+  margin: 0;
 }
 
 #contains-mail .date {

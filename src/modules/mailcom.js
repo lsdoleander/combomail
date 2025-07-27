@@ -31,7 +31,7 @@ export default function setup(sessions) {
 						let result = await refresh(refresh_token);
 						if (result.success) {
 							let access_token = result.access_token;
-							sessions.create({ user, pass, session:{ access_token, refresh_token }});
+							sessions.create({ user, pass, module: "mailcom", country, session:{ access_token, refresh_token }});
 							return resolve(factory(user));
 						} else {
 							sessions.delete({ user, pass })

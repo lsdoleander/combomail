@@ -53,6 +53,9 @@ $(()=>{
 		$wait.modal.show();
 	}
 
+	let $advanced = $("#advanced");
+	$advanced.modal = new bootstrap.Modal('#advanced');
+
 	function renderBegin(message){
 		updateValid(message);
 		
@@ -62,7 +65,8 @@ $(()=>{
 		if (message.running) {
 			running = true;
 
-			$("#btngo").prop("disabled", true);
+			disabler();
+
 			$(".progress").removeClass("d-none");
 			
 			if (message.running === "search") {
@@ -197,34 +201,63 @@ $(()=>{
 		}
 	}
 
-	function renderList(message) {
-		let label;
-		if (running) {
-			label = searchterm;
-			shbtn = "info";
-		} else {
-			label = "[History]";
-			shbtn = "secondary";
+	function updateCountries(message){
+		let $cl = $("#countrylist");
+		$cl.html("");
+		for (let c of message.countries) {
+			$cl.append(`<option value="${c.value}">${c.name}</option>`)
 		}
-		let $dropdown = searchtemplate(label, shbtn);
-		$("#contains-history").append($dropdown);
-		let $ddlist = $("#search-history .dropdown-menu");
+	} 
 
-		for (let data of message.data) {
-			let $option = renderOption(data.term, data.timestamp);
-			$ddlist.append($option);
+	let historic = 0;
+
+	function renderList(message) {
+		let $ddlist = $("#history");
+		let $nuke = $("#nukesearches");
+		
+		historic = message.data.length;
+
+		if (message.data.length > 0) {
+			$("#nohistory").hide();
+			$ddlist.show();
+			$nuke.show()
+			$nuke.on("click", event=>{
+				if (confirm(`Are you sure you want to delete all search results!?`)) {
+					let message = {
+						action: "delete",
+						type: "all"
+					}
+
+					$("#history").html("");
+					$ddlist.hide();
+					$nuke.hide();
+					$("#nohistory").show()
+					historic = 0;
+
+					socket.send(JSON.stringify(message));
+				}
+			})
+			for (let data of message.data) {
+				let $option = renderOption(data.term, data.timestamp);
+				$ddlist.append($option);
+			}
+		} else {
+			$ddlist.hide();
+			$nuke.hide();
+			$("#nohistory").show()
 		}
 	}
 
 	function renderOption(term, timestamp) {
-		let $option = termtemplate(dateformat(timestamp,false,false), term)
-		$option.on("click", event=>{
+		let tsformat = dateformat(timestamp,false,false);
+		let $option = termtemplate(tsformat, term)
+
+		$option.find(".previous").on("click", event=>{
 			if (!running && searchterm !== term) {
-				let $btn = $("#search-history button.shows-term");
+
 				searchterm = term;
-				$btn.text(term);
-				if (shbtn === "secondary") $btn.removeClass("bg-secondary-subtle").addClass("bg-info-subtle");
-				shbtn = "info";
+				$("#term").val(searchterm);
+				$advanced.modal.hide();
 
 				let message = {
 					action: "history",
@@ -233,11 +266,31 @@ $(()=>{
 				socket.send(JSON.stringify(message));
 			}
 		})
+
+		$option.find(".icon.x").on("click", event=>{
+			if (confirm(`Are you sure you want to delete search results for "${term}" from ${tsformat}`)) {
+				let message = {
+					action: "delete",
+					type: "search",
+					term: term
+				}
+				historic--;
+				$option.detach();
+
+				if (historic === 0) {
+					$ddlist.hide();
+					$nuke.hide();
+					$("#nohistory").show()
+				}
+
+				socket.send(JSON.stringify(message));
+			}
+		})
 		return $option;
 	}
 
 	function addHistory(term) {
-		let $ddlist = $("#search-history .dropdown-menu");
+		let $ddlist = $("#history");
 		let list = $ddlist.find("li");
 		for (let el of list) {
 			let compare = $(el).find(".search-term").text();
@@ -247,12 +300,8 @@ $(()=>{
 			}
 		}
 
-		let $btn = $("#search-history button.shows-term");
-		$btn.text(term);
-		if (shbtn === "secondary") $btn.removeClass("btn-secondary").addClass("btn-info");
-		shbtn = "info";
-
 		$ddlist.prepend(renderOption(term, new Date()));
+		historic++;
 	}
 
 	function updateValid(message){
@@ -294,6 +343,14 @@ $(()=>{
 		})
 	}
 
+	function disabler() {
+		$("#btngo").prop("disabled", true);
+		$("#settings").prop("disabled", true);
+
+		fader($("#btngo"), -0.1, 1, 0.2);
+		fader($("#settings"), -0.1, 1, 0.2);
+	}
+
 	function finish(){
 		renderProgress(100);
 		const pc = $(".progress");
@@ -301,8 +358,11 @@ $(()=>{
 			pc.addClass("d-none");
 			pc.css({ opacity: 1 })
 		})
-		fader($("#btngo"), 0.05, 0.25, 1).then(function(){
+		fader($("#btngo"), 0.1, 0.2, 1).then(function(){
 			$("#btngo").prop("disabled", false);
+		})
+		fader($("#settings"), 0.1, 0.2, 1).then(function(){
+			$("#settings").prop("disabled", false);
 		})
 	}
 
@@ -319,8 +379,10 @@ $(()=>{
 			updateValid(message);
 			break;
 		case "finish":
-			finish();
 			running = false;
+			updateValid(message);
+			updateCountries(message);
+			finish();
 			break;
 		case "begin":
 			renderBegin(message);
@@ -330,6 +392,7 @@ $(()=>{
 			break;
 		case "list":
 			renderList(message);
+			updateCountries(message);
 			break;
 		case "history":
 			renderHistory(message);
@@ -340,6 +403,7 @@ $(()=>{
 			break;
 		case "imported":
 			updateValid(message);
+			updateCountries(message);
 			finish();
 
 			$wait[0].addEventListener('hidden.bs.modal', event=>{
@@ -362,10 +426,60 @@ $(()=>{
 		socket.send(JSON.stringify(message));
 	});
 	
-	$("#search").submit(function(event){
-		$("#hitlist").html("");
+	$("#search").on("submit", event=>{
 		event.preventDefault();
-		searchterm = $("#term").val();
+		let term = $("#term").val();
+		if (term !== "") {
+			searchterm = term;
+			let message = {
+				action: "search",
+				term: searchterm
+			};
+			submit(message);
+			return false;
+		}
+	})
+
+	$("#extended").on("submit", event=>{
+		event.preventDefault();
+		let term = $("#advsearch").val();
+		if (term !== "") {
+			searchterm = term;
+			let countries = $("#countrylist").val();
+			let mod = $("#module").val();
+			let message = {
+				action: "search",
+				term: searchterm,
+				countries
+			};
+			if (mod !== "*") {
+				message.module = mod
+			}
+			$advanced.modal.hide();
+			submit(message);
+			return false;
+		}
+	})
+
+	$("#exre").on("click", event=>{
+		$("#extended")[0].reset();
+	})
+
+	$("#datasetname").on("submit", event=>{
+		event.preventDefault();
+		let source = $("#dataset").val();
+		if (source !== "") {
+			let message = {
+				action: "sourcename",
+				source
+			}
+			socket.send(JSON.stringify(message));
+		}
+		return false;
+	})
+
+	function submit(message){
+		$("#hitlist").html("");
 		addHistory(searchterm);
 
 		renderProgress(0);
@@ -376,18 +490,12 @@ $(()=>{
 		$("#contains-valid").removeClass("d-none").addClass("d-flex");
 		$("#contains-hits").removeClass("d-none").addClass("d-flex");
 		$("#term").val("");
-		$("#btngo").prop("disabled", true);
 
-		fader($("#btngo"), -0.05, 1, 0.25);
+		disabler();
 
-		let message = {
-			action: "search",
-			term: searchterm
-		};
 		running = true;
 		socket.send(JSON.stringify(message));
-		return false;
-	})
+	}
 
 	let sizehelp;
 
@@ -450,8 +558,8 @@ $(()=>{
 
 		$("#contains-valid").removeClass("d-none").addClass("d-flex");
 		$("#contains-hits").removeClass("d-flex").addClass("d-none");
-		$("#btngo").prop("disabled", true);
-		fader($("#btngo"), -0.05, 1, 0.5);
+
+		disabler();
 
 		socket.send(JSON.stringify(message));
 	}
@@ -510,10 +618,7 @@ $(()=>{
 
 				$(".progress").removeClass("d-none");
 				renderProgress(0);
-
-				$("#btngo").prop("disabled", true);
-				fader($("#btngo"), -0.05, 1, 0.5);
-
+				disabler();
 				renderWait();
 
 				socket.send(JSON.stringify(message));

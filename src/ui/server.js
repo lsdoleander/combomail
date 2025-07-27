@@ -30,8 +30,12 @@ import launcher from './launcher.js';
 				ws.send(JSON.stringify(data));
 			},
 			finish(){
-				gostats();
-				ws.send("{\"action\":\"finish\"}");
+				let message = { 
+					... query.progress(),
+					"action": "finish",
+					"countries": query.countries()		
+				}
+				ws.send(JSON.stringify(message));
 				clearInterval(interv);
 			}
 		})
@@ -90,12 +94,14 @@ import launcher from './launcher.js';
 			} else if (message.action === "sourcename"){
 				let result = mailserver.sourcename(message);
 				ws.send(JSON.stringify(result));
+				
+			} else if (message.action === "delete"){
+				mailserver.delete(message);
 			}
 		})
 	});
 
 	app.get("/body", (request, response)=>{
-		console.log(request.query);
 		mailserver.body(request.query).then(msg=>{
 			if (!msg.error) {
 				response.set({ "Content-Type": "text/html" });
