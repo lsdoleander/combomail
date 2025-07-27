@@ -17,7 +17,7 @@ try {
 		return function(cb) {
 			let domain = user.split("@")[1];
 			let country = domainiac.country(domain);
-			datasource.sessions.update({ user, country });
+			datasource.session.update({ user, country });
 			stats.done++;
 			setTimeout(cb,2);
 		}
