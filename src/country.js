@@ -25,15 +25,14 @@ try {
 
 	const list = datasource.sessions.nocountry();
 	stats.total = list.length;
-	konsole.log(stats.total);
 
 	let intv = setInterval(function(){
-		konsole.replace(`${total} / ${done} : ${(done/total*100).toFixed(2)}%`);
+		konsole.replace(`${stats.total} / ${stats.done} : ${(stats.done/stats.total*100).toFixed(2)}%`);
 	},200)
 
 	let queue = [];
 	for (const user of list) {
-		queue.push(task(users.user));
+		queue.push(task(user.user));
 	}
 
 	series(queue, function(){
