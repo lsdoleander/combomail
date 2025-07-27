@@ -23,7 +23,7 @@ try {
 		}
 	}
 
-	const list = datasource.sessions.nocountry();
+	const list = datasource.session.nocountry();
 	stats.total = list.length;
 
 	let intv = setInterval(function(){
