@@ -125,6 +125,12 @@ export default (function reload(named){
 				return sessions;
 			}
 
+			function nocountry() {
+				const stmt = db.prepare("SELECT * from sessions where country is null");
+				let sessions = stmt.all();
+				return sessions;
+			}
+
 			function countries() {
 				const stmt = db.prepare("SELECT country as value FROM sessions GROUP BY country ORDER BY country")
 				let countries = stmt.all();
@@ -136,7 +142,7 @@ export default (function reload(named){
 				stmt.run({ user });
 			}
 
-			return { create, update, select, load, combo, countries, delete: del };
+			return { create, update, select, load, combo, nocountry, countries, delete: del };
 		})(),
 
 		combo: {

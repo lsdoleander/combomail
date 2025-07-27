@@ -23,7 +23,7 @@ try {
 		}
 	}
 
-	const list = datasource.sessions.select();
+	const list = datasource.sessions.nocountry();
 	stats.total = list.length;
 	konsole.log(stats.total);
 
