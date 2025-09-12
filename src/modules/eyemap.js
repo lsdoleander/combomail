@@ -212,6 +212,7 @@ export default function (sessions) {
 
                         imap = new Imap(imapConfig);
                         imap.once('ready', () => {
+
                             if (!sessions[user]) sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
                             debug.log("session created:", user);
 

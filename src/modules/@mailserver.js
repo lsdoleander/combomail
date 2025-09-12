@@ -435,9 +435,7 @@ export default {
 			} else {
 				datasource.search.delete({ term });
 			}
-		} else if (type === "message") {
-			
-		}
+		} 
 	},
 
 	history({ term }) {

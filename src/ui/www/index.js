@@ -243,8 +243,10 @@ $(()=>{
 				if (confirm(`Are you sure you want to delete all search results!?`)) {
 					let message = {
 						action: "delete",
+
 						type: "search",
 						scope: "all"
+
 					}
 
 					$("#history").html("");
@@ -464,6 +466,7 @@ $(()=>{
 		}
 	})
 
+
 	$("#term").on("keyup", event => {
 		$("advsearch").val($("#term").val());
 	})
@@ -475,11 +478,13 @@ $(()=>{
 			searchterm = term;
 			let countries = $("#countrylist").val();
 			let mod = $("#module").val();
+
 			let attachments = $("#attachments").prop("checked");
 			let message = {
 				action: "search",
 				term: searchterm,
 				attachments,
+
 				countries
 			};
 			if (mod !== "*") {
