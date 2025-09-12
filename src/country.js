@@ -17,23 +17,22 @@ try {
 		return function(cb) {
 			let domain = user.split("@")[1];
 			let country = domainiac.country(domain);
-			datasource.sessions.update({ user, country });
+			datasource.session.update({ user, country });
 			stats.done++;
 			setTimeout(cb,2);
 		}
 	}
 
-	const list = datasource.sessions.select();
+	const list = datasource.session.nocountry();
 	stats.total = list.length;
-	konsole.log(stats.total);
 
 	let intv = setInterval(function(){
-		konsole.replace(`${total} / ${done} : ${(done/total*100).toFixed(2)}%`);
+		konsole.replace(`${stats.total} / ${stats.done} : ${(stats.done/stats.total*100).toFixed(2)}%`);
 	},200)
 
 	let queue = [];
 	for (const user of list) {
-		queue.push(task(users.user));
+		queue.push(task(user.user));
 	}
 
 	series(queue, function(){

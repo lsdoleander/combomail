@@ -31,7 +31,7 @@ export default function setup(sessions) {
 						let result = await refresh(refresh_token);
 						if (result.success) {
 							let access_token = result.access_token;
-							sessions.create({ user, pass, session:{ access_token, refresh_token }});
+							sessions.create({ user, pass, module: "mailcom", country, session:{ access_token, refresh_token }});
 							return resolve(factory(user));
 						} else {
 							sessions.delete({ user, pass })
@@ -50,10 +50,12 @@ export default function setup(sessions) {
 					let response = await client.post("https://oauth2.mail.com/token", { form:data, headers, proxy, logger:debug });
 					let jsondata = await response.json();
 					if (response.status === 400) {
+						debug.debug("login: fail")
 						fail(jsondata["error"]);
 					}
 
 					if (response.ok){
+						debug.debug("login: ok")
 						let access_token = jsondata["access_token"]
 						let refresh_token = jsondata["refresh_token"]
 						if (!refresh_token || !access_token) {

@@ -1,0 +1,98 @@
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+Opening in existing browser session.
+[1149480:1149503:0729/081255.135812:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149480:0729/081314.006966:ERROR:chromium-138.0.7204.157/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[1149525:1149531:0729/081317.438034:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1149480:1149503:0729/081322.912367:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149525:1149531:0729/081329.496400:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1149480:1149503:0729/081413.438401:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149480:0729/081432.982463:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1149480:1149503:0729/081549.819918:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149503:0729/081845.513777:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149503:0729/082644.036224:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149503:0729/172535.942000:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149480:1149503:0729/172559.841269:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1149525:1149531:0729/172613.845631:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1149525:1149531:0729/172625.893582:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1149480:1149480:0729/212423.949481:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816952:0729/213039.124551:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816972:1816979:0729/213100.224342:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1816932:1816952:0729/213102.181023:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816972:1816979:0729/213112.261617:ERROR:chromium-138.0.7204.157/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[1816932:1816952:0729/213142.504238:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816932:1816952:0729/213306.307630:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816932:1816952:0729/213621.544375:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816932:1816952:0729/214358.094545:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816932:1816932:0729/231845.578585:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/232522.578856:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/232816.392994:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/234356.052723:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/234529.921469:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/234617.636886:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/235118.952137:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0729/235530.742233:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/012424.086336:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/013323.437025:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/013625.811014:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/013908.346609:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/014001.154007:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/014404.027223:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/014458.556137:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/014545.375191:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/014914.961757:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/015033.691102:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/020232.509493:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/020431.651946:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/020500.036979:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816932:0730/020501.432173:ERROR:CONSOLE:1] "Request Storage.getStorageKeyForFrame failed. {"code":-32602,"message":"Frame tree node for given frame not found"}", source: devtools://devtools/bundled/core/protocol_client/protocol_client.js (1)
+[1816932:1816952:0730/083339.526122:ERROR:chromium-138.0.7204.157/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1816932:1816932:0730/230753.290672:ERROR:chromium-138.0.7204.157/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[214057:214090:0801/060531.469813:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[214803:214823:0801/060616.285474:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[214803:214823:0801/060638.938879:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[214844:214850:0801/060640.114959:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[214803:214803:0801/060651.202564:ERROR:chromium-138.0.7204.168/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[214844:214850:0801/060652.163024:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[214803:214823:0801/060738.039789:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[217089:217089:0801/060912.311506:ERROR:chromium-138.0.7204.168/services/on_device_model/ml/gpu_blocklist.cc:120] Unable to get gpu adapter
+[214803:214803:0801/060912.311689:ERROR:chromium-138.0.7204.168/services/on_device_model/public/cpp/service_client.cc:36] Unexpected on_device_model service disconnect: The device's GPU is not supported.
+[214803:214823:0801/060932.413536:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[218231:218251:0801/061039.818385:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[218231:218231:0801/061042.000883:ERROR:chromium-138.0.7204.168/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[218231:218251:0801/061102.233754:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[218271:218277:0801/061102.319527:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[218271:218277:0801/061114.374128:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[219173:219193:0801/061138.198671:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[219173:219173:0801/061142.150952:ERROR:chromium-138.0.7204.168/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[219173:219193:0801/061200.133373:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[219218:219224:0801/061201.130118:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[219218:219224:0801/061213.179015:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[220367:220387:0801/061259.475457:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220367:220367:0801/061302.044555:ERROR:chromium-138.0.7204.168/ui/gfx/x/atom_cache.cc:232] Add chromium/from-privileged to kAtomsToCache
+[220408:220414:0801/061321.276764:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[220367:220387:0801/061322.037853:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220408:220414:0801/061333.334677:ERROR:chromium-138.0.7204.168/net/socket/ssl_client_socket_impl.cc:896] handshake failed; returned -1, SSL error code 1, net_error -100
+[220367:220387:0801/061418.988698:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220367:220387:0801/061612.683144:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220367:220387:0801/061854.978345:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220367:220387:0801/062503.495533:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[220367:220387:0801/072742.000739:ERROR:chromium-138.0.7204.168/google_apis/gcm/engine/connection_factory_impl.cc:483] ConnectionHandler failed with net error: -2

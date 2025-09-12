@@ -18,6 +18,7 @@
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
+    "domainiac": "https://github.com/paulwardrip/domainiac.git",
     "express": "^5.1.0",
     "express-ws": "^5.0.2",
     "fetching": "https://github.com/lsdoleander/fetching.git",
@@ -33,8 +34,10 @@
   },
   "scripts": {
     "update": "git pull && yarn && yarn update-konsole && yarn update-fetching",
+    "update-domainiac": "yarn add https://github.com/paulwardrip/domainiac.git",
     "update-fetching": "yarn add https://github.com/lsdoleander/fetching.git",
     "update-konsole": "yarn add https://github.com/lsdoleander/konsole.git",
+    "update-mailblazer": "yarn add https://github.com/paulwardrip/mailblazer.git",
     "clear": "node src/datareset.js && rm -rf ~/.local/share/combomail/logs/*",
     "clean": "node src/build.js",
     "build": "yarn clean && yarn static && yarn rollup && yarn dist",

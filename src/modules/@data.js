@@ -45,7 +45,7 @@ export default (function reload(named){
 	})();
 	
 	return {
-		load(name): {
+		load(name) {
 			return reload(name);
 		},
 
@@ -54,7 +54,7 @@ export default (function reload(named){
 			function create({ user, pass, country, module, session }){
 				del({ user })
 
-				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, country, session, json) VALUES (@user, @pass, @country, @session, @json)");
+				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, country, module, session, json) VALUES (@user, @pass, @country, @module, @session, @json)");
 				stmt2.run({
 					json: (typeof session === "object") ? 1 : 0,
 					session: (typeof session === "object") ? JSON.stringify(session) : session,
@@ -95,10 +95,46 @@ export default (function reload(named){
 				return { map, combo, userdata };
 			}
 
+			function combo({ countries, module }){
+				let sql = "SELECT user, pass from sessions WHERE ";
+
+				if (module) {
+					sql += `module = '${module}'`;
+				}
+				if (countries && countries.length > 0) {
+					if (module) sql += " AND "
+					let format = [];
+					for (let country of countries) {
+						format.push(`'${country}'`);
+					}
+					sql += `country IN (${format.join(", ")})`
+				}
+				debug.debug(sql);
+				const stmt = db.prepare(sql);
+				let sessions = stmt.all();
+				let combo = [];
+				for (let s of sessions) {
+					combo.push(`${s.user}:${s.pass}`)
+				}
+				return combo;
+			}
+
 			function select(){
 				const stmt = db.prepare("SELECT * from sessions");
 				let sessions = stmt.all();
 				return sessions;
+			}
+
+			function nocountry() {
+				const stmt = db.prepare("SELECT * from sessions where country is null");
+				let sessions = stmt.all();
+				return sessions;
+			}
+
+			function countries() {
+				const stmt = db.prepare("SELECT country as value FROM sessions GROUP BY country ORDER BY country")
+				let countries = stmt.all();
+				return countries;
 			}
 
 			function del({ user }){
@@ -106,7 +142,7 @@ export default (function reload(named){
 				stmt.run({ user });
 			}
 
-			return { create, update, select, load, delete: del };
+			return { create, update, select, load, combo, nocountry, countries, delete: del };
 		})(),
 
 		combo: {
@@ -141,59 +177,69 @@ export default (function reload(named){
 			}
 		},
 
-		search: {
-			create(term, hits, pending) {
-				function prepare(){
-					const stmt = db.prepare("DELETE FROM search WHERE term=@term");
+		search: (function(){
+
+			function del({ term, all }) {
+				let sql = "DELETE FROM search";
+				if (term) {
+					sql += " WHERE term=@term";
+					const stmt = db.prepare(sql);
 					stmt.run({ term })
+
+				} else if (all === true) {
+					const stmt = db.prepare(sql);
+					stmt.run()
 				}
-				function insert(){
-					const stmt = db.prepare("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
-					let id = v4();
+			}
+
+			return {
+				create(term, hits, pending) {
+					
+					function insert(){
+						const stmt = db.prepare("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
+						let id = v4();
+						stmt.run({
+							id,
+							timestamp: new Date().getTime(),
+							term,
+							hits: JSON.stringify(hits),
+							pending: JSON.stringify(pending)
+						})
+						return id;
+					}
+
+					del({ term });
+					return insert();
+				},
+
+				update(id, hits, pending) {
+					const stmt = db.prepare("UPDATE search SET hits=@hits, pending=@pending, complete=@complete WHERE id=@id");
 					stmt.run({
 						id,
-						timestamp: new Date().getTime(),
-						term,
 						hits: JSON.stringify(hits),
-						pending: JSON.stringify(pending)
+						pending: JSON.stringify(pending),
+						complete: pending.length > 0 ? 0 : 1
 					})
-					return id;
-				}
+				},
 
-				prepare();
-				return insert();
-			},
+				load(term) {
+					const stmt = db.prepare("SELECT hits FROM search WHERE term=@term ORDER BY timestamp DESC")
+					return stmt.get({ term });
+				},
 
-			update(id, hits, pending) {
-				const stmt = db.prepare("UPDATE search SET hits=@hits, pending=@pending, complete=@complete WHERE id=@id");
-				stmt.run({
-					id,
-					hits: JSON.stringify(hits),
-					pending: JSON.stringify(pending),
-					complete: pending.length > 0 ? 0 : 1
-				})
-			},
+				list() {
+					const stmt = db.prepare("SELECT id, term, timestamp FROM search ORDER BY timestamp DESC")
+					return stmt.all();
+				},
 
-			delete(id) {
-				const stmt = db.prepare("DELETE FROM search WHERE id=@id");
-				stmt.run({ id })
-			},
+				incomplete(){
+					const stmt = db.prepare("SELECT id, term, hits, pending FROM search WHERE complete=0 ORDER BY timestamp DESC")
+					return stmt.get();
+				},
 
-			load(term) {
-				const stmt = db.prepare("SELECT hits FROM search WHERE term=@term ORDER BY timestamp DESC")
-				return stmt.get({ term });
-			},
-
-			list() {
-				const stmt = db.prepare("SELECT id, term, timestamp FROM search ORDER BY timestamp DESC")
-				return stmt.all();
-			},
-
-			incomplete(){
-				const stmt = db.prepare("SELECT id, term, hits, pending FROM search WHERE complete=0 ORDER BY timestamp DESC")
-				return stmt.get();
+				delete: del
 			}
-		}
+		})()
 	}
 	
 })()

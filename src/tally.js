@@ -20,23 +20,26 @@
 
 	export function tally() {
 		let fn = process.argv[2] || "tally/servers.txt";
-		let counter = {};
-		let domains = [];
-		const text = fs.readFileSync(fn, 'utf8');
-		const lines = text.trim().split("\n");
-		for (const line of lines) {
-			if (!counter[line]) counter[line] = 1
-			else counter[line]++
-		}
 
-		fs.mkdirSync("tally", { recursive: true });
-		for (const key in counter) {
-			domains.push(`${zf(counter[key], 5)} ${key}`);
-		}
+		if (fs.existsSync(fn)){
+			let counter = {};
+			let domains = [];
+			const text = fs.readFileSync(fn, 'utf8');
+			const lines = text.trim().split("\n");
+			for (const line of lines) {
+				if (!counter[line]) counter[line] = 1
+				else counter[line]++
+			}
 
-		domains.sort();
-		fs.appendFileSync(path.resolve("tally/tally.log"), domains.join("\n"));
-		//fs.rmSync(fn)
+			fs.mkdirSync("tally", { recursive: true });
+			for (const key in counter) {
+				domains.push(`${zf(counter[key], 5)} ${key}`);
+			}
+
+			domains.sort();
+			fs.appendFileSync(path.resolve("tally/tally.log"), domains.join("\n"));
+			//fs.rmSync(fn)
+		}
 	}
 
 	function lookup() {
@@ -76,7 +79,7 @@
 			queue.push(task(lines[z-1]));
 		}
 
-		async.parallelLimit(queue, 100, function(){
+		async.parallelLimit(queue, 50, function(){
 			//python2json();
 			console.log("done");
 		})

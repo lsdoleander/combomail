@@ -67,8 +67,8 @@ export default function (sessions) {
 						let html = await response.text();
 
 						
-						let ma = html.match(/urlPost:'([^']*)'/);
-						let mb = html.match(/input[^>]*name\s?=\s?"PPFT"[^>]*value\s?=\s?"([^"]*)"/);
+						let ma = html.match(/urlPost:"([^""]*)"/);
+						let mb = html.match(/\\"PPFT\\" id=\\"\w+\\" value=\\"([^"]*)\\"/);
 
 						if (!ma || !mb) {
 							return retry("Parser error [urlPost|ppft]");

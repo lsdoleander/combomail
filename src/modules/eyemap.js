@@ -14,7 +14,7 @@ export default function (sessions) {
                     let imap;
                     let error_handler;
 
-                    function SearchObject(terms) {
+                    function SearchObject(terms, attachments) {
                         let words = terms.trim().split(" ");
                         let subject = [], from = [];
                         for (let word of words) {
@@ -39,10 +39,13 @@ export default function (sessions) {
                             let text = subject.join(" ");
                             search.push([ 'OR', ['SUBJECT', text], ['BODY', text] ]);
                         }
+                        if (attachments) {
+                            search.push([ 'HEADER', 'Content-Disposition', 'attachment' ]);
+                        }
                         return search;
                     }
 
-                    function search(terms) {
+                    function search(terms, attachments) {
                         return new Promise(resolve=>{
                             error_handler = ex=>{
                                 imap.end();
@@ -61,7 +64,6 @@ export default function (sessions) {
 
                             imap.openBox('INBOX', true, () => {
                                 const sq = SearchObject(terms);
-                                debug.debug("search: ", sq);
                                 
                                 imap.search(sq, (err, results) => {
                                     if (err) {
@@ -70,7 +72,6 @@ export default function (sessions) {
                                     }
 
                                     searchresults.total = results?.length;
-                                    debug.debug("search results:", searchresults.total);
 
                                     if (!results || results.length === 0) {
                                         imap.end();
@@ -78,7 +79,6 @@ export default function (sessions) {
                                     }
 
                                     let list = results.length > 25 ? results.splice(results.length - 25) : results;
-                                    debug.debug("fetch:", list);
 
                                     let names = { map: {}, top: null, count: 0 };
                                     const f = imap.fetch(list, {bodies: ['HEADER.FIELDS (TO FROM SUBJECT)']});
@@ -92,12 +92,10 @@ export default function (sessions) {
                                             });
                                             stream.once('end', function() {
                                                 let parsed = Imap.parseHeader(buffer);
-                                                debug.debug(parsed);
                                                 m = { ...m, ...parsed };
                                             });
                                         });
                                         msg.once('attributes', attrs => {
-                                            debug.debug(attrs);
                                             m = { 
                                                 id: attrs.uid,
                                                 date: new Date(attrs.date).getTime(),
@@ -116,21 +114,22 @@ export default function (sessions) {
                                                 m.from = { address: m.from }
                                             }
 
-                                            parts = m.to[0].match(/([^<]+)\s?<([^>]+)>/);
-                                            if (parts) {
-                                                let name = parts[1];
-                                                if (!names.map[name.toLowerCase()]) {
-                                                    names.map[name.toLowerCase()] = 1;
-                                                } else {
-                                                    names.map[name.toLowerCase()]++;
-                                                }
+                                            if (m.to) {
+                                                parts = m.to[0].match(/([^<]+)\s?<([^>]+)>/);
+                                                if (parts) {
+                                                    let name = parts[1];
+                                                    if (!names.map[name.toLowerCase()]) {
+                                                        names.map[name.toLowerCase()] = 1;
+                                                    } else {
+                                                        names.map[name.toLowerCase()]++;
+                                                    }
 
-                                                if (names.map[name.toLowerCase()] > names.count) {
-                                                    names.count = names.map[name.toLowerCase()];
-                                                    names.top = name;
+                                                    if (names.map[name.toLowerCase()] > names.count) {
+                                                        names.count = names.map[name.toLowerCase()];
+                                                        names.top = name;
+                                                    }
                                                 }
                                             }
-
                                             searchresults.results.splice(0,0,m);
                                         })
                                     });
@@ -142,13 +141,13 @@ export default function (sessions) {
                                     });
 
                                     f.once('end', () => {
-                                        debug.debug('once(end)');
-                                        debug.debug(searchresults);
                                         imap.end();
 
                                         let data = {
-                                            name: names.top,
                                             country
+                                        }
+                                        if (names.count > 0) {
+                                            data.name = names.top
                                         }
 
                                         sessions.update({ user, data });
@@ -156,6 +155,21 @@ export default function (sessions) {
                                     });
                                 });
                             });
+                        })
+                    }
+
+                    function del(uid) {
+                        return new Promise(resolve=>{
+                            imap.addFlags(uid, ['SEEN', 'DELETED'], err=>{
+                                imap.end();
+                                
+                                let out = {
+                                    success: (!err)
+                                }
+                                if (err) out.error = err?.message || err
+                                
+                                resolve(out);
+                            })
                         })
                     }
 
@@ -173,6 +187,7 @@ export default function (sessions) {
                                 f.on('message', msg => {
                                     msg.on('body', async function(stream, info) {
                                         let email = await simpleParser(stream, { skipHtmlToText: true });
+                                        imap.end();
                                         resolve({ html: email.html || email.textAsHtml })
                                     })
                                 });
@@ -194,17 +209,16 @@ export default function (sessions) {
                             port,
                             tls: port > 900
                         };
-                        debug.debug(imapConfig);
 
                         imap = new Imap(imapConfig);
                         imap.once('ready', () => {
-                            debug.debug("ready("+user+")");
-                            sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
+                            if (!sessions[user]) sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
                             debug.log("session created:", user);
 
                             resolve({
                                 success: true,
                                 search,
+                                delete: del,
                                 body
                             })
                         });
@@ -221,7 +235,8 @@ export default function (sessions) {
             }
         },
         EXCLUDE: [
-            "21cn.com"
+            "21cn.com",
+            "189.cn"
         ]
     }
 }
