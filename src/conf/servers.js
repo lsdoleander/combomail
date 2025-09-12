@@ -263,18 +263,7 @@ export default {
 	"52you.online": [ "imap.52you.online", 143 ],
 	"52you.vip": [ "mail.52you.vip", 143 ],
 	"53.com": [ "imap.53.com", 993 ],
-<<<<<<< HEAD
-	"55su.bg": [ "imap.55su.bg", 993 ],
-	"5652xyscxy.vip": [ "imap.5652xyscxy.vip", 993 ],
 	"574.so8ojd.top": [ "imap.574.so8ojd.top", 993 ],
-=======
-	"5379.xfxefw85.cc": [ "imap.5379.xfxefw85.cc", 993 ],
-	"5492.xfxefw85.cc": [ "imap.5492.xfxefw85.cc", 993 ],
-	"55su.bg": [ "imap.55su.bg", 993 ],
-	"5652xyscxy.vip": [ "imap.5652xyscxy.vip", 993 ],
-	"574.so8ojd.top": [ "imap.574.so8ojd.top", 993 ],
-	"585949.wybbq.club": [ "imap.585949.wybbq.club", 993 ],
->>>>>>> c6879579df52106e87b63214c2bd90db3181292f
 	"58dbldlb.site": [ "mail.58dbldlb.site", 993 ],
 	"5elife.com": [ "imap.5elife.com", 993 ],
 	"5email.net": [ "imap.5email.net", 993 ],
@@ -287,17 +276,7 @@ export default {
 	"5x2.de": [ "mail.5x2.de", 143 ],
 	"60.ru": [ "imap.60.ru", 993 ],
 	"63.pymail.vip": [ "imap.63.pymail.vip", 993 ],
-<<<<<<< HEAD
 	"681affaridimmobili.it": [ "imap.681affaridimmobili.it", 993 ],
-=======
-	"6744.77mail.cc": [ "imap.6744.77mail.cc", 993 ],
-	"681affaridimmobili.it": [ "imap.681affaridimmobili.it", 993 ],
-	"6827.xfxefw85.cc": [ "imap.6827.xfxefw85.cc", 993 ],
-	"6910.xfxefw85.cc": [ "imap.6910.xfxefw85.cc", 993 ],
-	"6912.xfxefw85.cc": [ "imap.6912.xfxefw85.cc", 993 ],
-	"6917.xfxefw85.cc": [ "imap.6917.xfxefw85.cc", 993 ],
-	"6944.xfxefw85.cc": [ "imap.6944.xfxefw85.cc", 993 ],
->>>>>>> c6879579df52106e87b63214c2bd90db3181292f
 	"6nns09jw.bee.pl": [ "imap.bee.pl", 993 ],
 	"7-11.com": [ "7-11.com", 993 ],
 	"7-starsagency.com": [ "imap.7-starsagency.com", 993 ],
@@ -329,16 +308,7 @@ export default {
 	"8com.de": [ "mail.8com.de", 993 ],
 	"9-muse.com": [ "mail.9-muse.com", 993 ],
 	"900.srl": [ "mail.900.srl", 993 ],
-<<<<<<< HEAD
-	"93.ru": [ "imap.93.ru", 993 ],
 	"955929.cn": [ "955929.cn", 993 ],
-=======
-	"924243.wybbq.club": [ "imap.924243.wybbq.club", 993 ],
-	"928682.wybbq.club": [ "imap.928682.wybbq.club", 993 ],
-	"93.ru": [ "imap.93.ru", 993 ],
-	"955929.cn": [ "955929.cn", 993 ],
-	"959649.wybbq.club": [ "imap.959649.wybbq.club", 993 ],
->>>>>>> c6879579df52106e87b63214c2bd90db3181292f
 	"99.com": [ "imap.99.com", 993 ],
 	"990.com": [ "990.com", 993 ],
 	"9business.fr": [ "imap.9business.fr", 993 ],
