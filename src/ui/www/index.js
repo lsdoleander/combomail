@@ -226,7 +226,7 @@ $(()=>{
 		let $countries = $("<optgroup label=\"Countries\"></optgroup>");
 		let $continents = $("<optgroup label=\"Continents\"></optgroup>");
 		for (let c of message.countries) {
-			if (["eu", "africa"].contains(c.value))
+			if (["eu", "africa"].includes(c.value))
 			$continents.append(`<option value="${c.value}">${c.name}</option>`)
 			else
 			$countries.append(`<option value="${c.value}">${c.name}</option>`)
