@@ -53,17 +53,18 @@ function loadsessions(){
 
 function loadcountries() {
 	let c = datasource.session.countries();
-	const map = domainiac.countryNames();
+	const map = {
+		...domainiac.countryNames(),
+		africa: "Africa (only e@d[.africa])"
+	}
 	
 	for (let i = 0; i < c.length; i++) {
 		c[i].name = map[c[i].value];
 	}
-
 	c.sort(function(a,b){
 		if (a.name < b.name) return -1 
-		else return 1
+			else return 1
 	})
-
 	return c;
 }
 
