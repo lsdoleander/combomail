@@ -161,6 +161,7 @@ $(()=>{
 
 		for (let m of message.results) {
 			let em = $(templates.mail);
+			em.attr("data-id", m.id);
 			if (!m.read) {
 				em.find(".row").addClass("unread");
 			} else {
@@ -243,10 +244,8 @@ $(()=>{
 				if (confirm(`Are you sure you want to delete all search results!?`)) {
 					let message = {
 						action: "delete",
-
 						type: "search",
 						scope: "all"
-
 					}
 
 					$("#history").html("");
@@ -444,7 +443,13 @@ $(()=>{
 				comboqueue = undefined;
 			}
 			break;
+		case "deleted":
+			if (message.type === "message" && message.success) {
+				$(`tr[data-id='${message.what}']`).detach();
+			}
+			break;
 		}
+
 	})
 
 	socket.addEventListener("open", function(event){
@@ -466,7 +471,6 @@ $(()=>{
 		}
 	})
 
-
 	$("#term").on("keyup", event => {
 		$("advsearch").val($("#term").val());
 	})
@@ -484,7 +488,6 @@ $(()=>{
 				action: "search",
 				term: searchterm,
 				attachments,
-
 				countries
 			};
 			if (mod !== "*") {

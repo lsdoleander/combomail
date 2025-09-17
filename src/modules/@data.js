@@ -118,7 +118,7 @@ export default (function reload(named){
 				}
 				return combo;
 			}
-
+			
 			function select(){
 				const stmt = db.prepare("SELECT * from sessions");
 				let sessions = stmt.all();

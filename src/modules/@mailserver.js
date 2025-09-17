@@ -58,6 +58,12 @@ function loadcountries() {
 	for (let i = 0; i < c.length; i++) {
 		c[i].name = map[c[i].value];
 	}
+
+	c.sort(function(a,b){
+		if (a.name < b.name) return -1 
+		else return 1
+	})
+
 	return c;
 }
 
@@ -429,13 +435,33 @@ export default {
 	},
 
 	delete({ type, scope, what }) {
-		if (type === "search") {
-			if (scope === "all") {
-				datasource.search.delete({ all: true });
-			} else {
-				datasource.search.delete({ term });
+		return new Promise(async resolve=>{
+			if (type === "search") {
+				if (scope === "all") {
+					datasource.search.delete({ all: true });
+				} else {
+					datasource.search.delete({ term });
+				}
+				resolve({
+					action: "deleted",
+					scope,
+					what
+				})
+			} else if (type === "message") {
+				
+				const domain = user.substr(user.indexOf("@")+1);
+				const server = await select(domain);
+				const api = await server.login(user, pass);
+				let result = await api.delete(what);
+				result = {
+					...result,
+					action: "deleted",
+					scope,
+					what
+				}
+				resolve(result);
 			}
-		} 
+		})()
 	},
 
 	history({ term }) {

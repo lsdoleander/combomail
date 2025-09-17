@@ -17,6 +17,7 @@
     "async": "^3.2.6",
     "better-sqlite3": "^11.10.0",
     "cheerio": "^1.0.0",
+    "commander": "^14.0.1",
     "cors": "^2.8.5",
     "domainiac": "https://github.com/paulwardrip/domainiac.git",
     "express": "^5.1.0",
