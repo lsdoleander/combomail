@@ -223,10 +223,18 @@ $(()=>{
 	function updateCountries(message){
 		let $cl = $("#countrylist");
 		$cl.html("");
+		let $countries = $("<optgroup label=\"Countries\"></optgroup>");
+		let $continents = $("<optgroup label=\"Continents\"></optgroup>");
 		for (let c of message.countries) {
-			$cl.append(`<option value="${c.value}">${c.name}</option>`)
+			if (["eu", "africa"].contains(c.value))
+			$continents.append(`<option value="${c.value}">${c.name}</option>`)
+			else
+			$countries.append(`<option value="${c.value}">${c.name}</option>`)
 		}
+		$cl.append($continents);
+		$cl.append($countries);
 	} 
+
 
 	let historic = 0;
 

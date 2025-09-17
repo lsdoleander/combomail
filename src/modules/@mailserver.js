@@ -55,7 +55,8 @@ function loadcountries() {
 	let c = datasource.session.countries();
 	const map = {
 		...domainiac.countryNames(),
-		africa: "Africa (only e@d[.africa])"
+		africa: "Africa (*matches only* email@dom[.africa])",
+		eu: "Europe (*matches only* email@dom[.eu])"
 	}
 	
 	for (let i = 0; i < c.length; i++) {
