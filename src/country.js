@@ -61,7 +61,7 @@ program.command("country")
 
 program.command("export")
     .option("-d,--db <file>", "which database (default: whichever ui is currently using).")
-    .options("-o,--output <file>", "name the output file.")
+    .option("-o,--output <file>", "name the output file.")
     .action(async (x, options)=>{
 		try {   
 	        if (options.db) datasource.load(options.db)
