@@ -56,8 +56,8 @@ export default (function reload(named){
 
 				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, country, module, session, json) VALUES (@user, @pass, @country, @module, @session, @json)");
 				stmt2.run({
-					json: (typeof session === "object") ? 1 : 0,
-					session: (typeof session === "object") ? JSON.stringify(session) : session,
+					json: 1,
+					session: JSON.stringify(session),
 					module,
 					country,
 					user,
@@ -68,7 +68,7 @@ export default (function reload(named){
 			function update({ user, country, session, data }){
 				const stmt2 = db.prepare(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} ${country?'country=@country':''} WHERE user=@user`);
 				stmt2.run({
-					session: (typeof session === "object") ? JSON.stringify(session) : session,
+					session: JSON.stringify(session),
 					data: data ? JSON.stringify(data) : null,
 					country,
 					user
@@ -88,7 +88,7 @@ export default (function reload(named){
 				let map = {};
 				let userdata = {};
 				for (let s of sessions) {
-					map[s.user] = (s.json === 0) ? s.session : JSON.parse(s.session);
+					map[s.user] = JSON.parse(s.session);
 					if (s.data !== null) userdata[s.user] = JSON.parse(s.data);
 					combo.push(`${s.user}:${s.pass}`)
 				}
