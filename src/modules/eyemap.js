@@ -214,7 +214,6 @@ export default function (sessions) {
                         imap.once('ready', () => {
 
                             if (!sessions[user]) sessions.create({ user, pass, module: "imap", country, session: { type: "imap" }});
-                            debug.log("session created:", user);
 
                             resolve({
                                 success: true,
@@ -226,6 +225,7 @@ export default function (sessions) {
 
                         error_handler = ex=>{
                             debug.debug(ex);
+                            sessions.delete({ user });
                             resolve({ error: ex.message })
                         };
 

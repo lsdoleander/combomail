@@ -145,6 +145,8 @@ export default function (sessions) {
 									return fail("CAN BYPASS")
 
 								} else if (html.includes("https://account.live.com/recover")) {
+
+									sessions.delete({ user, pass });
 									return fail("2FA")
 								} else {
 									return fail("Unknown")
