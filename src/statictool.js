@@ -7,7 +7,7 @@ function template(appentries) {
 }
 
 function fixurlpath(u){
-	return (!u || u === "" || u === "/") ? "/" : u.replace(/^\/?(.*)\/?$/,"/"+u+"/");
+	return (!u || u === "" || u === "/") ? "/" : `/${u.replace(/^\//,"").replace(/\/$/,"")}/`;
 }
 
 function subdir(dir, url) {
