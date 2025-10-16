@@ -11,7 +11,7 @@ $(()=>{
 		}
 	})()
 
-	const socket = new WebSocket("ws://localhost:8675/saki");
+	const socket = new WebSocket("/saki");
 
 	let running = false, shbtn, searchterm, subterm, comboqueue, fadercache = {};
 
