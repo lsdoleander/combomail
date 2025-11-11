@@ -1,5 +1,5 @@
 
-import Database from 'better-sqlite3'
+import Database from 'bun:sqlite'
 import path from 'node:path'
 import fs from 'node:fs'
 import { series } from 'async'
@@ -33,7 +33,7 @@ export default (function reload(named){
 		let create = !fs.existsSync(datafile);
 
 		let data = new Database(datafile);
-		data.pragma('journal_mode = WAL');
+		data.exec('pragma journal_mode = WAL');
 
 		if (create) {
 			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, module TEXT, country TEXT, data TEXT, session TEXT, json INTEGER)");
