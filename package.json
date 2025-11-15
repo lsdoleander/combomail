@@ -34,14 +34,14 @@
     "uuid": "^11.0.2"
   },
   "scripts": {
-    "update": "git pull && yarn install && bun run update-konsole && bun run update-fetching",
+    "update": "git pull && bun install && bun run update-konsole && bun run update-fetching",
     "update-domainiac": "bun add https://github.com/PDUBZ3R0/domainiac.git",
     "update-fetching": "bun add https://github.com/PDUBZ3R0/fetching.git",
     "update-konsole": "bun add https://github.com/PDUBZ3R0/konsole.git",
     "update-mailblazer": "bun add https://github.com/PDUBZ3R0/mailblazer.git",
     "clear": "bun src/datareset.js && rm -rf ~/.local/share/combomail/logs/*",
     "clean": "bun src/build.js",
-    "build": "bun run clean && bun run update && bun run static && bun run rollup && bun run dist",
+    "build": "bun run clean && bun run update && bun run static && bun run rollup",
     "static": "bun src/statictool.js gen/www.js src/ui/www/",
     "rollup": "bun x rollup -c",
     "dist": "bun run win && bun run linux && bun run zip && bun run tar",
