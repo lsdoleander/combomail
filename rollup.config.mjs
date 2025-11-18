@@ -16,6 +16,7 @@ export default {
     alias({
       entries: [
         { find: '../development.js', replacement: '../../gen/www.js' },
+        { find: 'node:sqlite', replacement: 'bun:sqlite' }
       ]
     }),
     replace({
@@ -36,5 +37,5 @@ export default {
       }
     })*/
   ],
-  external: ['better-sqlite3']
+  external: ['bun:sqlite']
 };

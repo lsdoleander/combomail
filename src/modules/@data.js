@@ -32,8 +32,8 @@ export default (function reload(named){
 		let datafile = path.join(dpath, toload+".db");
 		let create = !fs.existsSync(datafile);
 
-		let data = new Database(datafile);
-		data.exec('pragma journal_mode = WAL');
+		let data = new Database(datafile, { strict: true });
+		data.exec('PRAGMA journal_mode = WAL');
 
 		if (create) {
 			data.exec("CREATE TABLE sessions (user TEXT, pass TEXT, module TEXT, country TEXT, data TEXT, session TEXT, json INTEGER)");
@@ -54,7 +54,7 @@ export default (function reload(named){
 			function create({ user, pass, country, module, session }){
 				del({ user })
 
-				const stmt2 = db.prepare("INSERT INTO sessions (user, pass, country, module, session, json) VALUES (@user, @pass, @country, @module, @session, @json)");
+				const stmt2 = db.query("INSERT INTO sessions (user, pass, country, module, session, json) VALUES (@user, @pass, @country, @module, @session, @json)");
 				stmt2.run({
 					json: 1,
 					session: JSON.stringify(session),
@@ -66,7 +66,7 @@ export default (function reload(named){
 			}
 
 			function update({ user, country, session, data }){
-				const stmt2 = db.prepare(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} ${country?'country=@country':''} WHERE user=@user`);
+				const stmt2 = db.query(`UPDATE sessions SET ${session?'session=@session':''} ${data?'data=@data':''} ${country?'country=@country':''} WHERE user=@user`);
 				stmt2.run({
 					session: JSON.stringify(session),
 					data: data ? JSON.stringify(data) : null,
@@ -76,13 +76,13 @@ export default (function reload(named){
 			}
 
 			function userdata({ user }) {
-				const stmt = db.prepare("SELECT data FROM sessions WHERE user = ?");
+				const stmt = db.query("SELECT data FROM sessions WHERE user = ?");
 				let data = stmt.get({ user });
 				return data.data;
 			}
 
 			function load(){
-				const stmt = db.prepare("SELECT * from sessions");
+				const stmt = db.query("SELECT * from sessions");
 				let sessions = stmt.all();
 				let combo = [];
 				let map = {};
@@ -110,7 +110,7 @@ export default (function reload(named){
 					sql += `country IN (${format.join(", ")})`
 				}
 				debug.debug(sql);
-				const stmt = db.prepare(sql);
+				const stmt = db.query(sql);
 				let sessions = stmt.all();
 				let combo = [];
 				for (let s of sessions) {
@@ -120,25 +120,25 @@ export default (function reload(named){
 			}
 			
 			function select(){
-				const stmt = db.prepare("SELECT * from sessions");
+				const stmt = db.query("SELECT * from sessions");
 				let sessions = stmt.all();
 				return sessions;
 			}
 
 			function nocountry() {
-				const stmt = db.prepare("SELECT * from sessions where country is null");
+				const stmt = db.query("SELECT * from sessions where country is null");
 				let sessions = stmt.all();
 				return sessions;
 			}
 
 			function countries() {
-				const stmt = db.prepare("SELECT country as value FROM sessions GROUP BY country ORDER BY country")
+				const stmt = db.query("SELECT country as value FROM sessions GROUP BY country ORDER BY country")
 				let countries = stmt.all();
 				return countries;
 			}
 
 			function del({ user }){
-				const stmt = db.prepare("DELETE FROM sessions WHERE user = @user");
+				const stmt = db.query("DELETE FROM sessions WHERE user = @user");
 				stmt.run({ user });
 			}
 
@@ -147,7 +147,7 @@ export default (function reload(named){
 
 		combo: {
 			create(pending) {
-				const stmt = db.prepare("INSERT INTO combo (id, timestamp, pending, complete) VALUES (@id, @timestamp, @pending, 0)");
+				const stmt = db.query("INSERT INTO combo (id, timestamp, pending, complete) VALUES (@id, @timestamp, @pending, 0)");
 				let id = v4();
 				stmt.run({
 					id,
@@ -158,7 +158,7 @@ export default (function reload(named){
 			},
 
 			update(id,pending) {
-				const stmt = db.prepare("UPDATE combo SET pending=@pending, complete=@complete WHERE id=@id");
+				const stmt = db.query("UPDATE combo SET pending=@pending, complete=@complete WHERE id=@id");
 				stmt.run({
 					id,
 					pending: JSON.stringify(pending),
@@ -167,12 +167,12 @@ export default (function reload(named){
 			},
 
 			delete(id) {
-				const stmt = db.prepare("DELETE FROM combo WHERE id=@id");
+				const stmt = db.query("DELETE FROM combo WHERE id=@id");
 				stmt.run({ id })
 			},
 
 			incomplete(){
-				const stmt = db.prepare("SELECT id, pending FROM combo WHERE complete=0 ORDER BY timestamp DESC")
+				const stmt = db.query("SELECT id, pending FROM combo WHERE complete=0 ORDER BY timestamp DESC")
 				return stmt.get();
 			}
 		},
@@ -183,11 +183,11 @@ export default (function reload(named){
 				let sql = "DELETE FROM search";
 				if (term) {
 					sql += " WHERE term=@term";
-					const stmt = db.prepare(sql);
+					const stmt = db.query(sql);
 					stmt.run({ term })
 
 				} else if (all === true) {
-					const stmt = db.prepare(sql);
+					const stmt = db.query(sql);
 					stmt.run()
 				}
 			}
@@ -196,7 +196,7 @@ export default (function reload(named){
 				create(term, hits, pending) {
 					
 					function insert(){
-						const stmt = db.prepare("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
+						const stmt = db.query("INSERT INTO search (id, timestamp, term, hits, pending, complete) VALUES (@id, @timestamp, @term, @hits, @pending, 0)");
 						let id = v4();
 						stmt.run({
 							id,
@@ -213,7 +213,7 @@ export default (function reload(named){
 				},
 
 				update(id, hits, pending) {
-					const stmt = db.prepare("UPDATE search SET hits=@hits, pending=@pending, complete=@complete WHERE id=@id");
+					const stmt = db.query("UPDATE search SET hits=@hits, pending=@pending, complete=@complete WHERE id=@id");
 					stmt.run({
 						id,
 						hits: JSON.stringify(hits),
@@ -223,17 +223,17 @@ export default (function reload(named){
 				},
 
 				load(term) {
-					const stmt = db.prepare("SELECT hits FROM search WHERE term=@term ORDER BY timestamp DESC")
+					const stmt = db.query("SELECT hits FROM search WHERE term=@term ORDER BY timestamp DESC")
 					return stmt.get({ term });
 				},
 
 				list() {
-					const stmt = db.prepare("SELECT id, term, timestamp FROM search ORDER BY timestamp DESC")
+					const stmt = db.query("SELECT id, term, timestamp FROM search ORDER BY timestamp DESC")
 					return stmt.all();
 				},
 
 				incomplete(){
-					const stmt = db.prepare("SELECT id, term, hits, pending FROM search WHERE complete=0 ORDER BY timestamp DESC")
+					const stmt = db.query("SELECT id, term, hits, pending FROM search WHERE complete=0 ORDER BY timestamp DESC")
 					return stmt.get();
 				},
 
